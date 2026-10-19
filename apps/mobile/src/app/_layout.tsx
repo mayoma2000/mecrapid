@@ -1,4 +1,4 @@
-import '../../../global.css'
+import '../../global.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Slot, useRouter, useSegments } from 'expo-router'
 import { useEffect } from 'react'
