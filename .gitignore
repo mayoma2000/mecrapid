@@ -11,3 +11,4 @@ dist/
 ios/
 android/
 .neon
+.vercel
