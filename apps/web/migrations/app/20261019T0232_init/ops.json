@@ -1,0 +1,1228 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.Appointment",
+    "label": "Create table \"Appointment\"",
+    "summary": "Creates table \"Appointment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Appointment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Appointment\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Appointment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Appointment\"",
+        "sql": "CREATE TABLE \"public\".\"Appointment\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"customerId\" text NOT NULL,\n  \"duration\" int4 DEFAULT 60 NOT NULL,\n  \"id\" text NOT NULL,\n  \"notes\" text,\n  \"scheduledAt\" timestamptz NOT NULL,\n  \"serviceType\" text NOT NULL,\n  \"status\" text DEFAULT 'scheduled' NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"vehicleId\" text,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Appointment_status_check_da016018\" CHECK (\"status\" IN ('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Appointment\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Appointment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Customer",
+    "label": "Create table \"Customer\"",
+    "summary": "Creates table \"Customer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Customer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Customer\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Customer\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Customer\"",
+        "sql": "CREATE TABLE \"public\".\"Customer\" (\n  \"address\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"notes\" text,\n  \"phone\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Customer\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Customer\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.PartLineItem",
+    "label": "Create table \"PartLineItem\"",
+    "summary": "Creates table \"PartLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "PartLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PartLineItem\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PartLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PartLineItem\"",
+        "sql": "CREATE TABLE \"public\".\"PartLineItem\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"quantity\" int4 DEFAULT 1 NOT NULL,\n  \"sparePartId\" text,\n  \"totalPrice\" float8 DEFAULT 0 NOT NULL,\n  \"unitPrice\" float8 DEFAULT 0 NOT NULL,\n  \"workOrderId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PartLineItem\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PartLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.ServiceLineItem",
+    "label": "Create table \"ServiceLineItem\"",
+    "summary": "Creates table \"ServiceLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ServiceLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ServiceLineItem\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ServiceLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ServiceLineItem\"",
+        "sql": "CREATE TABLE \"public\".\"ServiceLineItem\" (\n  \"cost\" float8 DEFAULT 0 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"workOrderId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ServiceLineItem\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ServiceLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.SparePart",
+    "label": "Create table \"SparePart\"",
+    "summary": "Creates table \"SparePart\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "SparePart"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"SparePart\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SparePart\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"SparePart\"",
+        "sql": "CREATE TABLE \"public\".\"SparePart\" (\n  \"category\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"id\" text NOT NULL,\n  \"location\" text,\n  \"minimumStock\" int4 DEFAULT 5 NOT NULL,\n  \"name\" text NOT NULL,\n  \"partNumber\" text NOT NULL,\n  \"purchasePrice\" float8 DEFAULT 0 NOT NULL,\n  \"quantity\" int4 DEFAULT 0 NOT NULL,\n  \"sellingPrice\" float8 DEFAULT 0 NOT NULL,\n  \"supplier\" text,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"SparePart\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SparePart\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.User",
+    "label": "Create table \"User\"",
+    "summary": "Creates table \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"User\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"User\"",
+        "sql": "CREATE TABLE \"public\".\"User\" (\n  \"clerkId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"phone\" text,\n  \"role\" text DEFAULT 'receptionist' NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"User_role_check_06cea4f0\" CHECK (\"role\" IN ('admin', 'mechanic', 'receptionist'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"User\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Vehicle",
+    "label": "Create table \"Vehicle\"",
+    "summary": "Creates table \"Vehicle\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Vehicle"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Vehicle\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vehicle\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Vehicle\"",
+        "sql": "CREATE TABLE \"public\".\"Vehicle\" (\n  \"color\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"customerId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"licensePlate\" text NOT NULL,\n  \"make\" text NOT NULL,\n  \"mileage\" int4 DEFAULT 0 NOT NULL,\n  \"model\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"vin\" text,\n  \"year\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Vehicle\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vehicle\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.WorkOrder",
+    "label": "Create table \"WorkOrder\"",
+    "summary": "Creates table \"WorkOrder\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "WorkOrder"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"WorkOrder\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkOrder\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"WorkOrder\"",
+        "sql": "CREATE TABLE \"public\".\"WorkOrder\" (\n  \"actualCost\" float8,\n  \"complaint\" text NOT NULL,\n  \"completedAt\" timestamptz,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"customerId\" text NOT NULL,\n  \"diagnosis\" text,\n  \"estimatedCost\" float8,\n  \"id\" text NOT NULL,\n  \"mechanicId\" text,\n  \"notes\" text,\n  \"status\" text DEFAULT 'pending' NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"vehicleId\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"WorkOrder_status_check_18c95b97\" CHECK (\"status\" IN ('pending', 'assigned', 'in_progress', 'quality_check', 'completed', 'cancelled'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"WorkOrder\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkOrder\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.SparePart.SparePart_partNumber_key",
+    "label": "Add unique constraint on \"SparePart\" (partNumber)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "SparePart_partNumber_key",
+        "table": "SparePart"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"SparePart_partNumber_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SparePart_partNumber_key",
+          "public",
+          "\"public\".\"SparePart\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"SparePart_partNumber_key\"",
+        "sql": "ALTER TABLE \"public\".\"SparePart\" ADD CONSTRAINT \"SparePart_partNumber_key\" UNIQUE (\"partNumber\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"SparePart_partNumber_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SparePart_partNumber_key",
+          "public",
+          "\"public\".\"SparePart\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.User.User_clerkId_key",
+    "label": "Add unique constraint on \"User\" (clerkId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "User_clerkId_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_clerkId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_clerkId_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"User_clerkId_key\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_clerkId_key\" UNIQUE (\"clerkId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"User_clerkId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_clerkId_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.User.User_email_key",
+    "label": "Add unique constraint on \"User\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "User_email_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_email_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"User_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"User_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_email_key",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Vehicle.Vehicle_licensePlate_key",
+    "label": "Add unique constraint on \"Vehicle\" (licensePlate)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Vehicle_licensePlate_key",
+        "table": "Vehicle"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Vehicle_licensePlate_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Vehicle_licensePlate_key",
+          "public",
+          "\"public\".\"Vehicle\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Vehicle_licensePlate_key\"",
+        "sql": "ALTER TABLE \"public\".\"Vehicle\" ADD CONSTRAINT \"Vehicle_licensePlate_key\" UNIQUE (\"licensePlate\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Vehicle_licensePlate_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Vehicle_licensePlate_key",
+          "public",
+          "\"public\".\"Vehicle\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Appointment.Appointment_customerId_idx_b2a8a46c",
+    "label": "Create index \"Appointment_customerId_idx_b2a8a46c\" on \"Appointment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Appointment_customerId_idx_b2a8a46c",
+        "table": "Appointment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Appointment_customerId_idx_b2a8a46c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Appointment_customerId_idx_b2a8a46c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Appointment_customerId_idx_b2a8a46c\"",
+        "sql": "CREATE INDEX \"Appointment_customerId_idx_b2a8a46c\" ON \"public\".\"Appointment\" (\"customerId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Appointment_customerId_idx_b2a8a46c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Appointment_customerId_idx_b2a8a46c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Appointment.Appointment_vehicleId_idx_e2df58fc",
+    "label": "Create index \"Appointment_vehicleId_idx_e2df58fc\" on \"Appointment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Appointment_vehicleId_idx_e2df58fc",
+        "table": "Appointment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Appointment_vehicleId_idx_e2df58fc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Appointment_vehicleId_idx_e2df58fc\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Appointment_vehicleId_idx_e2df58fc\"",
+        "sql": "CREATE INDEX \"Appointment_vehicleId_idx_e2df58fc\" ON \"public\".\"Appointment\" (\"vehicleId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Appointment_vehicleId_idx_e2df58fc\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Appointment_vehicleId_idx_e2df58fc\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.PartLineItem.PartLineItem_sparePartId_idx_5330e868",
+    "label": "Create index \"PartLineItem_sparePartId_idx_5330e868\" on \"PartLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PartLineItem_sparePartId_idx_5330e868",
+        "table": "PartLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PartLineItem_sparePartId_idx_5330e868\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PartLineItem_sparePartId_idx_5330e868\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PartLineItem_sparePartId_idx_5330e868\"",
+        "sql": "CREATE INDEX \"PartLineItem_sparePartId_idx_5330e868\" ON \"public\".\"PartLineItem\" (\"sparePartId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PartLineItem_sparePartId_idx_5330e868\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PartLineItem_sparePartId_idx_5330e868\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.PartLineItem.PartLineItem_workOrderId_idx_136dd311",
+    "label": "Create index \"PartLineItem_workOrderId_idx_136dd311\" on \"PartLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PartLineItem_workOrderId_idx_136dd311",
+        "table": "PartLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PartLineItem_workOrderId_idx_136dd311\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PartLineItem_workOrderId_idx_136dd311\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PartLineItem_workOrderId_idx_136dd311\"",
+        "sql": "CREATE INDEX \"PartLineItem_workOrderId_idx_136dd311\" ON \"public\".\"PartLineItem\" (\"workOrderId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PartLineItem_workOrderId_idx_136dd311\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PartLineItem_workOrderId_idx_136dd311\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ServiceLineItem.ServiceLineItem_workOrderId_idx_136dd311",
+    "label": "Create index \"ServiceLineItem_workOrderId_idx_136dd311\" on \"ServiceLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ServiceLineItem_workOrderId_idx_136dd311",
+        "table": "ServiceLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ServiceLineItem_workOrderId_idx_136dd311\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ServiceLineItem_workOrderId_idx_136dd311\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ServiceLineItem_workOrderId_idx_136dd311\"",
+        "sql": "CREATE INDEX \"ServiceLineItem_workOrderId_idx_136dd311\" ON \"public\".\"ServiceLineItem\" (\"workOrderId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ServiceLineItem_workOrderId_idx_136dd311\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ServiceLineItem_workOrderId_idx_136dd311\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Vehicle.Vehicle_customerId_idx_b2a8a46c",
+    "label": "Create index \"Vehicle_customerId_idx_b2a8a46c\" on \"Vehicle\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Vehicle_customerId_idx_b2a8a46c",
+        "table": "Vehicle"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Vehicle_customerId_idx_b2a8a46c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vehicle_customerId_idx_b2a8a46c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Vehicle_customerId_idx_b2a8a46c\"",
+        "sql": "CREATE INDEX \"Vehicle_customerId_idx_b2a8a46c\" ON \"public\".\"Vehicle\" (\"customerId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Vehicle_customerId_idx_b2a8a46c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vehicle_customerId_idx_b2a8a46c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WorkOrder.WorkOrder_customerId_idx_b2a8a46c",
+    "label": "Create index \"WorkOrder_customerId_idx_b2a8a46c\" on \"WorkOrder\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WorkOrder_customerId_idx_b2a8a46c",
+        "table": "WorkOrder"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WorkOrder_customerId_idx_b2a8a46c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkOrder_customerId_idx_b2a8a46c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WorkOrder_customerId_idx_b2a8a46c\"",
+        "sql": "CREATE INDEX \"WorkOrder_customerId_idx_b2a8a46c\" ON \"public\".\"WorkOrder\" (\"customerId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WorkOrder_customerId_idx_b2a8a46c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkOrder_customerId_idx_b2a8a46c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WorkOrder.WorkOrder_mechanicId_idx_30292d1f",
+    "label": "Create index \"WorkOrder_mechanicId_idx_30292d1f\" on \"WorkOrder\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WorkOrder_mechanicId_idx_30292d1f",
+        "table": "WorkOrder"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WorkOrder_mechanicId_idx_30292d1f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkOrder_mechanicId_idx_30292d1f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WorkOrder_mechanicId_idx_30292d1f\"",
+        "sql": "CREATE INDEX \"WorkOrder_mechanicId_idx_30292d1f\" ON \"public\".\"WorkOrder\" (\"mechanicId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WorkOrder_mechanicId_idx_30292d1f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkOrder_mechanicId_idx_30292d1f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WorkOrder.WorkOrder_vehicleId_idx_e2df58fc",
+    "label": "Create index \"WorkOrder_vehicleId_idx_e2df58fc\" on \"WorkOrder\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WorkOrder_vehicleId_idx_e2df58fc",
+        "table": "WorkOrder"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WorkOrder_vehicleId_idx_e2df58fc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkOrder_vehicleId_idx_e2df58fc\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WorkOrder_vehicleId_idx_e2df58fc\"",
+        "sql": "CREATE INDEX \"WorkOrder_vehicleId_idx_e2df58fc\" ON \"public\".\"WorkOrder\" (\"vehicleId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WorkOrder_vehicleId_idx_e2df58fc\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkOrder_vehicleId_idx_e2df58fc\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Appointment.Appointment_customerId_fkey",
+    "label": "Add foreign key \"Appointment_customerId_fkey\" on \"Appointment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Appointment_customerId_fkey",
+        "table": "Appointment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Appointment_customerId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Appointment_customerId_fkey",
+          "public",
+          "\"public\".\"Appointment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Appointment_customerId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Appointment\"\nADD CONSTRAINT \"Appointment_customerId_fkey\"\nFOREIGN KEY (\"customerId\")\nREFERENCES \"public\".\"Customer\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Appointment_customerId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Appointment_customerId_fkey",
+          "public",
+          "\"public\".\"Appointment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Appointment.Appointment_vehicleId_fkey",
+    "label": "Add foreign key \"Appointment_vehicleId_fkey\" on \"Appointment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Appointment_vehicleId_fkey",
+        "table": "Appointment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Appointment_vehicleId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Appointment_vehicleId_fkey",
+          "public",
+          "\"public\".\"Appointment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Appointment_vehicleId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Appointment\"\nADD CONSTRAINT \"Appointment_vehicleId_fkey\"\nFOREIGN KEY (\"vehicleId\")\nREFERENCES \"public\".\"Vehicle\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Appointment_vehicleId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Appointment_vehicleId_fkey",
+          "public",
+          "\"public\".\"Appointment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.PartLineItem.PartLineItem_workOrderId_fkey",
+    "label": "Add foreign key \"PartLineItem_workOrderId_fkey\" on \"PartLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "PartLineItem_workOrderId_fkey",
+        "table": "PartLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"PartLineItem_workOrderId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PartLineItem_workOrderId_fkey",
+          "public",
+          "\"public\".\"PartLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"PartLineItem_workOrderId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"PartLineItem\"\nADD CONSTRAINT \"PartLineItem_workOrderId_fkey\"\nFOREIGN KEY (\"workOrderId\")\nREFERENCES \"public\".\"WorkOrder\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"PartLineItem_workOrderId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PartLineItem_workOrderId_fkey",
+          "public",
+          "\"public\".\"PartLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.PartLineItem.PartLineItem_sparePartId_fkey",
+    "label": "Add foreign key \"PartLineItem_sparePartId_fkey\" on \"PartLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "PartLineItem_sparePartId_fkey",
+        "table": "PartLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"PartLineItem_sparePartId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PartLineItem_sparePartId_fkey",
+          "public",
+          "\"public\".\"PartLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"PartLineItem_sparePartId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"PartLineItem\"\nADD CONSTRAINT \"PartLineItem_sparePartId_fkey\"\nFOREIGN KEY (\"sparePartId\")\nREFERENCES \"public\".\"SparePart\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"PartLineItem_sparePartId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PartLineItem_sparePartId_fkey",
+          "public",
+          "\"public\".\"PartLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ServiceLineItem.ServiceLineItem_workOrderId_fkey",
+    "label": "Add foreign key \"ServiceLineItem_workOrderId_fkey\" on \"ServiceLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ServiceLineItem_workOrderId_fkey",
+        "table": "ServiceLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ServiceLineItem_workOrderId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ServiceLineItem_workOrderId_fkey",
+          "public",
+          "\"public\".\"ServiceLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ServiceLineItem_workOrderId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ServiceLineItem\"\nADD CONSTRAINT \"ServiceLineItem_workOrderId_fkey\"\nFOREIGN KEY (\"workOrderId\")\nREFERENCES \"public\".\"WorkOrder\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ServiceLineItem_workOrderId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ServiceLineItem_workOrderId_fkey",
+          "public",
+          "\"public\".\"ServiceLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Vehicle.Vehicle_customerId_fkey",
+    "label": "Add foreign key \"Vehicle_customerId_fkey\" on \"Vehicle\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Vehicle_customerId_fkey",
+        "table": "Vehicle"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Vehicle_customerId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Vehicle_customerId_fkey",
+          "public",
+          "\"public\".\"Vehicle\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Vehicle_customerId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Vehicle\"\nADD CONSTRAINT \"Vehicle_customerId_fkey\"\nFOREIGN KEY (\"customerId\")\nREFERENCES \"public\".\"Customer\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Vehicle_customerId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Vehicle_customerId_fkey",
+          "public",
+          "\"public\".\"Vehicle\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.WorkOrder.WorkOrder_customerId_fkey",
+    "label": "Add foreign key \"WorkOrder_customerId_fkey\" on \"WorkOrder\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "WorkOrder_customerId_fkey",
+        "table": "WorkOrder"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"WorkOrder_customerId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkOrder_customerId_fkey",
+          "public",
+          "\"public\".\"WorkOrder\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"WorkOrder_customerId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"WorkOrder\"\nADD CONSTRAINT \"WorkOrder_customerId_fkey\"\nFOREIGN KEY (\"customerId\")\nREFERENCES \"public\".\"Customer\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"WorkOrder_customerId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkOrder_customerId_fkey",
+          "public",
+          "\"public\".\"WorkOrder\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.WorkOrder.WorkOrder_vehicleId_fkey",
+    "label": "Add foreign key \"WorkOrder_vehicleId_fkey\" on \"WorkOrder\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "WorkOrder_vehicleId_fkey",
+        "table": "WorkOrder"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"WorkOrder_vehicleId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkOrder_vehicleId_fkey",
+          "public",
+          "\"public\".\"WorkOrder\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"WorkOrder_vehicleId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"WorkOrder\"\nADD CONSTRAINT \"WorkOrder_vehicleId_fkey\"\nFOREIGN KEY (\"vehicleId\")\nREFERENCES \"public\".\"Vehicle\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"WorkOrder_vehicleId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkOrder_vehicleId_fkey",
+          "public",
+          "\"public\".\"WorkOrder\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.WorkOrder.WorkOrder_mechanicId_fkey",
+    "label": "Add foreign key \"WorkOrder_mechanicId_fkey\" on \"WorkOrder\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "WorkOrder_mechanicId_fkey",
+        "table": "WorkOrder"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"WorkOrder_mechanicId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkOrder_mechanicId_fkey",
+          "public",
+          "\"public\".\"WorkOrder\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"WorkOrder_mechanicId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"WorkOrder\"\nADD CONSTRAINT \"WorkOrder_mechanicId_fkey\"\nFOREIGN KEY (\"mechanicId\")\nREFERENCES \"public\".\"User\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"WorkOrder_mechanicId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkOrder_mechanicId_fkey",
+          "public",
+          "\"public\".\"WorkOrder\""
+        ]
+      }
+    ]
+  }
+]
