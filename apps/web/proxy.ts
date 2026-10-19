@@ -3,7 +3,7 @@ import { auth } from '@/src/lib/auth'
 
 const PUBLIC_PREFIXES = ['/sign-in', '/sign-up', '/api/auth', '/api/v1']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
