@@ -5,3 +5,4 @@ node_modules
 .expo
 **/.expo
 apps/mobile
+**/package-lock.json
