@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import { db } from '@/src/prisma/db'
 
 export const instant = false
@@ -6,6 +7,7 @@ type AppointmentStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed'
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 
 export default async function DashboardPage() {
+  await connection()
 
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)

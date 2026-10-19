@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -6,6 +7,7 @@ import { SidebarNav } from './sidebar-nav'
 export const instant = false
 
 export default async function BackofficeLayout({ children }: { children: React.ReactNode }) {
+  await connection()
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) redirect('/sign-in')
 
