@@ -10,7 +10,11 @@ export const auth = betterAuth({
   plugins: [expo()],
   trustedOrigins: [
     process.env['BETTER_AUTH_URL'] ?? 'http://localhost:3000',
+    ...(process.env['VERCEL_URL'] ? [`https://${process.env['VERCEL_URL']}`] : []),
+    ...(process.env['VERCEL_BRANCH_URL'] ? [`https://${process.env['VERCEL_BRANCH_URL']}`] : []),
     'mecrapid://',
+    'null',       // React Native sends Origin: null from native context
+    'exp://',     // Expo Go dev client origin
   ],
 })
 

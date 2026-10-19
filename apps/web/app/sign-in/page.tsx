@@ -16,15 +16,20 @@ export default function SignInPage() {
     setError('')
     setLoading(true)
 
-    const { error: err } = await signIn.email({ email, password })
+    try {
+      const { error: err } = await signIn.email({ email, password })
 
-    if (err) {
-      setError(err.message ?? 'Error al iniciar sesión')
+      if (err) {
+        setError(err.message ?? 'Error al iniciar sesión')
+        setLoading(false)
+        return
+      }
+
+      router.push('/dashboard')
+    } catch {
+      setError('Error de red. Intentá de nuevo.')
       setLoading(false)
-      return
     }
-
-    router.push('/dashboard')
   }
 
   return (

@@ -1,13 +1,11 @@
 import { Tabs } from 'expo-router'
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 
-function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focused: boolean }) {
+function TabIcon({ icon, label, focused }: { icon: string; label: string; focused: boolean }) {
   return (
-    <View className="items-center justify-center pt-1">
-      <Text style={{ fontSize: 20 }}>{emoji}</Text>
-      <Text className={`text-xs mt-0.5 ${focused ? 'text-blue-600 font-semibold' : 'text-neutral-400'}`}>
-        {label}
-      </Text>
+    <View style={[styles.tabItem, focused && styles.tabItemActive]}>
+      <Text style={{ fontSize: 18 }}>{icon}</Text>
+      <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
     </View>
   )
 }
@@ -17,39 +15,69 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          height: 72,
-          paddingBottom: 8,
-          borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
-        },
+        tabBarStyle: styles.tabBar,
         tabBarShowLabel: false,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📊" label="Tablero" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon="📊" label="Tablero" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="orders"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🔧" label="Órdenes" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon="🔧" label="Órdenes" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="appointments"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📅" label="Citas" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon="📅" label="Citas" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="customers"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="👤" label="Clientes" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon icon="👤" label="Clientes" focused={focused} />,
         }}
       />
     </Tabs>
   )
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    height: 78,
+    paddingBottom: 10,
+    paddingTop: 6,
+    backgroundColor: '#fff',
+    borderTopWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 16,
+  },
+  tabItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  tabItemActive: {
+    backgroundColor: '#EEF0FD',
+  },
+  tabLabel: {
+    fontSize: 10,
+    marginTop: 3,
+    color: '#8898AA',
+    fontWeight: '600',
+  },
+  tabLabelActive: {
+    color: '#5E72E4',
+    fontWeight: '700',
+  },
+})
