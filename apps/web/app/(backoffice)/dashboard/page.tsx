@@ -1,4 +1,5 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/src/lib/auth'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { db } from '@/src/prisma/db'
 
@@ -6,8 +7,8 @@ type AppointmentStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed'
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 
 export default async function DashboardPage() {
-  const { userId } = await auth()
-  if (!userId) redirect('/sign-in')
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) redirect('/sign-in')
 
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)

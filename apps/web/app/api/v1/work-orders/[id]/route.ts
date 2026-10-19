@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server'
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 
@@ -15,8 +14,6 @@ const STATUS_TRANSITIONS: Record<WorkOrderStatus, WorkOrderStatus[]> = {
 }
 
 export async function GET(_request: NextRequest, ctx: Ctx) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await ctx.params
   const order = await db.orm.public.WorkOrder
@@ -32,8 +29,6 @@ export async function GET(_request: NextRequest, ctx: Ctx) {
 }
 
 export async function PATCH(request: NextRequest, ctx: Ctx) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await ctx.params
   const existing = await db.orm.public.WorkOrder.first({ id })
@@ -68,8 +63,6 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 }
 
 export async function DELETE(_request: NextRequest, ctx: Ctx) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await ctx.params
   const existing = await db.orm.public.WorkOrder.first({ id })

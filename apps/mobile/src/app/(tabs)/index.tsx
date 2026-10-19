@@ -1,13 +1,9 @@
-import { useAuth, useUser } from '@clerk/expo'
 import { useQuery } from '@tanstack/react-query'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useApi } from '../../lib/api'
+import { useSession, signOut } from '../../lib/auth-client'
 import { router } from 'expo-router'
-
-interface KPIData {
-  data: { totalCustomers: number; ordersInProgress: number; todayAppointments: number }
-}
 
 function KPICard({ label, value, onPress }: { label: string; value?: number; onPress?: () => void }) {
   return (
@@ -24,10 +20,8 @@ function KPICard({ label, value, onPress }: { label: string; value?: number; onP
 }
 
 export default function DashboardScreen() {
-  const { signOut } = useAuth()
-  const { user } = useUser()
+  const { data: session } = useSession()
   const { request } = useApi()
-
   const today = new Date().toISOString().split('T')[0]!
 
   const { data: customersAgg } = useQuery({
@@ -50,11 +44,11 @@ export default function DashboardScreen() {
           <View>
             <Text className="text-2xl font-bold text-neutral-900 dark:text-white">Tablero</Text>
             <Text className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-              {user?.firstName ?? 'Usuario'}
+              {session?.user.name ?? 'Usuario'}
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => signOut()}
+            onPress={() => { void signOut() }}
             className="px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800"
           >
             <Text className="text-sm text-neutral-600 dark:text-neutral-300">Salir</Text>

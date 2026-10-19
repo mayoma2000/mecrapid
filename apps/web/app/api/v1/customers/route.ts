@@ -1,10 +1,7 @@
-import { auth } from '@clerk/nextjs/server'
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 
 export async function GET(request: NextRequest) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = request.nextUrl
   const search = searchParams.get('search') ?? ''
@@ -24,8 +21,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
   const { name, phone, email, address, notes } = body

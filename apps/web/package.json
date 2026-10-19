@@ -10,8 +10,10 @@
     "contract:emit": "prisma contract emit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.9.17",
+    "@better-auth/expo": "^1.7.10",
+    "@neondatabase/serverless": "^1.2.0",
     "@prisma/orm-postgres": "^8.0.0-rc.18",
+    "better-auth": "^1.7.10",
     "dotenv": "^18.0.8",
     "next": "16.4.2",
     "react": "19.3.0",

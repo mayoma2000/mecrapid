@@ -1,40 +1,35 @@
-// @ts-expect-error — CSS side-effect import for NativeWind
 import '../../../global.css'
-import { ClerkProvider, useAuth } from '@clerk/expo'
-import { tokenCache } from '@clerk/expo/token-cache'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Slot, useRouter, useSegments } from 'expo-router'
 import { useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar'
+import { useSession } from '../lib/auth-client'
 
 const queryClient = new QueryClient()
-const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
 
 function AuthGuard() {
-  const { isLoaded, isSignedIn } = useAuth()
+  const { data: session, isPending } = useSession()
   const segments = useSegments()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoaded) return
+    if (isPending) return
     const inAuth = segments[0] === '(auth)'
-    if (!isSignedIn && !inAuth) {
+    if (!session && !inAuth) {
       router.replace('/(auth)/sign-in')
-    } else if (isSignedIn && inAuth) {
+    } else if (session && inAuth) {
       router.replace('/(tabs)')
     }
-  }, [isLoaded, isSignedIn, segments])
+  }, [isPending, session, segments])
 
   return <Slot />
 }
 
 export default function RootLayout() {
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <QueryClientProvider client={queryClient}>
-        <StatusBar style="auto" />
-        <AuthGuard />
-      </QueryClientProvider>
-    </ClerkProvider>
+    <QueryClientProvider client={queryClient}>
+      <StatusBar style="auto" />
+      <AuthGuard />
+    </QueryClientProvider>
   )
 }

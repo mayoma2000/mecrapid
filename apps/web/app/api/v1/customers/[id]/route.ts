@@ -1,12 +1,9 @@
-import { auth } from '@clerk/nextjs/server'
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 
 type Ctx = { params: Promise<{ id: string }> }
 
 export async function GET(_req: NextRequest, ctx: Ctx) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await ctx.params
   const customer = await db.orm.public.Customer
@@ -19,8 +16,6 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
 }
 
 export async function PATCH(request: NextRequest, ctx: Ctx) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await ctx.params
   const existing = await db.orm.public.Customer.first({ id })
@@ -41,8 +36,6 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 }
 
 export async function DELETE(_req: NextRequest, ctx: Ctx) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await ctx.params
   const existing = await db.orm.public.Customer.first({ id })

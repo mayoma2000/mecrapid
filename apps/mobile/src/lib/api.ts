@@ -1,17 +1,15 @@
-import { useAuth } from '@clerk/expo'
+import { authClient } from './auth-client'
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
+const BASE_URL = process.env['EXPO_PUBLIC_API_URL'] ?? 'http://localhost:3000'
 
 export function useApi() {
-  const { getToken } = useAuth()
-
   async function request<T>(path: string, options?: RequestInit): Promise<T> {
-    const token = await getToken()
+    const cookie = await authClient.getCookie()
     const res = await fetch(`${BASE_URL}${path}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(cookie ? { Cookie: cookie } : {}),
         ...options?.headers,
       },
     })

@@ -1,24 +1,24 @@
-import { useSignIn } from '@clerk/expo'
 import { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native'
+import { signIn } from '../../lib/auth-client'
 
 export default function SignInScreen() {
-  const { signIn, errors, fetchStatus } = useSignIn()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
-  const loading = fetchStatus === 'fetching'
-  const errorMsg =
-    errors.fields.identifier?.message ??
-    errors.fields.password?.message ??
-    errors.global?.[0]?.message ??
-    ''
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function handleSignIn() {
     if (loading) return
-    const { error: createError } = await signIn.create({ identifier: email, password })
-    if (createError || signIn.status !== 'complete') return
-    await signIn.finalize()
+    setError('')
+    setLoading(true)
+
+    const { error: err } = await signIn.email({ email, password })
+
+    if (err) {
+      setError(err.message ?? 'Error al iniciar sesión')
+    }
+    setLoading(false)
   }
 
   return (
@@ -58,9 +58,7 @@ export default function SignInScreen() {
             />
           </View>
 
-          {errorMsg ? (
-            <Text className="text-red-500 text-sm">{errorMsg}</Text>
-          ) : null}
+          {error ? <Text className="text-red-500 text-sm">{error}</Text> : null}
 
           <TouchableOpacity
             onPress={() => { void handleSignIn() }}

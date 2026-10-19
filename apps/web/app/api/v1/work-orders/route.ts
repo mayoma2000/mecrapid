@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server'
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 
@@ -6,8 +5,6 @@ type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' 
 const ACTIVE_STATUSES: WorkOrderStatus[] = ['assigned', 'in_progress', 'quality_check']
 
 export async function GET(request: NextRequest) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = request.nextUrl
   const status = searchParams.get('status')
@@ -42,8 +39,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId } = await auth()
-  if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
   const { customerId, vehicleId, complaint, mechanicId, estimatedCost, notes } = body
