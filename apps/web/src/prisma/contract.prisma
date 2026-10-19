@@ -1,0 +1,171 @@
+// use prisma-8
+
+// ─── Users & Auth ──────────────────────────────────────────────────────────
+
+enum UserRole {
+  admin
+  mechanic
+  receptionist
+}
+
+model User {
+  id        String   @id @default(uuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String
+  role      UserRole @default(receptionist)
+  phone     String?
+
+  assignedOrders WorkOrder[] @relation("assignedMechanic")
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+// ─── Customers ─────────────────────────────────────────────────────────────
+
+model Customer {
+  id      String  @id @default(uuid())
+  name    String
+  phone   String
+  email   String?
+  address String?
+  notes   String?
+
+  vehicles     Vehicle[]
+  workOrders   WorkOrder[]
+  appointments Appointment[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+// ─── Vehicles ──────────────────────────────────────────────────────────────
+
+model Vehicle {
+  id           String  @id @default(uuid())
+  customerId   String
+  make         String
+  model        String
+  year         Int
+  licensePlate String  @unique
+  vin          String?
+  color        String?
+  mileage      Int     @default(0)
+
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  workOrders   WorkOrder[]
+  appointments Appointment[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+// ─── Work Orders ───────────────────────────────────────────────────────────
+
+enum WorkOrderStatus {
+  pending
+  assigned
+  in_progress
+  quality_check
+  completed
+  cancelled
+}
+
+model WorkOrder {
+  id               String          @id @default(uuid())
+  customerId       String
+  vehicleId        String
+  mechanicId       String?
+  status           WorkOrderStatus @default(pending)
+  complaint        String
+  diagnosis        String?
+  estimatedCost    Float?
+  actualCost       Float?
+  notes            String?
+  completedAt      TimestamptzString?
+
+  customer     Customer          @relation(fields: [customerId], references: [id])
+  vehicle      Vehicle           @relation(fields: [vehicleId], references: [id])
+  mechanic     User?             @relation("assignedMechanic", fields: [mechanicId], references: [id])
+  serviceItems ServiceLineItem[]
+  partItems    PartLineItem[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+model ServiceLineItem {
+  id          String    @id @default(uuid())
+  workOrderId String
+  description String
+  cost        Float     @default(0)
+
+  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+}
+
+// ─── Inventory ─────────────────────────────────────────────────────────────
+
+model SparePart {
+  id             String  @id @default(uuid())
+  partNumber     String  @unique
+  name           String
+  category       String?
+  quantity       Int     @default(0)
+  minimumStock   Int     @default(5)
+  purchasePrice  Float   @default(0)
+  sellingPrice   Float   @default(0)
+  supplier       String?
+  location       String?
+  description    String?
+
+  partLineItems  PartLineItem[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+model PartLineItem {
+  id          String    @id @default(uuid())
+  workOrderId String
+  sparePartId String?
+  name        String
+  quantity    Int       @default(1)
+  unitPrice   Float     @default(0)
+  totalPrice  Float     @default(0)
+
+  workOrder   WorkOrder  @relation(fields: [workOrderId], references: [id])
+  sparePart   SparePart? @relation(fields: [sparePartId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+}
+
+// ─── Appointments ──────────────────────────────────────────────────────────
+
+enum AppointmentStatus {
+  scheduled
+  confirmed
+  in_progress
+  completed
+  cancelled
+  no_show
+}
+
+model Appointment {
+  id          String            @id @default(uuid())
+  customerId  String
+  vehicleId   String?
+  scheduledAt TimestamptzString
+  duration    Int               @default(60)
+  serviceType String
+  notes       String?
+  status      AppointmentStatus @default(scheduled)
+
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  vehicle     Vehicle?  @relation(fields: [vehicleId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
