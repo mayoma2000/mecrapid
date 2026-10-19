@@ -11,22 +11,16 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, Number(searchParams.get('page') ?? '1'))
   const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit') ?? '20')))
 
-  const customers = search
-    ? await db.orm.public.Customer
-        .where({ name: { contains: search, mode: 'insensitive' } })
-        .orderBy({ createdAt: 'desc' })
-        .skip((page - 1) * limit)
-        .take(limit)
-        .all()
-    : await db.orm.public.Customer
-        .orderBy({ createdAt: 'desc' })
-        .skip((page - 1) * limit)
-        .take(limit)
-        .all()
+  const base = search
+    ? db.orm.public.Customer.where((c) => c.name.ilike(`%${search}%`))
+    : db.orm.public.Customer
 
-  const total = await db.orm.public.Customer.count()
+  const [customers, agg] = await Promise.all([
+    base.orderBy((c) => c.createdAt.desc()).limit(limit).offset((page - 1) * limit).all(),
+    base.aggregate((a) => ({ count: a.count() })),
+  ])
 
-  return Response.json({ data: customers, meta: { total, page, limit } })
+  return Response.json({ data: customers, meta: { total: agg.count, page, limit } })
 }
 
 export async function POST(request: NextRequest) {

@@ -11,26 +11,16 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, Number(searchParams.get('page') ?? '1'))
   const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit') ?? '20')))
 
-  const vehicles = customerId
-    ? await db.orm.public.Vehicle
-        .where({ customerId })
-        .include({ customer: true })
-        .orderBy({ createdAt: 'desc' })
-        .skip((page - 1) * limit)
-        .take(limit)
-        .all()
-    : await db.orm.public.Vehicle
-        .include({ customer: true })
-        .orderBy({ createdAt: 'desc' })
-        .skip((page - 1) * limit)
-        .take(limit)
-        .all()
+  const base = customerId
+    ? db.orm.public.Vehicle.where({ customerId })
+    : db.orm.public.Vehicle
 
-  const total = customerId
-    ? await db.orm.public.Vehicle.where({ customerId }).count()
-    : await db.orm.public.Vehicle.count()
+  const [vehicles, agg] = await Promise.all([
+    base.include('customer').orderBy((v) => v.createdAt.desc()).limit(limit).offset((page - 1) * limit).all(),
+    base.aggregate((a) => ({ count: a.count() })),
+  ])
 
-  return Response.json({ data: vehicles, meta: { total, page, limit } })
+  return Response.json({ data: vehicles, meta: { total: agg.count, page, limit } })
 }
 
 export async function POST(request: NextRequest) {
@@ -43,7 +33,7 @@ export async function POST(request: NextRequest) {
   if (!customerId || !make || !model || !year || !licensePlate) {
     return Response.json(
       { error: 'customerId, make, model, year and licensePlate are required' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
