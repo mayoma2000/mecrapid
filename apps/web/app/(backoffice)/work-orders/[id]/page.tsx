@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-type ServiceItem = { id: string; description: string; cost: number }
-type PartItem = { id: string; name: string; quantity: number; unitPrice: number; totalPrice: number }
+type ServiceItem = { id: string; name: string; description: string | null; price: number; quantity: number }
+type PartItem = { id: string; quantity: number; unitCost: number; sparePart: { name: string; partNumber: string | null } }
 type WorkOrder = {
   id: string; status: string; complaint: string; diagnosis: string | null
   estimatedCost: number | null; actualCost: number | null; completedAt: string | null
@@ -155,8 +155,12 @@ export default function WorkOrderDetailPage() {
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
               {order.serviceItems.map((s) => (
                 <tr key={s.id}>
-                  <td className="px-5 py-3 text-neutral-900 dark:text-white">{s.description}</td>
-                  <td className="px-5 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">L. {s.cost.toFixed(2)}</td>
+                  <td className="px-5 py-3 text-neutral-900 dark:text-white">
+                    <p className="font-medium">{s.name}</p>
+                    {s.description && <p className="text-xs text-neutral-400 mt-0.5">{s.description}</p>}
+                  </td>
+                  <td className="px-5 py-3 text-right text-neutral-500 dark:text-neutral-400 text-xs">{s.quantity > 1 ? `×${s.quantity}` : ''}</td>
+                  <td className="px-5 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">L. {(s.price * s.quantity).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -181,9 +185,12 @@ export default function WorkOrderDetailPage() {
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
               {order.partItems.map((p) => (
                 <tr key={p.id}>
-                  <td className="px-5 py-3 text-neutral-900 dark:text-white">{p.name}</td>
+                  <td className="px-5 py-3 text-neutral-900 dark:text-white">
+                    <p className="font-medium">{p.sparePart.name}</p>
+                    {p.sparePart.partNumber && <p className="text-xs text-neutral-400 mt-0.5">#{p.sparePart.partNumber}</p>}
+                  </td>
                   <td className="px-5 py-3 text-right text-neutral-600 dark:text-neutral-400">{p.quantity}</td>
-                  <td className="px-5 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">L. {p.totalPrice.toFixed(2)}</td>
+                  <td className="px-5 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">L. {(p.unitCost * p.quantity).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
