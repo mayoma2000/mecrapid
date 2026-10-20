@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { signIn } from '@/src/lib/auth-client'
 
 export default function SignInPage() {
@@ -36,9 +37,12 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">MecRapid</h1>
-          <p className="mt-1 text-neutral-500 dark:text-neutral-400">Gestión de taller</p>
+        <div className="mb-8 flex flex-col items-center">
+          <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg mb-4">
+            <Image src="/logo.jpg" alt="MecRapid" width={96} height={96} className="object-cover w-full h-full" priority />
+          </div>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">MecRapid</h1>
+          <p className="mt-1 text-neutral-500 dark:text-neutral-400 text-sm">Gestión de taller</p>
         </div>
 
         <form onSubmit={(e) => { void handleSubmit(e) }} className="space-y-4">
