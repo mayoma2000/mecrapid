@@ -121,6 +121,18 @@ export default function AssistanceRequestDetailPage() {
             Cancelar solicitud
           </button>
         )}
+        {req.status === 'cancelled' && (
+          <button onClick={() => void handleStatusChange('pending')}
+            className="px-5 py-2.5 bg-white dark:bg-neutral-900 border border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-400 text-sm font-semibold rounded-xl hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors">
+            ↩ Reactivar (volver a pendiente)
+          </button>
+        )}
+        {req.status === 'completed' && (
+          <button onClick={() => void handleStatusChange('active')}
+            className="px-5 py-2.5 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 text-sm font-semibold rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+            ↩ Reabrir solicitud
+          </button>
+        )}
       </div>
     </div>
   )

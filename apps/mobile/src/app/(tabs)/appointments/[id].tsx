@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert } from 'react-native'
+import { useState } from 'react'
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert, Modal, TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, router, Stack } from 'expo-router'
 import { useApi } from '../../../lib/api'
@@ -42,6 +43,10 @@ export default function AppointmentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { request } = useApi()
   const queryClient = useQueryClient()
+  const [rescheduleVisible, setRescheduleVisible] = useState(false)
+  const [newDate, setNewDate] = useState('')
+  const [newTime, setNewTime] = useState('')
+  const [rescheduling, setRescheduling] = useState(false)
 
   const { data, isLoading } = useQuery({
     queryKey: ['appointment', id],
@@ -88,6 +93,28 @@ export default function AppointmentDetailScreen() {
       { text: 'Cancelar', style: 'cancel' },
       { text: label, onPress: () => mutation.mutate(next), style: next === 'cancelled' || next === 'no_show' ? 'destructive' : 'default' },
     ])
+  }
+
+  async function handleReschedule() {
+    if (!newDate.match(/^\d{4}-\d{2}-\d{2}$/) || !newTime.match(/^\d{2}:\d{2}$/)) {
+      Alert.alert('Formato inválido', 'Fecha: AAAA-MM-DD · Hora: HH:MM')
+      return
+    }
+    setRescheduling(true)
+    try {
+      await request(`/api/v1/appointments/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ scheduledAt: `${newDate}T${newTime}:00.000Z` }),
+      })
+      void queryClient.invalidateQueries({ queryKey: ['appointment', id] })
+      void queryClient.invalidateQueries({ queryKey: ['appointments'] })
+      setRescheduleVisible(false)
+      Alert.alert('Reprogramada', 'La cita fue reprogramada correctamente.')
+    } catch {
+      Alert.alert('Error', 'No se pudo reprogramar la cita.')
+    } finally {
+      setRescheduling(false)
+    }
   }
 
   return (
@@ -159,7 +186,71 @@ export default function AppointmentDetailScreen() {
             ))}
           </View>
         )}
+
+        {/* Reprogramar */}
+        {appt.status !== 'completed' && appt.status !== 'cancelled' && appt.status !== 'no_show' && (
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: '#8898AA', shadowColor: '#8898AA', marginTop: 8 }]}
+            onPress={() => {
+              const d = new Date(appt.scheduledAt)
+              setNewDate(d.toISOString().slice(0, 10))
+              setNewTime(d.toISOString().slice(11, 16))
+              setRescheduleVisible(true)
+            }}
+          >
+            <Text style={styles.actionBtnText}>📅 Reprogramar</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
+
+      {/* Modal reprogramar */}
+      <Modal visible={rescheduleVisible} transparent animationType="slide">
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+          <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 16 }}>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#172B4D' }}>Reprogramar cita</Text>
+            <View style={{ gap: 8 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: '#525F7F' }}>Fecha (AAAA-MM-DD)</Text>
+              <TextInput
+                value={newDate}
+                onChangeText={setNewDate}
+                placeholder="2026-10-25"
+                placeholderTextColor="#8898AA"
+                keyboardType="numeric"
+                style={{ backgroundColor: '#F8F9FE', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: '#172B4D', borderWidth: 1, borderColor: '#E9ECEF' }}
+              />
+            </View>
+            <View style={{ gap: 8 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: '#525F7F' }}>Hora (HH:MM)</Text>
+              <TextInput
+                value={newTime}
+                onChangeText={setNewTime}
+                placeholder="09:00"
+                placeholderTextColor="#8898AA"
+                keyboardType="numeric"
+                style={{ backgroundColor: '#F8F9FE', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: '#172B4D', borderWidth: 1, borderColor: '#E9ECEF' }}
+              />
+            </View>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => setRescheduleVisible(false)}
+                style={{ flex: 1, paddingVertical: 14, borderRadius: 14, backgroundColor: '#F8F9FE', alignItems: 'center' }}
+              >
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#8898AA' }}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => void handleReschedule()}
+                disabled={rescheduling}
+                style={{ flex: 1, paddingVertical: 14, borderRadius: 14, backgroundColor: '#5E72E4', alignItems: 'center' }}
+              >
+                {rescheduling
+                  ? <ActivityIndicator color="#fff" />
+                  : <Text style={{ fontSize: 15, fontWeight: '700', color: '#fff' }}>Confirmar</Text>
+                }
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
 }
