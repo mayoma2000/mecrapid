@@ -7,6 +7,7 @@ export default function NewAssistanceTypePage() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [active, setActive] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -17,7 +18,7 @@ export default function NewAssistanceTypePage() {
     const res = await fetch('/api/v1/assistance-types', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, description: description || null }),
+      body: JSON.stringify({ name, description: description || null, active }),
     })
     if (res.ok) {
       router.push('/assistance-types')
@@ -41,6 +42,17 @@ export default function NewAssistanceTypePage() {
           <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Descripción</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
             className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Estado</label>
+          <select
+            value={active ? 'true' : 'false'}
+            onChange={(e) => setActive(e.target.value === 'true')}
+            className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
         </div>
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <div className="flex gap-3 pt-2">

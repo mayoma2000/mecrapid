@@ -5,6 +5,16 @@ import { headers } from 'next/headers'
 
 type Ctx = { params: Promise<{ id: string }> }
 
+export async function GET(_request: NextRequest, ctx: Ctx) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { id } = await ctx.params
+  const type = await db.orm.public.AssistanceType.first({ id })
+  if (!type) return Response.json({ error: 'Not found' }, { status: 404 })
+  return Response.json({ data: type })
+}
+
 export async function PATCH(request: NextRequest, ctx: Ctx) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })

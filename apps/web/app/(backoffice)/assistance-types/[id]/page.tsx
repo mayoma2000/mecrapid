@@ -15,11 +15,12 @@ export default function EditAssistanceTypePage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    void fetch(`/api/v1/assistance-types`)
-      .then((r) => r.json() as Promise<{ data: { id: string; name: string; description: string | null; active: boolean }[] }>)
+    void fetch(`/api/v1/assistance-types/${id}`)
+      .then((r) => r.json() as Promise<{ data: { name: string; description: string | null; active: boolean } }>)
       .then(({ data }) => {
-        const item = data.find((t) => t.id === id)
-        if (item) { setName(item.name); setDescription(item.description ?? ''); setActive(item.active) }
+        setName(data.name)
+        setDescription(data.description ?? '')
+        setActive(data.active)
         setLoading(false)
       })
   }, [id])
@@ -58,10 +59,16 @@ export default function EditAssistanceTypePage() {
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
             className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
         </div>
-        <div className="flex items-center gap-3">
-          <input type="checkbox" id="active" checked={active} onChange={(e) => setActive(e.target.checked)}
-            className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500" />
-          <label htmlFor="active" className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Activo</label>
+        <div>
+          <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Estado</label>
+          <select
+            value={active ? 'true' : 'false'}
+            onChange={(e) => setActive(e.target.value === 'true')}
+            className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
         </div>
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <div className="flex gap-3 pt-2">

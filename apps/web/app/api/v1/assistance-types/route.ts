@@ -3,11 +3,15 @@ import { db } from '@/src/prisma/db'
 import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 
-export async function GET() {
-  const types = await db.orm.public.AssistanceType
-    .where({ active: true })
-    .orderBy((t) => t.name.asc())
-    .all()
+export async function GET(request: NextRequest) {
+  const session = await auth.api.getSession({ headers: await headers() })
+
+  const query = db.orm.public.AssistanceType.orderBy((t) => t.name.asc())
+
+  // backoffice (authenticated) → all; mobile/public → only active
+  const types = session
+    ? await query.all()
+    : await db.orm.public.AssistanceType.where({ active: true }).orderBy((t) => t.name.asc()).all()
 
   return Response.json({ data: types })
 }

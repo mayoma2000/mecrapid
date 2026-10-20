@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet, Image } from 'react-native'
 import { signIn } from '../../lib/auth-client'
 
-const logo = require('../../../../assets/logo.jpg') as number
+const logo = require('../../../assets/logo.jpg') as number
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('')
