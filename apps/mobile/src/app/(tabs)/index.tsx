@@ -173,31 +173,28 @@ export default function DashboardScreen() {
         </View>
       </ScrollView>
 
-      {/* Custom bottom bar: usuario | 📊 Tablero | Admin */}
+      {/* Bottom bar: Tablero | Logo | Admin */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 8) + 8 }]}>
-        {/* Usuario */}
-        <View style={styles.userPill}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
+
+        {/* Izquierda: Tablero tab */}
+        <View style={styles.tabItem}>
+          <View style={styles.tabIconBox}>
+            <Text style={{ fontSize: 22 }}>📊</Text>
           </View>
-          <View style={{ flex: 1, marginLeft: 8 }}>
-            <Text style={styles.userName} numberOfLines={1}>{userName}</Text>
-            <Text style={styles.userEmail} numberOfLines={1}>{userEmail}</Text>
-          </View>
+          <Text style={styles.tabLabel}>Tablero</Text>
         </View>
 
-        {/* Logo circular centrado */}
-        <View style={styles.centerIcon}>
-          <View style={styles.centerIconInner}>
+        {/* Centro: Logo elevado */}
+        <View style={styles.centerLogoWrap}>
+          <View style={styles.centerLogoOuter}>
             <Image source={logo} style={styles.logoImg} resizeMode="cover" />
           </View>
-          <Text style={styles.centerIconLabel}>Tablero</Text>
         </View>
 
-        {/* Admin */}
-        <TouchableOpacity onPress={() => setAdminVisible(true)} style={styles.adminBtn}>
+        {/* Derecha: Admin */}
+        <TouchableOpacity onPress={() => setAdminVisible(true)} style={styles.tabItem}>
           <View style={styles.adminIconBox}>
-            <Text style={{ fontSize: 16 }}>⚙️</Text>
+            <Text style={{ fontSize: 22 }}>⚙️</Text>
           </View>
           <Text style={styles.adminText}>Admin</Text>
         </TouchableOpacity>
@@ -344,73 +341,30 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 16,
   },
-  userPill: {
+  /* tab items izq/der */
+  tabItem: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 8,
+    justifyContent: 'center',
+    gap: 3,
   },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 11,
+  tabIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: '#EEF0FD',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0,
   },
-  avatarText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#5E72E4',
-  },
-  userName: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#172B4D',
-  },
-  userEmail: {
-    fontSize: 10,
-    color: '#8898AA',
-    marginTop: 1,
-  },
-  centerIcon: {
-    alignItems: 'center',
-    paddingHorizontal: 12,
-  },
-  centerIconInner: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-    shadowColor: '#5E72E4',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  logoImg: {
-    width: 56,
-    height: 56,
-  },
-  centerIconLabel: {
+  tabLabel: {
     fontSize: 10,
     fontWeight: '700',
     color: '#5E72E4',
-    marginTop: 3,
-  },
-  adminBtn: {
-    flex: 1,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    marginLeft: 8,
-    gap: 2,
   },
   adminIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: '#EEF0FD',
     alignItems: 'center',
     justifyContent: 'center',
@@ -419,6 +373,30 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: '#5E72E4',
+  },
+  /* logo central elevado */
+  centerLogoWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -28,          // sube el logo sobre la barra
+  },
+  centerLogoOuter: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: '#EEF0FD',
+    shadowColor: '#5E72E4',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+    elevation: 10,
+  },
+  logoImg: {
+    width: 80,
+    height: 80,
   },
 
   /* ── Admin modal ── */
