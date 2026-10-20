@@ -1,10 +1,13 @@
 import { useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet, Image } from 'react-native'
 import { signIn } from '../../lib/auth-client'
+
+const logo = require('../../../../assets/logo.jpg') as number
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -15,7 +18,7 @@ export default function SignInScreen() {
     try {
       const { error: err } = await signIn.email({ email, password })
       if (err) {
-        setError(err.message ?? 'Error al iniciar sesión')
+        setError(err.message ?? 'Credenciales incorrectas. Verificá tu correo y contraseña.')
         setLoading(false)
         return
       }
@@ -32,7 +35,7 @@ export default function SignInScreen() {
     >
       <View style={styles.header}>
         <View style={styles.logoCircle}>
-          <Text style={{ fontSize: 36 }}>🔧</Text>
+          <Image source={logo} style={styles.logoImg} resizeMode="cover" />
         </View>
         <Text style={styles.headerTitle}>MecRapid</Text>
         <Text style={styles.headerSubtitle}>Gestión de taller automotriz</Text>
@@ -58,14 +61,35 @@ export default function SignInScreen() {
 
           <View>
             <Text style={styles.label}>Contraseña</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="••••••••"
-              placeholderTextColor="#8898AA"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
+            <View style={styles.passwordRow}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="••••••••"
+                placeholderTextColor="#8898AA"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword((v) => !v)}
+                style={styles.eyeBtn}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                {showPassword ? (
+                  /* ojo tachado */
+                  <View style={styles.eyeIcon}>
+                    <View style={styles.eyeOuter} />
+                    <View style={styles.eyeSlash} />
+                  </View>
+                ) : (
+                  /* ojo abierto */
+                  <View style={styles.eyeIcon}>
+                    <View style={styles.eyeOuter} />
+                    <View style={styles.eyeInner} />
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -96,13 +120,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 84,
+    height: 84,
+    borderRadius: 22,
+    overflow: 'hidden',
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+    elevation: 10,
+  },
+  logoImg: {
+    width: 84,
+    height: 84,
   },
   headerTitle: {
     fontSize: 30,
@@ -154,6 +185,52 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: 15,
     color: '#172B4D',
+  },
+  passwordRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FE',
+    borderWidth: 1.5,
+    borderColor: '#E9ECEF',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: '#172B4D',
+  },
+  eyeBtn: {
+    paddingLeft: 10,
+    paddingVertical: 4,
+  },
+  eyeIcon: {
+    width: 22,
+    height: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eyeOuter: {
+    width: 20,
+    height: 13,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#8898AA',
+    position: 'absolute',
+  },
+  eyeInner: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: '#8898AA',
+  },
+  eyeSlash: {
+    width: 2,
+    height: 22,
+    backgroundColor: '#8898AA',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }],
   },
   errorText: {
     color: '#F5365C',
