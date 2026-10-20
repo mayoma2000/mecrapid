@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, Pressable } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, Pressable, Image } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useApi } from '../../lib/api'
 import { useSession, signOut } from '../../lib/auth-client'
 import { router } from 'expo-router'
+
+const logo = require('../../../assets/logo.jpg') as number
 
 interface KPICardProps {
   label: string
@@ -84,8 +86,10 @@ export default function DashboardScreen() {
     queryFn: () => request<{ meta: { total: number } }>(`/api/v1/appointments?from=${today}T00:00:00.000Z&to=${today}T23:59:59.999Z&limit=1`),
   })
 
-  const userName = session?.user.name ?? 'Usuario'
+  const rawName = session?.user.name ?? ''
   const userEmail = session?.user.email ?? ''
+  // If name was accidentally stored as an email address, use the local part
+  const userName = rawName.includes('@') ? (rawName.split('@')[0] ?? 'Usuario') : (rawName || 'Usuario')
   const userCreatedAt = session?.user.createdAt
   const initials = getInitials(userName)
 
@@ -182,10 +186,10 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Tablero icon centrado */}
+        {/* Logo circular centrado */}
         <View style={styles.centerIcon}>
           <View style={styles.centerIconInner}>
-            <Text style={{ fontSize: 22 }}>📊</Text>
+            <Image source={logo} style={styles.logoImg} resizeMode="cover" />
           </View>
           <Text style={styles.centerIconLabel}>Tablero</Text>
         </View>
@@ -211,9 +215,9 @@ export default function DashboardScreen() {
           {/* Handle */}
           <View style={styles.modalHandle} />
 
-          {/* Avatar grande */}
+          {/* Logo circular */}
           <View style={styles.modalAvatar}>
-            <Text style={styles.modalAvatarText}>{initials}</Text>
+            <Image source={logo} style={styles.modalLogoImg} resizeMode="cover" />
           </View>
 
           {/* Nombre */}
@@ -375,17 +379,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   centerIconInner: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: '#EEF0FD',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
     shadowColor: '#5E72E4',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 6,
+  },
+  logoImg: {
+    width: 56,
+    height: 56,
   },
   centerIconLabel: {
     fontSize: 10,
@@ -440,24 +447,22 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
-    backgroundColor: '#EEF0FD',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: '#fff',
     alignSelf: 'center',
     marginBottom: 12,
-    shadowColor: '#5E72E4',
+    overflow: 'hidden',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.12,
     shadowRadius: 14,
     elevation: 6,
   },
-  modalAvatarText: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#5E72E4',
+  modalLogoImg: {
+    width: 90,
+    height: 90,
   },
   modalName: {
     fontSize: 22,
