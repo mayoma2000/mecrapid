@@ -13,6 +13,8 @@ const NAV = [
   { href: '/appointments', label: 'Citas', icon: '📅' },
   { href: '/assistance-requests', label: 'Solicitudes', icon: '🆘' },
   { href: '/assistance-types', label: 'Tipos Asistencia', icon: '🔖' },
+  { href: '/service-types', label: 'Servicios', icon: '⚙️' },
+  { href: '/work-schedule', label: 'Horario', icon: '🕐' },
 ]
 
 export function SidebarNav() {

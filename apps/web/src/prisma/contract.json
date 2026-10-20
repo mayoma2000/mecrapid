@@ -28,6 +28,10 @@
       "model": "ServiceLineItem",
       "namespace": "public"
     },
+    "ServiceType": {
+      "model": "ServiceType",
+      "namespace": "public"
+    },
     "SparePart": {
       "model": "SparePart",
       "namespace": "public"
@@ -42,6 +46,10 @@
     },
     "WorkOrder": {
       "model": "WorkOrder",
+      "namespace": "public"
+    },
+    "WorkSchedule": {
+      "model": "WorkSchedule",
       "namespace": "public"
     }
   },
@@ -877,6 +885,77 @@
               "table": "ServiceLineItem"
             }
           },
+          "ServiceType": {
+            "fields": {
+              "active": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "durationMinutes": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "active": {
+                  "column": "active"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "durationMinutes": {
+                  "column": "durationMinutes"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ServiceType"
+            }
+          },
           "SparePart": {
             "fields": {
               "category": {
@@ -1555,6 +1634,67 @@
               "namespaceId": "public",
               "table": "WorkOrder"
             }
+          },
+          "WorkSchedule": {
+            "fields": {
+              "active": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "dayOfWeek": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "endHour": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startHour": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "active": {
+                  "column": "active"
+                },
+                "dayOfWeek": {
+                  "column": "dayOfWeek"
+                },
+                "endHour": {
+                  "column": "endHour"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "startHour": {
+                  "column": "startHour"
+                }
+              },
+              "namespaceId": "public",
+              "table": "WorkSchedule"
+            }
           }
         }
       }
@@ -2165,6 +2305,60 @@
               },
               "uniques": []
             },
+            "ServiceType": {
+              "columns": {
+                "active": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "durationMinutes": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 60
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "SparePart": {
               "columns": {
                 "category": {
@@ -2642,6 +2836,61 @@
                 ]
               },
               "uniques": []
+            },
+            "WorkSchedule": {
+              "columns": {
+                "active": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "dayOfWeek": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "endHour": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 17
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "startHour": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 8
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "dayOfWeek"
+                  ]
+                }
+              ]
             }
           },
           "valueSet": {
@@ -2681,10 +2930,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6096387aba886b0bf6012d734999b97aeb47c0df1e8aff0aef983d49dd43e71d"
+    "storageHash": "ebed3873c9b4274dc7db9bbb3a062c9a4aa826895d13e447c2e80fb956a2b330"
   },
   "execution": {
-    "executionHash": "7be85237dc78dedc0185d00535fbebd5b15d50ea5791b21e9b2b6e80335ad939",
+    "executionHash": "eb80ed97d55585921ce6fd4bd63c5c5ce7c530decaca29e92e40763d2bb52321",
     "mutations": {
       "defaults": [
         {
@@ -2804,6 +3053,17 @@
             "kind": "generator"
           },
           "ref": {
+            "entry": "ServiceType",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
             "entry": "SparePart",
             "field": "id",
             "namespace": "public"
@@ -2899,6 +3159,17 @@
           "ref": {
             "entry": "WorkOrder",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "WorkSchedule",
+            "field": "id",
             "namespace": "public"
           }
         }

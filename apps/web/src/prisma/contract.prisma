@@ -172,6 +172,26 @@ model Appointment {
   updatedAt temporal.updatedAtString()
 }
 
+// ─── Services & Schedule ────────────────────────────────────────────────────
+
+model ServiceType {
+  id              String  @id @default(uuid())
+  name            String
+  description     String?
+  durationMinutes Int     @default(60)
+  active          Boolean @default(true)
+
+  createdAt       TimestamptzString @default(now())
+}
+
+model WorkSchedule {
+  id        String  @id @default(uuid())
+  dayOfWeek Int     @unique
+  startHour Int     @default(8)
+  endHour   Int     @default(17)
+  active    Boolean @default(false)
+}
+
 // ─── Assistance ─────────────────────────────────────────────────────────────
 
 model AssistanceType {

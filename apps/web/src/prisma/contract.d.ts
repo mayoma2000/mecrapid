@@ -18,9 +18,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6096387aba886b0bf6012d734999b97aeb47c0df1e8aff0aef983d49dd43e71d'>;
+  StorageHashBase<'ebed3873c9b4274dc7db9bbb3a062c9a4aa826895d13e447c2e80fb956a2b330'>;
 export type ExecutionHash =
-  ExecutionHashBase<'7be85237dc78dedc0185d00535fbebd5b15d50ea5791b21e9b2b6e80335ad939'>;
+  ExecutionHashBase<'eb80ed97d55585921ce6fd4bd63c5c5ce7c530decaca29e92e40763d2bb52321'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -294,6 +294,14 @@ export type FieldOutputTypes = {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly workOrderId: CodecTypes['pg/text@1']['output'];
     };
+    readonly ServiceType: {
+      readonly active: CodecTypes['pg/bool@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly description: CodecTypes['pg/text@1']['output'] | null;
+      readonly durationMinutes: CodecTypes['pg/int4@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+    };
     readonly SparePart: {
       readonly category: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -347,6 +355,13 @@ export type FieldOutputTypes = {
         'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly vehicleId: CodecTypes['pg/text@1']['output'] | null;
+    };
+    readonly WorkSchedule: {
+      readonly active: CodecTypes['pg/bool@1']['output'];
+      readonly dayOfWeek: CodecTypes['pg/int4@1']['output'];
+      readonly endHour: CodecTypes['pg/int4@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly startHour: CodecTypes['pg/int4@1']['output'];
     };
   };
 };
@@ -412,6 +427,14 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly workOrderId: CodecTypes['pg/text@1']['input'];
     };
+    readonly ServiceType: {
+      readonly active: CodecTypes['pg/bool@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly description: CodecTypes['pg/text@1']['input'] | null;
+      readonly durationMinutes: CodecTypes['pg/int4@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
+    };
     readonly SparePart: {
       readonly category: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -465,6 +488,13 @@ export type FieldInputTypes = {
         'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly vehicleId: CodecTypes['pg/text@1']['input'] | null;
+    };
+    readonly WorkSchedule: {
+      readonly active: CodecTypes['pg/bool@1']['input'];
+      readonly dayOfWeek: CodecTypes['pg/int4@1']['input'];
+      readonly endHour: CodecTypes['pg/int4@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly startHour: CodecTypes['pg/int4@1']['input'];
     };
   };
 };
@@ -530,6 +560,14 @@ export type StorageColumnTypes = {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly workOrderId: CodecTypes['pg/text@1']['output'];
     };
+    readonly ServiceType: {
+      readonly active: CodecTypes['pg/bool@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly description: CodecTypes['pg/text@1']['output'] | null;
+      readonly durationMinutes: CodecTypes['pg/int4@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+    };
     readonly SparePart: {
       readonly category: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -583,6 +621,13 @@ export type StorageColumnTypes = {
         'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly vehicleId: CodecTypes['pg/text@1']['output'] | null;
+    };
+    readonly WorkSchedule: {
+      readonly active: CodecTypes['pg/bool@1']['output'];
+      readonly dayOfWeek: CodecTypes['pg/int4@1']['output'];
+      readonly endHour: CodecTypes['pg/int4@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly startHour: CodecTypes['pg/int4@1']['output'];
     };
   };
 };
@@ -648,6 +693,14 @@ export type StorageColumnInputTypes = {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly workOrderId: CodecTypes['pg/text@1']['input'];
     };
+    readonly ServiceType: {
+      readonly active: CodecTypes['pg/bool@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly description: CodecTypes['pg/text@1']['input'] | null;
+      readonly durationMinutes: CodecTypes['pg/int4@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
+    };
     readonly SparePart: {
       readonly category: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -701,6 +754,13 @@ export type StorageColumnInputTypes = {
         'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly vehicleId: CodecTypes['pg/text@1']['input'] | null;
+    };
+    readonly WorkSchedule: {
+      readonly active: CodecTypes['pg/bool@1']['input'];
+      readonly dayOfWeek: CodecTypes['pg/int4@1']['input'];
+      readonly endHour: CodecTypes['pg/int4@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly startHour: CodecTypes['pg/int4@1']['input'];
     };
   };
 };
@@ -784,6 +844,15 @@ export namespace Models {
     workOrder: public_WorkOrder;
     readonly [RelationKeys]?: 'workOrder';
   };
+  export type public_ServiceType = {
+    active: CodecTypes['pg/bool@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    description: CodecTypes['pg/text@1']['output'] | null;
+    durationMinutes: CodecTypes['pg/int4@1']['output'];
+    id: CodecTypes['pg/text@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    readonly [RelationKeys]?: never;
+  };
   export type public_SparePart = {
     category: CodecTypes['pg/text@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -853,6 +922,14 @@ export namespace Models {
     readonly [RelationKeys]?:
       'assistanceRequests' | 'customer' | 'mechanic' | 'partItems' | 'serviceItems' | 'vehicle';
   };
+  export type public_WorkSchedule = {
+    active: CodecTypes['pg/bool@1']['output'];
+    dayOfWeek: CodecTypes['pg/int4@1']['output'];
+    endHour: CodecTypes['pg/int4@1']['output'];
+    id: CodecTypes['pg/text@1']['output'];
+    startHour: CodecTypes['pg/int4@1']['output'];
+    readonly [RelationKeys]?: never;
+  };
 }
 
 export declare const models: {
@@ -863,10 +940,12 @@ export declare const models: {
     Customer: Models.public_Customer;
     PartLineItem: Models.public_PartLineItem;
     ServiceLineItem: Models.public_ServiceLineItem;
+    ServiceType: Models.public_ServiceType;
     SparePart: Models.public_SparePart;
     User: Models.public_User;
     Vehicle: Models.public_Vehicle;
     WorkOrder: Models.public_WorkOrder;
+    WorkSchedule: Models.public_WorkSchedule;
   };
 };
 
@@ -1408,6 +1487,59 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly ServiceType: {
+              columns: {
+                readonly active: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly description: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly durationMinutes: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 60>;
+                  };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly name: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
             readonly SparePart: {
               columns: {
                 readonly category: {
@@ -1821,6 +1953,56 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly WorkSchedule: {
+              columns: {
+                readonly active: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly dayOfWeek: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly endHour: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 17>;
+                  };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly startHour: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 8>;
+                  };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['dayOfWeek'] }];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
           };
           readonly valueSet: {
             readonly AppointmentStatus: {
@@ -1881,10 +2063,18 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'ServiceLineItem';
     };
+    readonly ServiceType: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'ServiceType';
+    };
     readonly SparePart: { readonly namespace: 'public' & NamespaceId; readonly model: 'SparePart' };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
     readonly Vehicle: { readonly namespace: 'public' & NamespaceId; readonly model: 'Vehicle' };
     readonly WorkOrder: { readonly namespace: 'public' & NamespaceId; readonly model: 'WorkOrder' };
+    readonly WorkSchedule: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'WorkSchedule';
+    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -2378,6 +2568,50 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly ServiceType: {
+            readonly fields: {
+              readonly active: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly description: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly durationMinutes: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'ServiceType';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly active: { readonly column: 'active' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly description: { readonly column: 'description' };
+                readonly durationMinutes: { readonly column: 'durationMinutes' };
+                readonly id: { readonly column: 'id' };
+                readonly name: { readonly column: 'name' };
+              };
+            };
+          };
           readonly SparePart: {
             readonly fields: {
               readonly category: {
@@ -2800,6 +3034,42 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly WorkSchedule: {
+            readonly fields: {
+              readonly active: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly dayOfWeek: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly endHour: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startHour: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'WorkSchedule';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly active: { readonly column: 'active' };
+                readonly dayOfWeek: { readonly column: 'dayOfWeek' };
+                readonly endHour: { readonly column: 'endHour' };
+                readonly id: { readonly column: 'id' };
+                readonly startHour: { readonly column: 'startHour' };
+              };
+            };
+          };
         };
         readonly enum: {
           readonly AppointmentStatus: {
@@ -2969,6 +3239,14 @@ type ContractBase = Omit<
         {
           readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
           readonly ref: {
+            readonly entry: 'ServiceType';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
             readonly entry: 'SparePart';
             readonly field: 'id';
             readonly namespace: 'public';
@@ -3031,6 +3309,14 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'WorkOrder';
             readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'WorkSchedule';
+            readonly field: 'id';
             readonly namespace: 'public';
           };
         },

@@ -18,7 +18,7 @@ export default function AssistanceRequestScreen() {
   const [types, setTypes] = useState<AssistanceType[]>([])
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null)
   const [detail, setDetail] = useState('')
-  const [phone, setPhone] = useState('')
+  const [phoneDigits, setPhoneDigits] = useState('')
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null)
   const [locLoading, setLocLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -27,9 +27,12 @@ export default function AssistanceRequestScreen() {
     void request<{ data: AssistanceType[] }>('/api/v1/assistance-types')
       .then(({ data }) => setTypes(data))
       .catch(() => null)
-    // Pre-fill phone from session if available
+    // Pre-fill phone digits from session if available
     const sessionUser = session?.user as { phone?: string } | undefined
-    if (sessionUser?.phone) setPhone(sessionUser.phone)
+    if (sessionUser?.phone) {
+      const digits = sessionUser.phone.replace(/\D/g, '').slice(-8)
+      setPhoneDigits(digits)
+    }
   }, [])
 
   async function handleGetLocation() {
@@ -45,10 +48,21 @@ export default function AssistanceRequestScreen() {
     setLocLoading(false)
   }
 
+  function handlePhoneChange(text: string) {
+    const digits = text.replace(/\D/g, '').slice(0, 8)
+    setPhoneDigits(digits)
+  }
+
+  function formatPhoneDisplay(digits: string): string {
+    if (digits.length <= 4) return digits
+    return `${digits.slice(0, 4)}-${digits.slice(4)}`
+  }
+
   async function handleSubmit() {
     if (!detail.trim()) { Alert.alert('Campo requerido', 'Describe el problema.'); return }
-    if (!phone.trim()) { Alert.alert('Campo requerido', 'Ingresa un número de teléfono.'); return }
+    if (phoneDigits.length !== 8) { Alert.alert('Teléfono inválido', 'Ingresa exactamente 8 dígitos después del +504.'); return }
 
+    const phone = `+504${phoneDigits}`
     setSaving(true)
     try {
       await request('/api/v1/me/assistance-requests', {
@@ -56,7 +70,7 @@ export default function AssistanceRequestScreen() {
         body: JSON.stringify({
           assistanceTypeId: selectedTypeId,
           detail: detail.trim(),
-          phone: phone.trim(),
+          phone,
           latitude: coords?.latitude ?? null,
           longitude: coords?.longitude ?? null,
         }),
@@ -123,14 +137,21 @@ export default function AssistanceRequestScreen() {
         {/* Teléfono */}
         <View style={styles.section}>
           <Text style={styles.label}>Teléfono de contacto *</Text>
-          <TextInput
-            value={phone}
-            onChangeText={setPhone}
-            placeholder="+504 9999-9999"
-            placeholderTextColor="#8898AA"
-            keyboardType="phone-pad"
-            style={styles.input}
-          />
+          <View style={styles.phoneRow}>
+            <View style={styles.phonePrefix}>
+              <Text style={styles.phonePrefixText}>🇭🇳 +504</Text>
+            </View>
+            <TextInput
+              value={formatPhoneDisplay(phoneDigits)}
+              onChangeText={handlePhoneChange}
+              placeholder="9999-9999"
+              placeholderTextColor="#8898AA"
+              keyboardType="numeric"
+              maxLength={9}
+              style={styles.phoneInput}
+            />
+          </View>
+          <Text style={styles.hint}>Formato Honduras: 8 dígitos</Text>
         </View>
 
         {/* Ubicación */}
@@ -189,6 +210,10 @@ const styles = StyleSheet.create({
   typeChipTextSelected: { color: '#fff' },
   textArea: { backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, fontSize: 14, color: '#172B4D', minHeight: 100, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2, borderWidth: 1, borderColor: '#E8EAF0' },
   input: { backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, fontSize: 14, color: '#172B4D', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2, borderWidth: 1, borderColor: '#E8EAF0' },
+  phoneRow: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: '#E8EAF0', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2, overflow: 'hidden' },
+  phonePrefix: { paddingHorizontal: 14, paddingVertical: 14, backgroundColor: '#F0F2F8', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#E8EAF0' },
+  phonePrefixText: { fontSize: 14, fontWeight: '700', color: '#172B4D' },
+  phoneInput: { flex: 1, paddingHorizontal: 14, paddingVertical: 14, fontSize: 14, color: '#172B4D' },
   locBtn: { backgroundColor: '#fff', borderRadius: 16, paddingVertical: 14, alignItems: 'center', borderWidth: 1.5, borderColor: '#5E72E4', borderStyle: 'dashed' },
   locBtnText: { fontSize: 14, fontWeight: '700', color: '#5E72E4' },
   coordsCard: { backgroundColor: '#EEF0FD', borderRadius: 16, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 10 },
