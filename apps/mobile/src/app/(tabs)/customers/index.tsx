@@ -55,7 +55,7 @@ export default function CustomersScreen() {
   })
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Clientes</Text>
         <View style={styles.searchBox}>

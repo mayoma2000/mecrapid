@@ -87,7 +87,7 @@ export default function AppointmentsScreen() {
   })
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Citas</Text>
         <View style={styles.weekNav}>
