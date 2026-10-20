@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useApi } from '../../lib/api'
 import { useSession, signOut } from '../../lib/auth-client'
@@ -34,6 +34,10 @@ function QuickAction({ icon, label, color, onPress }: { icon: string; label: str
   )
 }
 
+function getInitials(name: string) {
+  return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+}
+
 export default function DashboardScreen() {
   const { data: session } = useSession()
   const { request } = useApi()
@@ -52,26 +56,32 @@ export default function DashboardScreen() {
     queryFn: () => request<{ meta: { total: number } }>(`/api/v1/appointments?from=${today}T00:00:00.000Z&to=${today}T23:59:59.999Z&limit=1`),
   })
 
-  const firstName = session?.user.name?.split(' ')[0] ?? 'Usuario'
+  const userName = session?.user.name ?? 'Usuario'
+  const userEmail = session?.user.email ?? ''
+  const initials = getInitials(userName)
+
+  function handleSignOut() {
+    Alert.alert('Cerrar sesión', '¿Estás seguro?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Salir', style: 'destructive', onPress: () => { void signOut() } },
+    ])
+  }
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.greeting}>Hola, {firstName} 👋</Text>
-            <Text style={styles.dateText}>
-              {new Date().toLocaleDateString('es-HN', { weekday: 'long', day: 'numeric', month: 'long' })}
-            </Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => { void signOut() }}
-            style={styles.signOutBtn}
-          >
-            <Text style={styles.signOutText}>Salir</Text>
-          </TouchableOpacity>
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Page title */}
+        <View style={styles.pageHeader}>
+          <Text style={styles.pageTitle}>Tablero</Text>
+          <Text style={styles.pageDate}>
+            {new Date().toLocaleDateString('es-HN', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </Text>
         </View>
 
+        {/* KPI Cards */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Resumen</Text>
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
@@ -101,30 +111,59 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Acciones rápidas</Text>
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
             <QuickAction
               icon="🔧"
-              label="Nueva orden"
+              label="Órdenes"
               color="#5E72E4"
               onPress={() => router.push('/(tabs)/orders')}
             />
             <QuickAction
               icon="📅"
-              label="Nueva cita"
+              label="Citas"
               color="#2DCE89"
               onPress={() => router.push('/(tabs)/appointments')}
             />
             <QuickAction
               icon="👤"
-              label="Nuevo cliente"
+              label="Clientes"
               color="#11CDEF"
               onPress={() => router.push('/(tabs)/customers')}
             />
           </View>
         </View>
       </ScrollView>
+
+      {/* Custom bottom bar: usuario | 📊 | cerrar sesión */}
+      <View style={styles.bottomBar}>
+        {/* Usuario */}
+        <View style={styles.userPill}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
+          <View style={{ flex: 1, marginLeft: 8 }}>
+            <Text style={styles.userName} numberOfLines={1}>{userName}</Text>
+            <Text style={styles.userEmail} numberOfLines={1}>{userEmail}</Text>
+          </View>
+        </View>
+
+        {/* Tablero icon centrado */}
+        <View style={styles.centerIcon}>
+          <View style={styles.centerIconInner}>
+            <Text style={{ fontSize: 22 }}>📊</Text>
+          </View>
+          <Text style={styles.centerIconLabel}>Tablero</Text>
+        </View>
+
+        {/* Cerrar sesión */}
+        <TouchableOpacity onPress={handleSignOut} style={styles.signOutBtn}>
+          <Text style={{ fontSize: 18 }}>🚪</Text>
+          <Text style={styles.signOutText}>Salir</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   )
 }
@@ -134,39 +173,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FE',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  pageHeader: {
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingTop: 20,
+    paddingBottom: 4,
   },
-  greeting: {
-    fontSize: 22,
+  pageTitle: {
+    fontSize: 28,
     fontWeight: '800',
     color: '#172B4D',
   },
-  dateText: {
+  pageDate: {
     fontSize: 13,
     color: '#8898AA',
     marginTop: 2,
     textTransform: 'capitalize',
-  },
-  signOutBtn: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  signOutText: {
-    fontSize: 13,
-    color: '#525F7F',
-    fontWeight: '700',
   },
   section: {
     paddingHorizontal: 20,
@@ -223,5 +244,89 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     textAlign: 'center',
+  },
+
+  /* ── Bottom bar ── */
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 84,
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 16,
+  },
+  userPill: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    backgroundColor: '#EEF0FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  avatarText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#5E72E4',
+  },
+  userName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#172B4D',
+  },
+  userEmail: {
+    fontSize: 10,
+    color: '#8898AA',
+    marginTop: 1,
+  },
+  centerIcon: {
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  centerIconInner: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#EEF0FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#5E72E4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  centerIconLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#5E72E4',
+    marginTop: 3,
+  },
+  signOutBtn: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    marginLeft: 8,
+    gap: 2,
+  },
+  signOutText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#8898AA',
   },
 })

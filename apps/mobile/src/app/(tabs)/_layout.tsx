@@ -22,6 +22,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          tabBarStyle: { display: 'none' },
           tabBarIcon: ({ focused }) => <TabIcon icon="📊" label="Tablero" focused={focused} />,
         }}
       />
