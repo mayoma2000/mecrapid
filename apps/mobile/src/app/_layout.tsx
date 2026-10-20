@@ -4,6 +4,7 @@ import { Slot, useRouter, useSegments } from 'expo-router'
 import { useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { useSession } from '../lib/auth-client'
+import { LoadingScreen } from '../components/LoadingScreen'
 
 const queryClient = new QueryClient()
 
@@ -21,6 +22,8 @@ function AuthGuard() {
       router.replace('/(tabs)')
     }
   }, [isPending, session, segments])
+
+  if (isPending) return <LoadingScreen />
 
   return <Slot />
 }

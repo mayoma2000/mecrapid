@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingTop: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.08,
@@ -378,25 +378,25 @@ const styles = StyleSheet.create({
   centerLogoWrap: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -28,          // sube el logo sobre la barra
+    marginTop: -44,          // sube el logo sobre la barra
   },
   centerLogoOuter: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: '#fff',
     overflow: 'hidden',
     borderWidth: 3,
     borderColor: '#EEF0FD',
     shadowColor: '#5E72E4',
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.22,
-    shadowRadius: 14,
-    elevation: 10,
+    shadowRadius: 18,
+    elevation: 12,
   },
   logoImg: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 120,
   },
 
   /* ── Admin modal ── */
