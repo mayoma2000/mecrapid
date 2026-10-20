@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, Pressable } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useState } from 'react'
 import { useApi } from '../../lib/api'
 import { useSession, signOut } from '../../lib/auth-client'
 import { router } from 'expo-router'
@@ -38,10 +39,36 @@ function getInitials(name: string) {
   return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 }
 
+function InfoRow({ icon, label, value, last }: { icon: string; label: string; value: string; last?: boolean }) {
+  return (
+    <View style={[infoRowStyles.row, !last && infoRowStyles.border]}>
+      <View style={infoRowStyles.iconBox}>
+        <Text style={{ fontSize: 15 }}>{icon}</Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={infoRowStyles.label}>{label}</Text>
+        <Text style={infoRowStyles.value} numberOfLines={1}>{value}</Text>
+      </View>
+    </View>
+  )
+}
+
+const infoRowStyles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16, gap: 12 },
+  border: { borderBottomWidth: 1, borderBottomColor: '#F1F2F6' },
+  iconBox: {
+    width: 36, height: 36, borderRadius: 10,
+    backgroundColor: '#EEF0FD', alignItems: 'center', justifyContent: 'center',
+  },
+  label: { fontSize: 11, color: '#8898AA', fontWeight: '600', marginBottom: 1 },
+  value: { fontSize: 13, color: '#172B4D', fontWeight: '600' },
+})
+
 export default function DashboardScreen() {
   const { data: session } = useSession()
   const { request } = useApi()
   const insets = useSafeAreaInsets()
+  const [adminVisible, setAdminVisible] = useState(false)
   const today = new Date().toISOString().split('T')[0]!
 
   const { data: customersAgg } = useQuery({
@@ -59,13 +86,17 @@ export default function DashboardScreen() {
 
   const userName = session?.user.name ?? 'Usuario'
   const userEmail = session?.user.email ?? ''
+  const userCreatedAt = session?.user.createdAt
   const initials = getInitials(userName)
 
   function handleSignOut() {
-    Alert.alert('Cerrar sesión', '¿Estás seguro?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Salir', style: 'destructive', onPress: () => { void signOut() } },
-    ])
+    setAdminVisible(false)
+    setTimeout(() => {
+      Alert.alert('Cerrar sesión', '¿Estás seguro?', [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Salir', style: 'destructive', onPress: () => { void signOut() } },
+      ])
+    }, 300)
   }
 
   return (
@@ -138,7 +169,7 @@ export default function DashboardScreen() {
         </View>
       </ScrollView>
 
-      {/* Custom bottom bar: usuario | 📊 | cerrar sesión */}
+      {/* Custom bottom bar: usuario | 📊 Tablero | Admin */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 8) + 8 }]}>
         {/* Usuario */}
         <View style={styles.userPill}>
@@ -159,12 +190,57 @@ export default function DashboardScreen() {
           <Text style={styles.centerIconLabel}>Tablero</Text>
         </View>
 
-        {/* Cerrar sesión */}
-        <TouchableOpacity onPress={handleSignOut} style={styles.signOutBtn}>
-          <Text style={{ fontSize: 18 }}>🚪</Text>
-          <Text style={styles.signOutText}>Salir</Text>
+        {/* Admin */}
+        <TouchableOpacity onPress={() => setAdminVisible(true)} style={styles.adminBtn}>
+          <View style={styles.adminIconBox}>
+            <Text style={{ fontSize: 16 }}>⚙️</Text>
+          </View>
+          <Text style={styles.adminText}>Admin</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Admin modal */}
+      <Modal
+        visible={adminVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAdminVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setAdminVisible(false)} />
+        <View style={[styles.modalSheet, { paddingBottom: Math.max(insets.bottom, 16) + 8 }]}>
+          {/* Handle */}
+          <View style={styles.modalHandle} />
+
+          {/* Avatar grande */}
+          <View style={styles.modalAvatar}>
+            <Text style={styles.modalAvatarText}>{initials}</Text>
+          </View>
+
+          {/* Nombre */}
+          <Text style={styles.modalName}>{userName}</Text>
+
+          {/* Filas de datos */}
+          <View style={styles.infoCard}>
+            <InfoRow icon="✉️" label="Correo" value={userEmail} />
+            {userCreatedAt && (
+              <InfoRow
+                icon="📅"
+                label="Miembro desde"
+                value={new Date(userCreatedAt).toLocaleDateString('es-HN', {
+                  day: 'numeric', month: 'long', year: 'numeric',
+                })}
+              />
+            )}
+            <InfoRow icon="🔑" label="Rol" value="Administrador" />
+            <InfoRow icon="🆔" label="ID" value={session?.user.id?.slice(0, 8).toUpperCase() ?? '—'} last />
+          </View>
+
+          {/* Cerrar sesión */}
+          <TouchableOpacity style={styles.signOutBtnFull} onPress={handleSignOut}>
+            <Text style={styles.signOutBtnText}>🚪  Cerrar sesión</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -317,16 +393,94 @@ const styles = StyleSheet.create({
     color: '#5E72E4',
     marginTop: 3,
   },
-  signOutBtn: {
+  adminBtn: {
     flex: 1,
     alignItems: 'flex-end',
     justifyContent: 'center',
     marginLeft: 8,
     gap: 2,
   },
-  signOutText: {
+  adminIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#EEF0FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  adminText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#8898AA',
+    color: '#5E72E4',
+  },
+
+  /* ── Admin modal ── */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  modalSheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingTop: 12,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    elevation: 24,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E0E0E0',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  modalAvatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 24,
+    backgroundColor: '#EEF0FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 12,
+    shadowColor: '#5E72E4',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 14,
+    elevation: 6,
+  },
+  modalAvatarText: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#5E72E4',
+  },
+  modalName: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#172B4D',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  infoCard: {
+    backgroundColor: '#F8F9FE',
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 20,
+  },
+  signOutBtnFull: {
+    backgroundColor: '#FFF0F0',
+    borderRadius: 16,
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  signOutBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#F5365C',
   },
 })
