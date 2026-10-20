@@ -166,14 +166,14 @@ export default function DashboardScreen() {
                   value={customersAgg?.meta.total}
                   icon="👥"
                   color="#5E72E4"
-                  onPress={() => router.push('/(tabs)/customers')}
+                  onPress={() => router.navigate('/customers')}
                 />
                 <KPICard
                   label="Órdenes activas"
                   value={ordersAgg?.meta.total}
                   icon="🔧"
                   color="#FB6340"
-                  onPress={() => router.push('/(tabs)/orders')}
+                  onPress={() => router.navigate('/orders')}
                 />
               </View>
               <View style={{ marginTop: 12 }}>
@@ -182,7 +182,7 @@ export default function DashboardScreen() {
                   value={appointmentsAgg?.meta.total}
                   icon="📅"
                   color="#11CDEF"
-                  onPress={() => router.push('/(tabs)/appointments')}
+                  onPress={() => router.navigate('/appointments')}
                 />
               </View>
             </View>
@@ -195,19 +195,19 @@ export default function DashboardScreen() {
                   icon="🔧"
                   label="Órdenes"
                   color="#5E72E4"
-                  onPress={() => router.push('/(tabs)/orders')}
+                  onPress={() => router.navigate('/orders')}
                 />
                 <QuickAction
                   icon="📅"
                   label="Citas"
                   color="#2DCE89"
-                  onPress={() => router.push('/(tabs)/appointments')}
+                  onPress={() => router.navigate('/appointments')}
                 />
                 <QuickAction
                   icon="👤"
                   label="Clientes"
                   color="#11CDEF"
-                  onPress={() => router.push('/(tabs)/customers')}
+                  onPress={() => router.navigate('/customers')}
                 />
               </View>
             </View>
