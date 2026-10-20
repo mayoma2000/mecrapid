@@ -24,12 +24,16 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }
   no_show:     { label: 'No se presentó', bg: '#FEE8EC', color: '#F5365C' },
 }
 
+function safeDate(str: string): Date {
+  return new Date(str.replace(' ', 'T'))
+}
+
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit' })
+  return safeDate(iso).toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit' })
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('es-HN', { weekday: 'short', day: 'numeric', month: 'short' })
+  return safeDate(iso).toLocaleDateString('es-HN', { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
 function AppointmentCard({ appt }: { appt: Appointment }) {
@@ -116,7 +120,7 @@ export default function AppointmentsScreen() {
           data={data?.data ?? []}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <AppointmentCard appt={item} />}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}

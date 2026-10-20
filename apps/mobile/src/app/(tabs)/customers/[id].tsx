@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useLocalSearchParams, router, Stack } from 'expo-router'
+import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../lib/api'
 
 interface CustomerDetail {
@@ -62,7 +62,6 @@ export default function CustomerDetailScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
-      <Stack.Screen options={{ tabBarStyle: { display: 'none' } }} />
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backBtnText}>‹</Text>

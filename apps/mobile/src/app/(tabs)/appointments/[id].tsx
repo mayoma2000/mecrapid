@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert, Modal, TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useLocalSearchParams, router, Stack } from 'expo-router'
+import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../lib/api'
 
 interface AppointmentDetail {
@@ -32,7 +32,7 @@ const NEXT_STATUS: Record<string, { label: string; next: string; color: string }
 }
 
 function formatDateTime(iso: string) {
-  const d = new Date(iso)
+  const d = new Date(iso.replace(' ', 'T'))
   return {
     date: d.toLocaleDateString('es-HN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
     time: d.toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit' }),
@@ -119,7 +119,6 @@ export default function AppointmentDetailScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
-      <Stack.Screen options={{ tabBarStyle: { display: 'none' } }} />
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backBtnText}>‹</Text>

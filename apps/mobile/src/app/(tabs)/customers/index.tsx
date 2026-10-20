@@ -80,7 +80,7 @@ export default function CustomersScreen() {
           data={data?.data ?? []}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <CustomerCard customer={item} />}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}

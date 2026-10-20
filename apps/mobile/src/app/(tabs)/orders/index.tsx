@@ -100,7 +100,7 @@ export default function OrdersScreen() {
           data={data?.data ?? []}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <OrderCard order={item} />}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}

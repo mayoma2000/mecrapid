@@ -19,16 +19,17 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: route.name === 'index' || ((route as unknown as { state?: { index: number } }).state?.index ?? 0) > 0
+          ? { display: 'none' }
+          : styles.tabBar,
         tabBarShowLabel: false,
-      }}
+      })}
     >
       <Tabs.Screen
         name="index"
         options={{
-          tabBarStyle: { display: 'none' },
           tabBarIcon: ({ focused }) => <TabIcon icon="📊" label="Tablero" focused={focused} />,
         }}
       />
