@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useApi } from '../../lib/api'
 import { useSession, signOut } from '../../lib/auth-client'
 import { router } from 'expo-router'
@@ -41,6 +41,7 @@ function getInitials(name: string) {
 export default function DashboardScreen() {
   const { data: session } = useSession()
   const { request } = useApi()
+  const insets = useSafeAreaInsets()
   const today = new Date().toISOString().split('T')[0]!
 
   const { data: customersAgg } = useQuery({
@@ -70,7 +71,7 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         {/* Page title */}
@@ -138,7 +139,7 @@ export default function DashboardScreen() {
       </ScrollView>
 
       {/* Custom bottom bar: usuario | 📊 | cerrar sesión */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 8) + 8 }]}>
         {/* Usuario */}
         <View style={styles.userPill}>
           <View style={styles.avatar}>
@@ -252,12 +253,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 84,
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingTop: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.08,
