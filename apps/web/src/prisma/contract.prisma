@@ -32,9 +32,10 @@ model Customer {
   address String?
   notes   String?
 
-  vehicles     Vehicle[]
-  workOrders   WorkOrder[]
-  appointments Appointment[]
+  vehicles            Vehicle[]
+  workOrders          WorkOrder[]
+  appointments        Appointment[]
+  assistanceRequests  AssistanceRequest[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
@@ -75,7 +76,7 @@ enum WorkOrderStatus {
 model WorkOrder {
   id               String          @id @default(uuid())
   customerId       String
-  vehicleId        String
+  vehicleId        String?
   mechanicId       String?
   status           WorkOrderStatus @default(pending)
   complaint        String
@@ -85,11 +86,12 @@ model WorkOrder {
   notes            String?
   completedAt      TimestamptzString?
 
-  customer     Customer          @relation(fields: [customerId], references: [id])
-  vehicle      Vehicle           @relation(fields: [vehicleId], references: [id])
-  mechanic     User?             @relation("assignedMechanic", fields: [mechanicId], references: [id])
-  serviceItems ServiceLineItem[]
-  partItems    PartLineItem[]
+  customer            Customer            @relation(fields: [customerId], references: [id])
+  vehicle             Vehicle?            @relation(fields: [vehicleId], references: [id])
+  mechanic            User?               @relation("assignedMechanic", fields: [mechanicId], references: [id])
+  serviceItems        ServiceLineItem[]
+  partItems           PartLineItem[]
+  assistanceRequests  AssistanceRequest[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
@@ -168,4 +170,36 @@ model Appointment {
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
+}
+
+// ─── Assistance ─────────────────────────────────────────────────────────────
+
+model AssistanceType {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  active      Boolean @default(true)
+
+  requests    AssistanceRequest[]
+
+  createdAt   TimestamptzString @default(now())
+}
+
+model AssistanceRequest {
+  id                String  @id @default(uuid())
+  customerId        String?
+  assistanceTypeId  String?
+  detail            String
+  phone             String
+  latitude          Float?
+  longitude         Float?
+  status            String  @default("pending")
+  workOrderId       String?
+
+  customer          Customer?        @relation(fields: [customerId], references: [id])
+  assistanceType    AssistanceType?  @relation(fields: [assistanceTypeId], references: [id])
+  workOrder         WorkOrder?       @relation(fields: [workOrderId], references: [id])
+
+  createdAt         TimestamptzString @default(now())
+  updatedAt         temporal.updatedAtString()
 }

@@ -40,7 +40,8 @@ function QuickAction({ icon, label, color, onPress }: { icon: string; label: str
 function statusColor(status: string) {
   if (status === 'completed' || status === 'done') return '#2DCE89'
   if (status === 'cancelled') return '#F5365C'
-  if (status === 'in_progress' || status === 'confirmed') return '#FB6340'
+  if (status === 'in_progress' || status === 'confirmed' || status === 'active') return '#FB6340'
+  if (status === 'scheduled') return '#5E72E4'
   return '#8898AA'
 }
 
@@ -48,6 +49,7 @@ function statusLabel(status: string) {
   const map: Record<string, string> = {
     pending: 'Pendiente',
     in_progress: 'En proceso',
+    active: 'Activa',
     completed: 'Completado',
     done: 'Completado',
     cancelled: 'Cancelado',
@@ -112,7 +114,7 @@ export default function DashboardScreen() {
     enabled: isStaff,
   })
 
-  // Cliente final: mis órdenes y citas
+  // Cliente final: mis órdenes, citas y solicitudes de asistencia
   const { data: myOrders } = useQuery({
     queryKey: ['my-orders'],
     queryFn: () => request<{ data: { id: string; status: string; complaint: string; createdAt: string }[] }>('/api/v1/me/orders'),
@@ -121,6 +123,11 @@ export default function DashboardScreen() {
   const { data: myAppointments } = useQuery({
     queryKey: ['my-appointments'],
     queryFn: () => request<{ data: { id: string; status: string; scheduledAt: string; serviceType: string }[] }>('/api/v1/me/appointments'),
+    enabled: !isStaff,
+  })
+  const { data: myAssistance } = useQuery({
+    queryKey: ['my-assistance'],
+    queryFn: () => request<{ data: { id: string; status: string; detail: string; createdAt: string; assistanceType: { name: string } | null }[] }>('/api/v1/me/assistance-requests'),
     enabled: !isStaff,
   })
 
@@ -214,6 +221,52 @@ export default function DashboardScreen() {
           </>
         ) : (
           <>
+            {/* CTAs principales — cliente */}
+            <View style={styles.section}>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+                <TouchableOpacity onPress={() => router.navigate('/assistance-request')} style={styles.ctaCard}>
+                  <Text style={styles.ctaIcon}>🆘</Text>
+                  <Text style={styles.ctaTitle}>Solicitar Asistencia</Text>
+                  <Text style={styles.ctaSub}>Mecánico en tu ubicación</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.navigate('/book-appointment')} style={[styles.ctaCard, styles.ctaCardSecondary]}>
+                  <Text style={styles.ctaIcon}>📅</Text>
+                  <Text style={[styles.ctaTitle, { color: '#5E72E4' }]}>Agendar Cita</Text>
+                  <Text style={styles.ctaSub}>Trae tu vehículo al taller</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Mis Solicitudes de asistencia */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Mis Solicitudes</Text>
+              {(myAssistance?.data.length ?? 0) === 0 ? (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyIcon}>🆘</Text>
+                  <Text style={styles.emptyTitle}>Sin solicitudes</Text>
+                  <Text style={styles.emptySubtitle}>Solicita asistencia en carretera con el botón de arriba</Text>
+                </View>
+              ) : (
+                <View style={{ marginTop: 12, gap: 10 }}>
+                  {myAssistance?.data.map((a) => (
+                    <View key={a.id} style={styles.listCard}>
+                      <View style={styles.listCardLeft}>
+                        <Text style={styles.listCardTitle} numberOfLines={1}>
+                          {a.assistanceType?.name ?? 'Asistencia'}
+                        </Text>
+                        <Text style={styles.listCardSub} numberOfLines={1}>{a.detail}</Text>
+                      </View>
+                      <View style={[styles.statusBadge, { backgroundColor: statusColor(a.status) + '22' }]}>
+                        <Text style={[styles.statusText, { color: statusColor(a.status) }]}>
+                          {statusLabel(a.status)}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+
             {/* Mis Órdenes — cliente view */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Mis Órdenes</Text>
@@ -580,6 +633,27 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#F5365C',
   },
+
+  /* ── CTA cards (cliente) ── */
+  ctaCard: {
+    flex: 1,
+    backgroundColor: '#F5365C',
+    borderRadius: 20,
+    padding: 18,
+    shadowColor: '#F5365C',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  ctaCardSecondary: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+  },
+  ctaIcon: { fontSize: 28, marginBottom: 8 },
+  ctaTitle: { fontSize: 14, fontWeight: '800', color: '#fff', marginBottom: 3 },
+  ctaSub: { fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
 
   /* ── Cliente final cards ── */
   emptyCard: {

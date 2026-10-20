@@ -11,6 +11,8 @@ const NAV = [
   { href: '/vehicles', label: 'Vehículos', icon: '🚗' },
   { href: '/work-orders', label: 'Órdenes', icon: '🔧' },
   { href: '/appointments', label: 'Citas', icon: '📅' },
+  { href: '/assistance-requests', label: 'Solicitudes', icon: '🆘' },
+  { href: '/assistance-types', label: 'Tipos Asistencia', icon: '🔖' },
 ]
 
 export function SidebarNav() {
