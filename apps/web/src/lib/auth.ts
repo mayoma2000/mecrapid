@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth'
 import { expo } from '@better-auth/expo'
+import { admin } from 'better-auth/plugins'
 import { Pool } from '@neondatabase/serverless'
 
 export const auth = betterAuth({
@@ -7,7 +8,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [expo()],
+  plugins: [expo(), admin()],
   trustedOrigins: [
     process.env['BETTER_AUTH_URL'] ?? 'http://localhost:3000',
     ...(process.env['VERCEL_URL'] ? [`https://${process.env['VERCEL_URL']}`] : []),

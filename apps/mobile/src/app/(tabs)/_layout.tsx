@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router'
 import { View, Text, StyleSheet } from 'react-native'
+import { useSession } from '../../lib/auth-client'
 
 function TabIcon({ icon, label, focused }: { icon: string; label: string; focused: boolean }) {
   return (
@@ -11,6 +12,11 @@ function TabIcon({ icon, label, focused }: { icon: string; label: string; focuse
 }
 
 export default function TabsLayout() {
+  const { data: session } = useSession()
+  const role = (session?.user as { role?: string })?.role ?? 'user'
+  const isAdmin = role === 'admin'
+  const isStaff = role === 'admin' || role === 'mecanico'
+
   return (
     <Tabs
       screenOptions={{
@@ -29,18 +35,21 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="orders"
         options={{
+          href: isStaff ? undefined : null,
           tabBarIcon: ({ focused }) => <TabIcon icon="🔧" label="Órdenes" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="appointments"
         options={{
+          href: isStaff ? undefined : null,
           tabBarIcon: ({ focused }) => <TabIcon icon="📅" label="Citas" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="customers"
         options={{
+          href: isAdmin ? undefined : null,
           tabBarIcon: ({ focused }) => <TabIcon icon="👤" label="Clientes" focused={focused} />,
         }}
       />

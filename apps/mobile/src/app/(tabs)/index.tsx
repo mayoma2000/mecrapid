@@ -37,6 +37,26 @@ function QuickAction({ icon, label, color, onPress }: { icon: string; label: str
   )
 }
 
+function statusColor(status: string) {
+  if (status === 'completed' || status === 'done') return '#2DCE89'
+  if (status === 'cancelled') return '#F5365C'
+  if (status === 'in_progress' || status === 'confirmed') return '#FB6340'
+  return '#8898AA'
+}
+
+function statusLabel(status: string) {
+  const map: Record<string, string> = {
+    pending: 'Pendiente',
+    in_progress: 'En proceso',
+    completed: 'Completado',
+    done: 'Completado',
+    cancelled: 'Cancelado',
+    confirmed: 'Confirmada',
+    scheduled: 'Programada',
+  }
+  return map[status] ?? status
+}
+
 function getInitials(name: string) {
   return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 }
@@ -72,18 +92,36 @@ export default function DashboardScreen() {
   const insets = useSafeAreaInsets()
   const [adminVisible, setAdminVisible] = useState(false)
   const today = new Date().toISOString().split('T')[0]!
+  const role = (session?.user as { role?: string })?.role ?? 'user'
+  const isStaff = role === 'admin' || role === 'mecanico'
 
+  // Staff KPIs
   const { data: customersAgg } = useQuery({
     queryKey: ['customers-count'],
     queryFn: () => request<{ meta: { total: number } }>('/api/v1/customers?limit=1'),
+    enabled: isStaff,
   })
   const { data: ordersAgg } = useQuery({
     queryKey: ['orders-active'],
     queryFn: () => request<{ meta: { total: number } }>('/api/v1/work-orders?status=active&limit=1'),
+    enabled: isStaff,
   })
   const { data: appointmentsAgg } = useQuery({
     queryKey: ['appointments-today'],
     queryFn: () => request<{ meta: { total: number } }>(`/api/v1/appointments?from=${today}T00:00:00.000Z&to=${today}T23:59:59.999Z&limit=1`),
+    enabled: isStaff,
+  })
+
+  // Cliente final: mis órdenes y citas
+  const { data: myOrders } = useQuery({
+    queryKey: ['my-orders'],
+    queryFn: () => request<{ data: { id: string; status: string; complaint: string; createdAt: string }[] }>('/api/v1/me/orders'),
+    enabled: !isStaff,
+  })
+  const { data: myAppointments } = useQuery({
+    queryKey: ['my-appointments'],
+    queryFn: () => request<{ data: { id: string; status: string; scheduledAt: string; serviceType: string }[] }>('/api/v1/me/appointments'),
+    enabled: !isStaff,
   })
 
   const rawName = session?.user.name ?? ''
@@ -117,60 +155,136 @@ export default function DashboardScreen() {
           </Text>
         </View>
 
-        {/* KPI Cards */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Resumen</Text>
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-            <KPICard
-              label="Clientes"
-              value={customersAgg?.meta.total}
-              icon="👥"
-              color="#5E72E4"
-              onPress={() => router.push('/(tabs)/customers')}
-            />
-            <KPICard
-              label="Órdenes activas"
-              value={ordersAgg?.meta.total}
-              icon="🔧"
-              color="#FB6340"
-              onPress={() => router.push('/(tabs)/orders')}
-            />
-          </View>
-          <View style={{ marginTop: 12 }}>
-            <KPICard
-              label="Citas para hoy"
-              value={appointmentsAgg?.meta.total}
-              icon="📅"
-              color="#11CDEF"
-              onPress={() => router.push('/(tabs)/appointments')}
-            />
-          </View>
-        </View>
+        {isStaff ? (
+          <>
+            {/* KPI Cards — staff view */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Resumen</Text>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+                <KPICard
+                  label="Clientes"
+                  value={customersAgg?.meta.total}
+                  icon="👥"
+                  color="#5E72E4"
+                  onPress={() => router.push('/(tabs)/customers')}
+                />
+                <KPICard
+                  label="Órdenes activas"
+                  value={ordersAgg?.meta.total}
+                  icon="🔧"
+                  color="#FB6340"
+                  onPress={() => router.push('/(tabs)/orders')}
+                />
+              </View>
+              <View style={{ marginTop: 12 }}>
+                <KPICard
+                  label="Citas para hoy"
+                  value={appointmentsAgg?.meta.total}
+                  icon="📅"
+                  color="#11CDEF"
+                  onPress={() => router.push('/(tabs)/appointments')}
+                />
+              </View>
+            </View>
 
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Acciones rápidas</Text>
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-            <QuickAction
-              icon="🔧"
-              label="Órdenes"
-              color="#5E72E4"
-              onPress={() => router.push('/(tabs)/orders')}
-            />
-            <QuickAction
-              icon="📅"
-              label="Citas"
-              color="#2DCE89"
-              onPress={() => router.push('/(tabs)/appointments')}
-            />
-            <QuickAction
-              icon="👤"
-              label="Clientes"
-              color="#11CDEF"
-              onPress={() => router.push('/(tabs)/customers')}
-            />
-          </View>
-        </View>
+            {/* Quick Actions — staff view */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Acciones rápidas</Text>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+                <QuickAction
+                  icon="🔧"
+                  label="Órdenes"
+                  color="#5E72E4"
+                  onPress={() => router.push('/(tabs)/orders')}
+                />
+                <QuickAction
+                  icon="📅"
+                  label="Citas"
+                  color="#2DCE89"
+                  onPress={() => router.push('/(tabs)/appointments')}
+                />
+                <QuickAction
+                  icon="👤"
+                  label="Clientes"
+                  color="#11CDEF"
+                  onPress={() => router.push('/(tabs)/customers')}
+                />
+              </View>
+            </View>
+          </>
+        ) : (
+          <>
+            {/* Mis Órdenes — cliente view */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Mis Órdenes</Text>
+              {(myOrders?.data.length ?? 0) === 0 ? (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyIcon}>🔧</Text>
+                  <Text style={styles.emptyTitle}>Sin órdenes aún</Text>
+                  <Text style={styles.emptySubtitle}>Cuando traigas tu vehículo aparecerán aquí</Text>
+                </View>
+              ) : (
+                <View style={{ marginTop: 12, gap: 10 }}>
+                  {myOrders?.data.map((order) => (
+                    <View key={order.id} style={styles.listCard}>
+                      <View style={styles.listCardLeft}>
+                        <Text style={styles.listCardTitle} numberOfLines={1}>
+                          {order.complaint || 'Orden de trabajo'}
+                        </Text>
+                        <Text style={styles.listCardSub}>
+                          {new Date(order.createdAt).toLocaleDateString('es-HN', {
+                            day: 'numeric', month: 'short', year: 'numeric',
+                          })}
+                        </Text>
+                      </View>
+                      <View style={[styles.statusBadge, { backgroundColor: statusColor(order.status) + '22' }]}>
+                        <Text style={[styles.statusText, { color: statusColor(order.status) }]}>
+                          {statusLabel(order.status)}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            {/* Mis Citas — cliente view */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Mis Citas</Text>
+              {(myAppointments?.data.length ?? 0) === 0 ? (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyIcon}>📅</Text>
+                  <Text style={styles.emptyTitle}>Sin citas programadas</Text>
+                  <Text style={styles.emptySubtitle}>Llámanos para agendar una cita</Text>
+                </View>
+              ) : (
+                <View style={{ marginTop: 12, gap: 10 }}>
+                  {myAppointments?.data.map((appt) => (
+                    <View key={appt.id} style={styles.listCard}>
+                      <View style={styles.listCardLeft}>
+                        <Text style={styles.listCardTitle} numberOfLines={1}>
+                          {appt.serviceType || 'Cita de servicio'}
+                        </Text>
+                        <Text style={styles.listCardSub}>
+                          {new Date(appt.scheduledAt).toLocaleDateString('es-HN', {
+                            weekday: 'short', day: 'numeric', month: 'short',
+                          })}{' · '}{new Date(appt.scheduledAt).toLocaleTimeString('es-HN', {
+                            hour: '2-digit', minute: '2-digit',
+                          })}
+                        </Text>
+                      </View>
+                      <View style={[styles.statusBadge, { backgroundColor: statusColor(appt.status) + '22' }]}>
+                        <Text style={[styles.statusText, { color: statusColor(appt.status) }]}>
+                          {statusLabel(appt.status)}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          </>
+        )}
       </ScrollView>
 
       {/* Bottom bar: Tablero | Logo | Admin */}
@@ -232,7 +346,7 @@ export default function DashboardScreen() {
                 })}
               />
             )}
-            <InfoRow icon="🔑" label="Rol" value="Administrador" />
+            <InfoRow icon="🔑" label="Rol" value={role === 'admin' ? 'Administrador' : role === 'mecanico' ? 'Mecánico' : 'Cliente'} />
             <InfoRow icon="🆔" label="ID" value={session?.user.id?.slice(0, 8).toUpperCase() ?? '—'} last />
           </View>
 
@@ -466,4 +580,43 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#F5365C',
   },
+
+  /* ── Cliente final cards ── */
+  emptyCard: {
+    marginTop: 12,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 28,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  emptyIcon: { fontSize: 36, marginBottom: 10 },
+  emptyTitle: { fontSize: 15, fontWeight: '700', color: '#172B4D', marginBottom: 4 },
+  emptySubtitle: { fontSize: 12, color: '#8898AA', textAlign: 'center' },
+  listCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  listCardLeft: { flex: 1, marginRight: 10 },
+  listCardTitle: { fontSize: 14, fontWeight: '700', color: '#172B4D' },
+  listCardSub: { fontSize: 11, color: '#8898AA', marginTop: 3 },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+  statusText: { fontSize: 11, fontWeight: '700' },
 })
