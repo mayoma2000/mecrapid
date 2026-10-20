@@ -73,7 +73,12 @@ export default function OrdersScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Órdenes</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <TouchableOpacity onPress={() => router.navigate('/')} style={styles.backBtn}>
+            <Text style={styles.backBtnText}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Órdenes</Text>
+        </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 14 }}>
           <View style={{ flexDirection: 'row', gap: 8, paddingRight: 4 }}>
             {TABS.map((tab) => (
@@ -135,6 +140,20 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#172B4D',
   },
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  backBtnText: { fontSize: 26, color: '#5E72E4', lineHeight: 30 },
   tab: {
     paddingHorizontal: 16,
     paddingVertical: 9,

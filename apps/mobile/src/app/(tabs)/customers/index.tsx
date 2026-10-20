@@ -57,7 +57,12 @@ export default function CustomersScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Clientes</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <TouchableOpacity onPress={() => router.navigate('/')} style={styles.backBtn}>
+            <Text style={styles.backBtnText}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Clientes</Text>
+        </View>
         <View style={styles.searchBox}>
           <Text style={{ fontSize: 16, marginRight: 8, color: '#8898AA' }}>🔍</Text>
           <TextInput
@@ -116,8 +121,21 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '800',
     color: '#172B4D',
-    marginBottom: 14,
   },
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  backBtnText: { fontSize: 26, color: '#5E72E4', lineHeight: 30 },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -93,7 +93,12 @@ export default function AppointmentsScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Citas</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+          <TouchableOpacity onPress={() => router.navigate('/')} style={styles.backBtn}>
+            <Text style={styles.backBtnText}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Citas</Text>
+        </View>
         <View style={styles.weekNav}>
           <TouchableOpacity
             onPress={() => setWeekOffset((w) => w - 1)}
@@ -154,8 +159,21 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '800',
     color: '#172B4D',
-    marginBottom: 14,
   },
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  backBtnText: { fontSize: 26, color: '#5E72E4', lineHeight: 30 },
   weekNav: {
     flexDirection: 'row',
     alignItems: 'center',
