@@ -19,13 +19,11 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      screenOptions={({ route }) => ({
+      screenOptions={{
         headerShown: false,
-        tabBarStyle: route.name === 'index' || ((route as unknown as { state?: { index: number } }).state?.index ?? 0) > 0
-          ? { display: 'none' }
-          : styles.tabBar,
+        tabBarStyle: styles.tabBar,
         tabBarShowLabel: false,
-      })}
+      }}
     >
       <Tabs.Screen
         name="index"
@@ -38,6 +36,7 @@ export default function TabsLayout() {
         name="orders"
         options={{
           href: isStaff ? undefined : null,
+          tabBarStyle: { display: 'none' },
           tabBarIcon: ({ focused }) => <TabIcon icon="🔧" label="Órdenes" focused={focused} />,
         }}
       />
@@ -45,6 +44,7 @@ export default function TabsLayout() {
         name="appointments"
         options={{
           href: isStaff ? undefined : null,
+          tabBarStyle: { display: 'none' },
           tabBarIcon: ({ focused }) => <TabIcon icon="📅" label="Citas" focused={focused} />,
         }}
       />
@@ -52,6 +52,7 @@ export default function TabsLayout() {
         name="customers"
         options={{
           href: isAdmin ? undefined : null,
+          tabBarStyle: { display: 'none' },
           tabBarIcon: ({ focused }) => <TabIcon icon="👤" label="Clientes" focused={focused} />,
         }}
       />
