@@ -68,6 +68,7 @@ export default function BookAppointmentScreen() {
   }
 
   function isDayAvailable(date: Date): boolean {
+    if (schedule.length === 0) return true
     const row = scheduleForDay(date)
     return !!row?.active
   }

@@ -93,6 +93,7 @@ export default function DashboardScreen() {
   const { request } = useApi()
   const insets = useSafeAreaInsets()
   const [adminVisible, setAdminVisible] = useState(false)
+  const [activeTab, setActiveTab] = useState<'solicitudes' | 'ordenes' | 'citas'>('solicitudes')
   const today = new Date().toISOString().split('T')[0]!
   const role = (session?.user as { role?: string })?.role ?? 'user'
   const isStaff = role === 'admin' || role === 'mecanico'
@@ -237,103 +238,128 @@ export default function DashboardScreen() {
               </View>
             </View>
 
-            {/* Mis Solicitudes de asistencia */}
+            {/* Mi Actividad — sección tabulada */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Mis Solicitudes</Text>
-              {(myAssistance?.data.length ?? 0) === 0 ? (
-                <View style={styles.emptyCard}>
-                  <Text style={styles.emptyIcon}>🆘</Text>
-                  <Text style={styles.emptyTitle}>Sin solicitudes</Text>
-                  <Text style={styles.emptySubtitle}>Solicita asistencia en carretera con el botón de arriba</Text>
-                </View>
-              ) : (
-                <View style={{ marginTop: 12, gap: 10 }}>
-                  {myAssistance?.data.map((a) => (
-                    <View key={a.id} style={styles.listCard}>
-                      <View style={styles.listCardLeft}>
-                        <Text style={styles.listCardTitle} numberOfLines={1}>
-                          {a.assistanceType?.name ?? 'Asistencia'}
-                        </Text>
-                        <Text style={styles.listCardSub} numberOfLines={1}>{a.detail}</Text>
-                      </View>
-                      <View style={[styles.statusBadge, { backgroundColor: statusColor(a.status) + '22' }]}>
-                        <Text style={[styles.statusText, { color: statusColor(a.status) }]}>
-                          {statusLabel(a.status)}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
+              <Text style={styles.sectionTitle}>Mi Actividad</Text>
 
-            {/* Mis Órdenes — cliente view */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Mis Órdenes</Text>
-              {(myOrders?.data.length ?? 0) === 0 ? (
-                <View style={styles.emptyCard}>
-                  <Text style={styles.emptyIcon}>🔧</Text>
-                  <Text style={styles.emptyTitle}>Sin órdenes aún</Text>
-                  <Text style={styles.emptySubtitle}>Cuando traigas tu vehículo aparecerán aquí</Text>
-                </View>
-              ) : (
-                <View style={{ marginTop: 12, gap: 10 }}>
-                  {myOrders?.data.map((order) => (
-                    <View key={order.id} style={styles.listCard}>
-                      <View style={styles.listCardLeft}>
-                        <Text style={styles.listCardTitle} numberOfLines={1}>
-                          {order.complaint || 'Orden de trabajo'}
-                        </Text>
-                        <Text style={styles.listCardSub}>
-                          {new Date(order.createdAt).toLocaleDateString('es-HN', {
-                            day: 'numeric', month: 'short', year: 'numeric',
-                          })}
-                        </Text>
-                      </View>
-                      <View style={[styles.statusBadge, { backgroundColor: statusColor(order.status) + '22' }]}>
-                        <Text style={[styles.statusText, { color: statusColor(order.status) }]}>
-                          {statusLabel(order.status)}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
+              {/* Tab chips */}
+              <View style={styles.tabRow}>
+                {(
+                  [
+                    { key: 'solicitudes', label: 'Solicitudes', count: myAssistance?.data.length ?? 0 },
+                    { key: 'ordenes', label: 'Órdenes', count: myOrders?.data.length ?? 0 },
+                    { key: 'citas', label: 'Citas', count: myAppointments?.data.length ?? 0 },
+                  ] as const
+                ).map((tab) => {
+                  const active = activeTab === tab.key
+                  return (
+                    <TouchableOpacity
+                      key={tab.key}
+                      onPress={() => setActiveTab(tab.key)}
+                      style={[styles.actTab, active && styles.actTabActive]}
+                    >
+                      <Text style={[styles.actTabText, active && styles.actTabTextActive]}>
+                        {tab.label}
+                      </Text>
+                      {tab.count > 0 && (
+                        <View style={[styles.actTabBadge, active && styles.actTabBadgeActive]}>
+                          <Text style={[styles.actTabBadgeText, active && styles.actTabBadgeTextActive]}>
+                            {tab.count}
+                          </Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
 
-            {/* Mis Citas — cliente view */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Mis Citas</Text>
-              {(myAppointments?.data.length ?? 0) === 0 ? (
-                <View style={styles.emptyCard}>
-                  <Text style={styles.emptyIcon}>📅</Text>
-                  <Text style={styles.emptyTitle}>Sin citas programadas</Text>
-                  <Text style={styles.emptySubtitle}>Llámanos para agendar una cita</Text>
-                </View>
-              ) : (
-                <View style={{ marginTop: 12, gap: 10 }}>
-                  {myAppointments?.data.map((appt) => (
-                    <View key={appt.id} style={styles.listCard}>
-                      <View style={styles.listCardLeft}>
-                        <Text style={styles.listCardTitle} numberOfLines={1}>
-                          {appt.serviceType || 'Cita de servicio'}
-                        </Text>
-                        <Text style={styles.listCardSub}>
-                          {new Date(appt.scheduledAt).toLocaleDateString('es-HN', {
-                            weekday: 'short', day: 'numeric', month: 'short',
-                          })}{' · '}{new Date(appt.scheduledAt).toLocaleTimeString('es-HN', {
-                            hour: '2-digit', minute: '2-digit',
-                          })}
-                        </Text>
+              {/* Contenido del tab activo */}
+              {activeTab === 'solicitudes' && (
+                (myAssistance?.data.length ?? 0) === 0 ? (
+                  <View style={styles.emptyCompact}>
+                    <Text style={styles.emptyCompactText}>Sin solicitudes de asistencia aún</Text>
+                  </View>
+                ) : (
+                  <View style={{ marginTop: 10, gap: 8 }}>
+                    {myAssistance?.data.map((a) => (
+                      <View key={a.id} style={styles.listCard}>
+                        <View style={styles.listCardLeft}>
+                          <Text style={styles.listCardTitle} numberOfLines={1}>
+                            {a.assistanceType?.name ?? 'Asistencia'}
+                          </Text>
+                          <Text style={styles.listCardSub} numberOfLines={1}>{a.detail}</Text>
+                        </View>
+                        <View style={[styles.statusBadge, { backgroundColor: statusColor(a.status) + '22' }]}>
+                          <Text style={[styles.statusText, { color: statusColor(a.status) }]}>
+                            {statusLabel(a.status)}
+                          </Text>
+                        </View>
                       </View>
-                      <View style={[styles.statusBadge, { backgroundColor: statusColor(appt.status) + '22' }]}>
-                        <Text style={[styles.statusText, { color: statusColor(appt.status) }]}>
-                          {statusLabel(appt.status)}
-                        </Text>
+                    ))}
+                  </View>
+                )
+              )}
+
+              {activeTab === 'ordenes' && (
+                (myOrders?.data.length ?? 0) === 0 ? (
+                  <View style={styles.emptyCompact}>
+                    <Text style={styles.emptyCompactText}>Sin órdenes de trabajo aún</Text>
+                  </View>
+                ) : (
+                  <View style={{ marginTop: 10, gap: 8 }}>
+                    {myOrders?.data.map((order) => (
+                      <View key={order.id} style={styles.listCard}>
+                        <View style={styles.listCardLeft}>
+                          <Text style={styles.listCardTitle} numberOfLines={1}>
+                            {order.complaint || 'Orden de trabajo'}
+                          </Text>
+                          <Text style={styles.listCardSub}>
+                            {new Date(order.createdAt).toLocaleDateString('es-HN', {
+                              day: 'numeric', month: 'short', year: 'numeric',
+                            })}
+                          </Text>
+                        </View>
+                        <View style={[styles.statusBadge, { backgroundColor: statusColor(order.status) + '22' }]}>
+                          <Text style={[styles.statusText, { color: statusColor(order.status) }]}>
+                            {statusLabel(order.status)}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
-                  ))}
-                </View>
+                    ))}
+                  </View>
+                )
+              )}
+
+              {activeTab === 'citas' && (
+                (myAppointments?.data.length ?? 0) === 0 ? (
+                  <View style={styles.emptyCompact}>
+                    <Text style={styles.emptyCompactText}>Sin citas programadas aún</Text>
+                  </View>
+                ) : (
+                  <View style={{ marginTop: 10, gap: 8 }}>
+                    {myAppointments?.data.map((appt) => (
+                      <View key={appt.id} style={styles.listCard}>
+                        <View style={styles.listCardLeft}>
+                          <Text style={styles.listCardTitle} numberOfLines={1}>
+                            {appt.serviceType || 'Cita de servicio'}
+                          </Text>
+                          <Text style={styles.listCardSub}>
+                            {new Date(appt.scheduledAt).toLocaleDateString('es-HN', {
+                              weekday: 'short', day: 'numeric', month: 'short',
+                            })}{' · '}{new Date(appt.scheduledAt).toLocaleTimeString('es-HN', {
+                              hour: '2-digit', minute: '2-digit',
+                            })}
+                          </Text>
+                        </View>
+                        <View style={[styles.statusBadge, { backgroundColor: statusColor(appt.status) + '22' }]}>
+                          <Text style={[styles.statusText, { color: statusColor(appt.status) }]}>
+                            {statusLabel(appt.status)}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )
               )}
             </View>
           </>
@@ -655,22 +681,55 @@ const styles = StyleSheet.create({
   ctaTitle: { fontSize: 14, fontWeight: '800', color: '#fff', marginBottom: 3 },
   ctaSub: { fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
 
-  /* ── Cliente final cards ── */
-  emptyCard: {
+  /* ── Tab activity section ── */
+  tabRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+  actTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 9,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#E8EAF0',
+  },
+  actTabActive: {
+    backgroundColor: '#5E72E4',
+    borderColor: '#5E72E4',
+  },
+  actTabText: { fontSize: 12, fontWeight: '700', color: '#8898AA' },
+  actTabTextActive: { color: '#fff' },
+  actTabBadge: {
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#E8EAF0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  actTabBadgeActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
+  actTabBadgeText: { fontSize: 10, fontWeight: '800', color: '#5E72E4' },
+  actTabBadgeTextActive: { color: '#fff' },
+  emptyCompact: {
     marginTop: 12,
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 28,
+    borderRadius: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F0F0F4',
   },
-  emptyIcon: { fontSize: 36, marginBottom: 10 },
-  emptyTitle: { fontSize: 15, fontWeight: '700', color: '#172B4D', marginBottom: 4 },
-  emptySubtitle: { fontSize: 12, color: '#8898AA', textAlign: 'center' },
+  emptyCompactText: { fontSize: 13, color: '#8898AA', fontWeight: '600' },
+
+  /* ── Cliente final cards ── */
   listCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
