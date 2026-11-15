@@ -162,6 +162,11 @@ export default function DashboardScreen() {
     queryFn: () => request<{ data: Quote[]; meta: { pending: number } }>('/api/v1/me/quotes'),
     enabled: !isStaff,
   })
+  const { data: myVehicles } = useQuery({
+    queryKey: ['my-vehicles'],
+    queryFn: () => request<{ data: { id: string; make: string; model: string; year: number; licensePlate: string; mileage: number; servicesCount: number }[] }>('/api/v1/me/vehicles'),
+    enabled: !isStaff,
+  })
   const pendingQuotes = myQuotes?.data.filter((q) => q.status === 'sent') ?? []
   const answeredQuotes = myQuotes?.data.filter((q) => q.status !== 'sent').slice(0, 3) ?? []
 
@@ -321,6 +326,23 @@ export default function DashboardScreen() {
             {/* Mi Actividad — sección tabulada */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Mi Actividad</Text>
+
+              {/* Mis vehículos: cada uno abre su historial de servicios */}
+              {(myVehicles?.data.length ?? 0) > 0 && (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
+                  <View style={{ flexDirection: 'row', gap: 10 }}>
+                    {myVehicles!.data.map((v) => (
+                      <TouchableOpacity key={v.id} style={styles.vehicleChip} onPress={() => router.push(`/my-vehicle/${v.id}`)}>
+                        <Text style={{ fontSize: 22 }}>🚗</Text>
+                        <View>
+                          <Text style={styles.vehicleChipTitle}>{v.make} {v.model}</Text>
+                          <Text style={styles.vehicleChipSub}>{v.licensePlate} · {v.servicesCount} {v.servicesCount === 1 ? 'servicio' : 'servicios'}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              )}
 
               {/* Cotizaciones: las que esperan respuesta se destacan */}
               {pendingQuotes.map((q) => (
@@ -845,6 +867,19 @@ const styles = StyleSheet.create({
   ctaSub: { fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
 
   /* ── Tab activity section ── */
+  vehicleChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderWidth: 1.5,
+    borderColor: '#E8EAF0',
+  },
+  vehicleChipTitle: { fontSize: 14, fontWeight: '800', color: '#172B4D' },
+  vehicleChipSub: { fontSize: 11, color: '#8898AA', marginTop: 1 },
   quoteBanner: {
     flexDirection: 'row',
     alignItems: 'center',

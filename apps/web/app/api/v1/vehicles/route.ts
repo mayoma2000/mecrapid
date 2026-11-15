@@ -48,5 +48,7 @@ export async function POST(request: NextRequest) {
     mileage: mileage ? Number(mileage) : 0,
   })
 
+  // Primer tramo de dueño: desde que se registró el carro en el taller
+  await db.orm.public.VehicleOwnership.create({ vehicleId: vehicle.id, customerId: vehicle.customerId, createdById: g.session.user.id })
   return Response.json({ data: vehicle }, { status: 201 })
 }

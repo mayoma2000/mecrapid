@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { HistoryPanel } from './history-panel'
 
 type Vehicle = { id: string; make: string; model: string; year: number; licensePlate: string; vin: string | null; color: string | null; mileage: number; customer: { id: string; name: string } }
 
@@ -14,6 +15,7 @@ export default function VehicleDetailPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [version, setVersion] = useState(0)
 
   useEffect(() => {
     void fetch(`/api/v1/vehicles/${id}`)
@@ -22,7 +24,7 @@ export default function VehicleDetailPage() {
         setVehicle(data)
         setForm({ make: data.make, model: data.model, year: String(data.year), licensePlate: data.licensePlate, vin: data.vin ?? '', color: data.color ?? '', mileage: String(data.mileage) })
       })
-  }, [id])
+  }, [id, version])
 
   function set(field: string, value: string) { setForm((prev) => ({ ...prev, [field]: value })); setSuccess(false) }
 
@@ -50,7 +52,7 @@ export default function VehicleDetailPage() {
   if (!vehicle) return <div className="p-6 text-neutral-400 text-sm">Cargando…</div>
 
   return (
-    <div className="p-6 max-w-lg space-y-5">
+    <div className="p-6 max-w-2xl space-y-5">
       <div className="flex items-center gap-3">
         <Link href="/vehicles" className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors">←</Link>
         <div>
@@ -109,6 +111,8 @@ export default function VehicleDetailPage() {
           </button>
         </div>
       </form>
+
+      <HistoryPanel vehicleId={vehicle.id} onTransferred={() => setVersion((v) => v + 1)} />
     </div>
   )
 }

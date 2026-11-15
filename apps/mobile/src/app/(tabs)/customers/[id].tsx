@@ -115,20 +115,21 @@ export default function CustomerDetailScreen() {
           </View>
         ) : (
           customer.vehicles.map((v) => (
-            <View key={v.id} style={styles.vehicleCard}>
+            <TouchableOpacity key={v.id} style={styles.vehicleCard} onPress={() => router.push(`/(tabs)/customers/vehicle/${v.id}`)}>
               <View style={styles.vehicleIconBox}>
                 <Text style={{ fontSize: 22 }}>🚗</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.vehicleName}>{v.make} {v.model} {v.year}</Text>
                 <Text style={styles.vehiclePlate}>{v.licensePlate}</Text>
-                {(v.color || v.mileage) && (
+                {(!!v.color || (v.mileage ?? 0) > 0) && (
                   <Text style={styles.vehicleMeta}>
                     {[v.color, v.mileage ? `${v.mileage.toLocaleString()} km` : null].filter(Boolean).join(' · ')}
                   </Text>
                 )}
               </View>
-            </View>
+              <Text style={{ fontSize: 24, color: '#C9CED6' }}>›</Text>
+            </TouchableOpacity>
           ))
         )}
       </ScrollView>

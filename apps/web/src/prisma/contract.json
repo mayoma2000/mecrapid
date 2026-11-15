@@ -56,6 +56,10 @@
       "model": "Vehicle",
       "namespace": "public"
     },
+    "VehicleOwnership": {
+      "model": "VehicleOwnership",
+      "namespace": "public"
+    },
     "WorkOrder": {
       "model": "WorkOrder",
       "namespace": "public"
@@ -631,6 +635,21 @@
                 },
                 "to": {
                   "model": "AssistanceRequest",
+                  "namespace": "public"
+                }
+              },
+              "vehicleOwnerships": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "customerId"
+                  ]
+                },
+                "to": {
+                  "model": "VehicleOwnership",
                   "namespace": "public"
                 }
               },
@@ -1881,6 +1900,21 @@
                   "namespace": "public"
                 }
               },
+              "ownershipsMade": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "createdById"
+                  ]
+                },
+                "to": {
+                  "model": "VehicleOwnership",
+                  "namespace": "public"
+                }
+              },
               "pushTokens": {
                 "cardinality": "1:N",
                 "on": {
@@ -2082,6 +2116,21 @@
                   "namespace": "public"
                 }
               },
+              "ownerships": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "vehicleId"
+                  ]
+                },
+                "to": {
+                  "model": "VehicleOwnership",
+                  "namespace": "public"
+                }
+              },
               "workOrders": {
                 "cardinality": "1:N",
                 "on": {
@@ -2136,6 +2185,146 @@
               },
               "namespaceId": "public",
               "table": "Vehicle"
+            }
+          },
+          "VehicleOwnership": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "customerId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "endedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "note": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "vehicleId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "createdBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "createdById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "customer": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "customerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Customer",
+                  "namespace": "public"
+                }
+              },
+              "vehicle": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "vehicleId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Vehicle",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "createdById": {
+                  "column": "createdById"
+                },
+                "customerId": {
+                  "column": "customerId"
+                },
+                "endedAt": {
+                  "column": "endedAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "note": {
+                  "column": "note"
+                },
+                "startedAt": {
+                  "column": "startedAt"
+                },
+                "vehicleId": {
+                  "column": "vehicleId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "VehicleOwnership"
             }
           },
           "WorkOrder": {
@@ -4048,6 +4237,149 @@
                 }
               ]
             },
+            "VehicleOwnership": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "createdById": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "customerId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "endedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "note": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "startedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "vehicleId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "VehicleOwnership_vehicleId_idx_e2df58fc"
+                  },
+                  "source": {
+                    "columns": [
+                      "vehicleId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VehicleOwnership"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Vehicle"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "VehicleOwnership_customerId_idx_b2a8a46c"
+                  },
+                  "source": {
+                    "columns": [
+                      "customerId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VehicleOwnership"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Customer"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "VehicleOwnership_createdById_idx_8bf640ed"
+                  },
+                  "source": {
+                    "columns": [
+                      "createdById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VehicleOwnership"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "createdById"
+                  ],
+                  "name": "VehicleOwnership_createdById_idx_8bf640ed",
+                  "prefix": "VehicleOwnership_createdById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "customerId"
+                  ],
+                  "name": "VehicleOwnership_customerId_idx_b2a8a46c",
+                  "prefix": "VehicleOwnership_customerId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "vehicleId"
+                  ],
+                  "name": "VehicleOwnership_vehicleId_idx_e2df58fc",
+                  "prefix": "VehicleOwnership_vehicleId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "WorkOrder": {
               "checks": [
                 {
@@ -4488,10 +4820,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "3bacc04a6c6f3d5ecd1ac8a623af8189563acf951835aa78a591b259a8dedd5e"
+    "storageHash": "9909b052a23bf5d25b60707765fa9ef36adb2d999f1f26203cacdfe6f23c8178"
   },
   "execution": {
-    "executionHash": "4b2c17e4406fb50b66feb23b0a6c0d75295bf5a73f6c9ed458fc5348ab49b9ba",
+    "executionHash": "9bbba9a9e181debe789afc0ed49f018240ca8920764ce0d5f81ced2d6c1d1b74",
     "mutations": {
       "defaults": [
         {
@@ -4739,6 +5071,17 @@
           "ref": {
             "entry": "Vehicle",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "VehicleOwnership",
+            "field": "id",
             "namespace": "public"
           }
         },
