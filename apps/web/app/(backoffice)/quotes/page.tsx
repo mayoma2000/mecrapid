@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { QUOTE_STATUS, money } from '@/src/lib/quote-labels'
 import { toDate } from '@/src/lib/job-time'
 import { waMessages, whatsappLink } from '@/src/lib/whatsapp'
+import { useRefreshTick } from '@/src/lib/refresh'
 
 type Row = {
   id: string; status: string; workOrderId: string; createdAt: string; sentAt: string | null; respondedAt: string | null
@@ -37,10 +38,11 @@ export default function QuotesPage() {
   const [rows, setRows] = useState<Row[] | null>(null)
   const [meta, setMeta] = useState<Page['meta'] | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
+  const tick = useRefreshTick()
 
   useEffect(() => {
     void fetchPage(tab, 0).then((p) => { setRows(p?.data ?? []); setMeta(p?.meta ?? null) })
-  }, [tab])
+  }, [tab, tick])
 
   async function loadMore() {
     setLoadingMore(true)

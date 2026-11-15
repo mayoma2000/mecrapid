@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { signOut } from '@/src/lib/auth-client'
+import { NotificationsBell } from './notifications-bell'
 
 type Role = 'admin' | 'mecanico' | 'user'
 
@@ -86,6 +87,7 @@ function NavContent({
         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Backoffice</p>
       </div>
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+        <NotificationsBell onNavigate={onClose} />
         {NAV.filter((item) => !item.adminOnly || role === 'admin').map((item) => {
           const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
           return (

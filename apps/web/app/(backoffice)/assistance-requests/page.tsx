@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRefreshTick } from '@/src/lib/refresh'
 import { useRouter } from 'next/navigation'
 
 type AssistanceRequest = {
@@ -26,14 +27,14 @@ export default function AssistanceRequestsPage() {
   const [filter, setFilter] = useState('pending')
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const tick = useRefreshTick()
 
   useEffect(() => {
-    setLoading(true)
     const qs = filter !== 'all' ? `?status=${filter}` : ''
     void fetch(`/api/v1/assistance-requests${qs}`)
       .then((r) => r.json() as Promise<{ data: AssistanceRequest[] }>)
       .then(({ data }) => { setRequests(data); setLoading(false) })
-  }, [filter])
+  }, [filter, tick])
 
   return (
     <div className="p-6 space-y-5">
@@ -44,7 +45,7 @@ export default function AssistanceRequestsPage() {
       {/* Filter tabs */}
       <div className="flex gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1 w-fit">
         {FILTERS.map((f) => (
-          <button key={f} onClick={() => setFilter(f)}
+          <button key={f} onClick={() => { if (f !== filter) { setLoading(true); setFilter(f) } }}
             className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors capitalize ${filter === f ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'}`}>
             {f === 'all' ? 'Todas' : STATUS_LABEL[f] ?? f}
           </button>

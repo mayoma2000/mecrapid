@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRefreshTick } from '@/src/lib/refresh'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -27,6 +28,7 @@ export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const tick = useRefreshTick()
 
   useEffect(() => {
     const from = new Date()
@@ -36,7 +38,7 @@ export default function AppointmentsPage() {
     void fetch(`/api/v1/appointments?from=${from.toISOString()}&to=${to.toISOString()}&limit=100`)
       .then((r) => r.json() as Promise<{ data: Appointment[] }>)
       .then(({ data }) => { setAppointments(data); setLoading(false) })
-  }, [])
+  }, [tick])
 
   function fmt(iso: string) {
     return new Date(iso).toLocaleString('es-HN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })

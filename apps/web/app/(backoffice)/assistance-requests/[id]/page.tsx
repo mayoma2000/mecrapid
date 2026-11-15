@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { useRefreshTick } from '@/src/lib/refresh'
 
 type AssistanceRequest = {
   id: string; detail: string; phone: string; status: string; createdAt: string
@@ -23,12 +24,13 @@ export default function AssistanceRequestDetailPage() {
   const [req, setReq] = useState<AssistanceRequest | null>(null)
   const [activating, setActivating] = useState(false)
   const [loading, setLoading] = useState(true)
+  const tick = useRefreshTick()
 
   useEffect(() => {
     void fetch(`/api/v1/assistance-requests/${id}`)
       .then((r) => r.json() as Promise<{ data: AssistanceRequest }>)
       .then(({ data }) => { setReq(data); setLoading(false) })
-  }, [id])
+  }, [id, tick])
 
   async function handleActivate() {
     setActivating(true)
@@ -74,7 +76,10 @@ export default function AssistanceRequestDetailPage() {
       <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-100 dark:divide-neutral-800">
         <Row label="Cliente" value={req.customer?.name ?? '—'} />
         <Row label="Email" value={req.customer?.email ?? '—'} />
-        <Row label="Teléfono" value={req.phone} />
+        <div className="px-5 py-3.5 flex items-center justify-between gap-4">
+          <span className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">Teléfono</span>
+          <a href={`tel:${req.phone.replace(/[^\d+]/g, '')}`} className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">📞 {req.phone}</a>
+        </div>
         <Row label="Tipo de asistencia" value={req.assistanceType?.name ?? '—'} />
         {req.assistanceType?.description && <Row label="Descripción del tipo" value={req.assistanceType.description} />}
         <Row label="Detalle" value={req.detail} />

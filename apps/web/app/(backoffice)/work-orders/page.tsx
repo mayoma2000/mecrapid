@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRefreshTick } from '@/src/lib/refresh'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -31,13 +32,14 @@ export default function WorkOrdersPage() {
   const [tab, setTab] = useState('active')
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const tick = useRefreshTick()
 
+  // Se recarga al cambiar de pestaña y cada 15 s (sin parpadear el "Cargando…")
   useEffect(() => {
-    setLoading(true)
     void fetch(`/api/v1/work-orders?status=${tab}&limit=50`)
       .then((r) => r.json() as Promise<{ data: WorkOrder[] }>)
       .then(({ data }) => { setOrders(data); setLoading(false) })
-  }, [tab])
+  }, [tab, tick])
 
   return (
     <div className="p-6 space-y-5">
@@ -52,7 +54,7 @@ export default function WorkOrdersPage() {
         {TABS.map((t) => (
           <button
             key={t.key}
-            onClick={() => setTab(t.key)}
+            onClick={() => { if (t.key !== tab) { setLoading(true); setTab(t.key) } }}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               tab === t.key
                 ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm'

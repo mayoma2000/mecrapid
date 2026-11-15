@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { SidebarNav } from './sidebar-nav'
 import { roleOf } from '@/src/lib/authz'
+import { RefreshProvider } from '@/src/lib/refresh'
 
 export const instant = false
 
@@ -16,11 +17,13 @@ export default async function BackofficeLayout({ children }: { children: React.R
   if (role === 'user') redirect('/sign-in?error=forbidden')
 
   return (
-    <div className="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
-      <SidebarNav role={role} />
-      <main className="flex-1 min-w-0 pt-14 lg:pt-0">
-        {children}
-      </main>
-    </div>
+    <RefreshProvider>
+      <div className="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
+        <SidebarNav role={role} />
+        <main className="flex-1 min-w-0 pt-14 lg:pt-0">
+          {children}
+        </main>
+      </div>
+    </RefreshProvider>
   )
 }

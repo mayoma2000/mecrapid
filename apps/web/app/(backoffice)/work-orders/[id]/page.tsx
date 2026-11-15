@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { WorkPanel, type WorkInfo } from './work-panel'
 import { QuotesPanel } from './quotes-panel'
 import { money } from '@/src/lib/quote-labels'
+import { useRefreshTick } from '@/src/lib/refresh'
 import { waMessages, whatsappLink } from '@/src/lib/whatsapp'
 
 // Trabajo autorizado: lo aprobado en las cotizaciones se copia aquí
@@ -48,6 +49,7 @@ export default function WorkOrderDetailPage() {
   const [editCost, setEditCost] = useState('')
   const [saving, setSaving] = useState(false)
   const [fetchedAt, setFetchedAt] = useState(() => new Date().toISOString())
+  const tick = useRefreshTick()
 
   function load(initial = false) {
     return fetch(`/api/v1/work-orders/${id}`)
@@ -66,6 +68,12 @@ export default function WorkOrderDetailPage() {
     void load(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
+
+  // Cada 15 s: estado, cronómetro y trabajo autorizado al día (el formulario de diagnóstico no se pisa)
+  useEffect(() => {
+    if (tick > 0) void load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tick])
 
   async function transition(newStatus: string) {
     setUpdating(true)
@@ -121,11 +129,20 @@ export default function WorkOrderDetailPage() {
             ? waMessages.orderReady(order.customer.name, order.vehicle ? `Su ${vehicle}` : 'Su vehículo')
             : waMessages.orderUpdate(order.customer.name, vehicle)
           const link = whatsappLink(order.customer.phone, text)
-          return link ? (
-            <a href={link} target="_blank" rel="noopener noreferrer" className="shrink-0 px-3 py-2 bg-[#25D366] text-white text-sm font-semibold rounded-xl hover:opacity-90">
-              💬 {order.status === 'completed' ? 'Avisar que está listo' : 'WhatsApp'}
-            </a>
-          ) : null
+          return (
+            <div className="flex gap-2 shrink-0">
+              {order.customer.phone && (
+                <a href={`tel:${order.customer.phone.replace(/[^\d+]/g, '')}`} className="px-3 py-2 text-sm font-semibold rounded-xl border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                  📞 Llamar
+                </a>
+              )}
+              {link && (
+                <a href={link} target="_blank" rel="noopener noreferrer" className="px-3 py-2 bg-[#25D366] text-white text-sm font-semibold rounded-xl hover:opacity-90">
+                  💬 {order.status === 'completed' ? 'Avisar que está listo' : 'WhatsApp'}
+                </a>
+              )}
+            </div>
+          )
         })()}
       </div>
 

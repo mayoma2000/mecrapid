@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { KIND_LABEL, PRIORITY, QUOTE_STATUS, money } from '@/src/lib/quote-labels'
 import { toDate } from '@/src/lib/job-time'
 import { waMessages, whatsappLink } from '@/src/lib/whatsapp'
+import { useRefreshTick } from '@/src/lib/refresh'
 
 type Item = {
   id?: string
@@ -47,6 +48,7 @@ export default function QuotePage() {
   // Respuesta registrada por el taller
   const [decisions, setDecisions] = useState<Record<string, 'approved' | 'rejected'>>({})
   const [responseNote, setResponseNote] = useState('')
+  const tick = useRefreshTick()
 
   function apply(q: Quote | null) {
     if (!q) { setMissing(true); return }
@@ -62,6 +64,14 @@ export default function QuotePage() {
       .then((r) => r.json() as Promise<{ data: ServiceType[] }>)
       .then(({ data }) => setCatalog(data ?? []))
   }, [quoteId])
+
+  // Si está esperando al cliente, se entera sola cuando responde desde la app
+  useEffect(() => {
+    if (tick > 0 && quote && quote.status === 'sent') {
+      void fetchQuote(quoteId).then((q) => { if (q && q.status !== 'sent') apply(q) })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tick])
 
   if (missing) return <div className="p-6 text-sm text-red-500">Cotización no encontrada</div>
   if (!quote) return <div className="p-6 text-sm text-neutral-400">Cargando…</div>

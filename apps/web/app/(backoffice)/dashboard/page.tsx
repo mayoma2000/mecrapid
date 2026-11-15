@@ -1,19 +1,24 @@
 import { connection } from 'next/server'
 import { db } from '@/src/prisma/db'
+import { AutoRefresh } from './auto-refresh'
 
 export const instant = false
 
 type AppointmentStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 
-export default async function DashboardPage() {
-  await connection()
-
-  // "Hoy" en hora de Honduras (UTC-6 todo el año); el servidor corre en UTC
+// "Hoy" en hora de Honduras (UTC-6 todo el año); el servidor corre en UTC
+function hnToday() {
   const HN_OFFSET_MS = 6 * 60 * 60 * 1000
   const hnNow = new Date(Date.now() - HN_OFFSET_MS)
   const todayStart = new Date(Date.UTC(hnNow.getUTCFullYear(), hnNow.getUTCMonth(), hnNow.getUTCDate()) + HN_OFFSET_MS)
-  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1)
+  return { todayStart, todayEnd: new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1) }
+}
+
+export default async function DashboardPage() {
+  await connection()
+
+  const { todayStart, todayEnd } = hnToday()
 
   const activeStatuses: WorkOrderStatus[] = ['assigned', 'in_progress', 'quality_check']
 
@@ -33,6 +38,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6">
+      <AutoRefresh />
       <h1 className="text-2xl font-bold">Tablero</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">

@@ -60,7 +60,12 @@ export default function CustomerDetailPage() {
     <div className="p-6 space-y-6 max-w-lg">
       <div className="flex items-center gap-3">
         <Link href="/customers" className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors">←</Link>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{customer.name}</h1>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white flex-1">{customer.name}</h1>
+        {customer.phone && (
+          <a href={`tel:${customer.phone.replace(/[^\d+]/g, '')}`} className="px-3 py-2 text-sm font-semibold rounded-xl border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+            📞 Llamar
+          </a>
+        )}
       </div>
 
       <form onSubmit={(e) => void handleSubmit(e)} className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-5 space-y-4">
