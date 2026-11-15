@@ -1,8 +1,9 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, Pressable, Image } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useApi } from '../../lib/api'
+import { safeDate } from '../../lib/date'
 import { useSession, signOut } from '../../lib/auth-client'
 import { router } from 'expo-router'
 
@@ -94,32 +95,9 @@ export default function DashboardScreen() {
   const insets = useSafeAreaInsets()
   const [adminVisible, setAdminVisible] = useState(false)
   const [activeTab, setActiveTab] = useState<'solicitudes' | 'ordenes' | 'citas'>('solicitudes')
-  const queryClient = useQueryClient()
   const today = new Date().toISOString().split('T')[0]!
   const role = (session?.user as { role?: string })?.role ?? 'user'
   const isStaff = role === 'admin' || role === 'mecanico'
-
-  function handleCancelAppointment(id: string, status: string) {
-    if (status === 'completed' || status === 'cancelled') return
-    Alert.alert('Cancelar cita', '¿Seguro que quieres cancelar esta cita?', [
-      { text: 'No', style: 'cancel' },
-      {
-        text: 'Sí, cancelar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await request(`/api/v1/me/appointments/${id}`, {
-              method: 'PATCH',
-              body: JSON.stringify({ status: 'cancelled' }),
-            })
-            void queryClient.invalidateQueries({ queryKey: ['my-appointments'] })
-          } catch {
-            Alert.alert('Error', 'No se pudo cancelar la cita.')
-          }
-        },
-      },
-    ])
-  }
 
   // Staff KPIs
   const { data: customersAgg } = useQuery({
@@ -355,7 +333,7 @@ export default function DashboardScreen() {
                             {order.complaint || 'Orden de trabajo'}
                           </Text>
                           <Text style={styles.listCardSub}>
-                            {new Date(order.createdAt).toLocaleDateString('es-HN', {
+                            {safeDate(order.createdAt).toLocaleDateString('es-HN', {
                               day: 'numeric', month: 'short', year: 'numeric',
                             })}
                           </Text>
@@ -379,29 +357,27 @@ export default function DashboardScreen() {
                 ) : (
                   <View style={{ marginTop: 10, gap: 8 }}>
                     {myAppointments?.data.map((appt) => {
-                      const cancellable = appt.status !== 'completed' && appt.status !== 'cancelled'
+                      const editable = appt.status !== 'completed' && appt.status !== 'cancelled' && appt.status !== 'no_show'
                       return (
                         <TouchableOpacity
                           key={appt.id}
                           style={styles.listCard}
-                          onPress={() => handleCancelAppointment(appt.id, appt.status)}
-                          disabled={!cancellable}
-                          activeOpacity={cancellable ? 0.7 : 1}
+                          onPress={() => router.push(`/my-appointment/${appt.id}`)}
                         >
                           <View style={styles.listCardLeft}>
                             <Text style={styles.listCardTitle} numberOfLines={1}>
                               {appt.serviceType || 'Cita de servicio'}
                             </Text>
                             <Text style={styles.listCardSub}>
-                              {new Date(appt.scheduledAt).toLocaleDateString('es-HN', {
+                              {safeDate(appt.scheduledAt).toLocaleDateString('es-HN', {
                                 weekday: 'short', day: 'numeric', month: 'short',
-                              })}{' · '}{new Date(appt.scheduledAt).toLocaleTimeString('es-HN', {
+                              })}{' · '}{safeDate(appt.scheduledAt).toLocaleTimeString('es-HN', {
                                 hour: '2-digit', minute: '2-digit',
                               })}
                             </Text>
-                            {cancellable && (
-                              <Text style={{ fontSize: 11, color: '#8898AA', marginTop: 2 }}>Toca para cancelar</Text>
-                            )}
+                            <Text style={{ fontSize: 11, color: '#8898AA', marginTop: 2 }}>
+                              {editable ? 'Toca para ver, reagendar o cancelar' : 'Toca para ver detalle'}
+                            </Text>
                           </View>
                           <View style={[styles.statusBadge, { backgroundColor: statusColor(appt.status) + '22' }]}>
                             <Text style={[styles.statusText, { color: statusColor(appt.status) }]}>

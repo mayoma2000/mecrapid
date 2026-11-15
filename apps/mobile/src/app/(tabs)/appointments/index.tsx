@@ -4,6 +4,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshContr
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useApi } from '../../../lib/api'
+import { safeDate } from '../../../lib/date'
 
 interface Appointment {
   id: string
@@ -22,10 +23,6 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }
   completed:   { label: 'Completada',     bg: '#F8F9FA', color: '#8898AA' },
   cancelled:   { label: 'Cancelada',      bg: '#FEE8EC', color: '#F5365C' },
   no_show:     { label: 'No se presentó', bg: '#FEE8EC', color: '#F5365C' },
-}
-
-function safeDate(str: string): Date {
-  return new Date(str.replace(' ', 'T'))
 }
 
 function formatTime(iso: string) {

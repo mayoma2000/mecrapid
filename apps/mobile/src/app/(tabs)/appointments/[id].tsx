@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../lib/api'
+import { safeDate } from '../../../lib/date'
 
 interface AppointmentDetail {
   id: string
@@ -31,8 +32,17 @@ const NEXT_STATUS: Record<string, { label: string; next: string; color: string }
   in_progress: [{ label: 'Completar', next: 'completed', color: '#2DCE89' }],
 }
 
+const pad = (n: number) => String(n).padStart(2, '0')
+
+// Fecha y hora escritas por el admin son hora local del taller, no UTC
+function localIso(date: string, time: string): string {
+  const [y, m, d] = date.split('-').map(Number)
+  const [hh, mm] = time.split(':').map(Number)
+  return new Date(y!, m! - 1, d!, hh!, mm!).toISOString()
+}
+
 function formatDateTime(iso: string) {
-  const d = new Date(iso.replace(' ', 'T'))
+  const d = safeDate(iso)
   return {
     date: d.toLocaleDateString('es-HN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
     time: d.toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit' }),
@@ -104,7 +114,7 @@ export default function AppointmentDetailScreen() {
     try {
       await request(`/api/v1/appointments/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ scheduledAt: `${newDate}T${newTime}:00.000Z` }),
+        body: JSON.stringify({ scheduledAt: localIso(newDate, newTime) }),
       })
       void queryClient.invalidateQueries({ queryKey: ['appointment', id] })
       void queryClient.invalidateQueries({ queryKey: ['appointments'] })
@@ -191,9 +201,9 @@ export default function AppointmentDetailScreen() {
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: '#8898AA', shadowColor: '#8898AA', marginTop: 8 }]}
             onPress={() => {
-              const d = new Date(appt.scheduledAt)
-              setNewDate(d.toISOString().slice(0, 10))
-              setNewTime(d.toISOString().slice(11, 16))
+              const d = safeDate(appt.scheduledAt)
+              setNewDate(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`)
+              setNewTime(`${pad(d.getHours())}:${pad(d.getMinutes())}`)
               setRescheduleVisible(true)
             }}
           >

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../lib/api'
+import { safeDate } from '../../../lib/date'
 
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 
@@ -127,7 +128,7 @@ export default function OrderDetailScreen() {
               {order.vehicle.make} {order.vehicle.model} {order.vehicle.year} · {order.vehicle.licensePlate}
             </Text>
             <Text style={styles.heroDate}>
-              {new Date(order.createdAt).toLocaleDateString('es-HN', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {safeDate(order.createdAt).toLocaleDateString('es-HN', { day: 'numeric', month: 'long', year: 'numeric' })}
             </Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: cfg.bg }]}>

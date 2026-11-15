@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../lib/api'
+import { safeDate } from '../../../lib/date'
 
 type AssistanceStatus = 'pending' | 'active' | 'completed' | 'cancelled'
 
@@ -119,7 +120,7 @@ export default function AssistanceDetailScreen() {
             <Text style={styles.heroName}>{req.customer?.name ?? '—'}</Text>
             <Text style={styles.heroSub}>{req.assistanceType?.name ?? 'Asistencia'}</Text>
             <Text style={styles.heroDate}>
-              {new Date(req.createdAt).toLocaleString('es-HN', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+              {safeDate(req.createdAt).toLocaleString('es-HN', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
             </Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: cfg.bg }]}>

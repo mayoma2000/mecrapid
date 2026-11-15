@@ -4,10 +4,13 @@ import {
   StyleSheet, ActivityIndicator, Alert,
 } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { useApi } from '../lib/api'
+import { safeDate } from '../lib/date'
 
 type ServiceType = { id: string; name: string; durationMinutes: number }
+type Appointment = { id: string; scheduledAt: string; serviceType: string; notes: string | null }
 type ScheduleRow = { dayOfWeek: number; startHour: number; endHour: number; active: boolean }
 
 const DAY_ABBR = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
@@ -36,6 +39,10 @@ function buildSlots(startHour: number, endHour: number): string[] {
 
 export default function BookAppointmentScreen() {
   const { request } = useApi()
+  const queryClient = useQueryClient()
+  // Con ?id=<cita> la pantalla reagenda una cita existente en lugar de crear una nueva
+  const { id: rescheduleId } = useLocalSearchParams<{ id?: string }>()
+  const isReschedule = !!rescheduleId
   const insets = useSafeAreaInsets()
   const dateScrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null)
 
@@ -52,16 +59,39 @@ export default function BookAppointmentScreen() {
 
   const DAYS = buildDays(21)
 
+  // Prellena el formulario con la cita a reagendar (servicio, notas, día y hora si siguen disponibles)
+  function prefill(appt: Appointment, types: ServiceType[], sched: ScheduleRow[]) {
+    const match = types.find((t) => t.name === appt.serviceType)
+    if (match) setSelectedServiceId(match.id)
+    else { setSelectedServiceId('otro'); setCustomService(appt.serviceType) }
+    setNotes(appt.notes ?? '')
+
+    const when = safeDate(appt.scheduledAt)
+    const day = DAYS.find((d) => d.toDateString() === when.toDateString())
+    if (!day) return
+    setSelectedDate(day)
+    const row = sched.find((r) => r.dayOfWeek === day.getDay())
+    const slot = `${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}`
+    if (row && buildSlots(row.startHour, row.endHour).includes(slot)) setSelectedSlot(slot)
+  }
+
   useEffect(() => {
     void Promise.all([
       fetch(`${process.env['EXPO_PUBLIC_API_URL'] ?? ''}/api/v1/service-types`)
         .then((r) => r.json() as Promise<{ data: ServiceType[] }>)
-        .then(({ data }) => setServiceTypes(data ?? [])),
+        .then(({ data }) => { setServiceTypes(data ?? []); return data ?? [] }),
       fetch(`${process.env['EXPO_PUBLIC_API_URL'] ?? ''}/api/v1/work-schedule`)
         .then((r) => r.json() as Promise<{ data: ScheduleRow[] }>)
-        .then(({ data }) => setSchedule(data ?? [])),
-    ]).finally(() => setLoadingCatalogs(false))
-  }, [])
+        .then(({ data }) => { setSchedule(data ?? []); return data ?? [] }),
+      rescheduleId
+        ? request<{ data: Appointment }>(`/api/v1/me/appointments/${rescheduleId}`).then(({ data }) => data)
+        : Promise.resolve(null),
+    ])
+      .then(([types, sched, appt]) => { if (appt) prefill(appt, types, sched) })
+      .catch(() => Alert.alert('Error', 'No se pudo cargar la información.'))
+      .finally(() => setLoadingCatalogs(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rescheduleId])
 
   function scheduleForDay(date: Date): ScheduleRow | undefined {
     return schedule.find((s) => s.dayOfWeek === date.getDay())
@@ -96,17 +126,22 @@ export default function BookAppointmentScreen() {
 
     setSaving(true)
     try {
-      await request('/api/v1/me/appointments', {
-        method: 'POST',
+      await request(isReschedule ? `/api/v1/me/appointments/${rescheduleId}` : '/api/v1/me/appointments', {
+        method: isReschedule ? 'PATCH' : 'POST',
         body: JSON.stringify({
           serviceType: serviceLabel,
           scheduledAt: scheduledAt.toISOString(),
           notes: notes.trim() || null,
         }),
       })
-      Alert.alert('Cita solicitada', 'El taller revisará tu solicitud y te confirmará.', [
+      void queryClient.invalidateQueries({ queryKey: ['my-appointments'] })
+      if (isReschedule) void queryClient.invalidateQueries({ queryKey: ['my-appointment', rescheduleId] })
+      Alert.alert(
+        isReschedule ? 'Cita reagendada' : 'Cita solicitada',
+        'El taller revisará tu solicitud y te confirmará.',
+        [
         { text: 'OK', onPress: () => router.back() },
-      ])
+        ])
     } catch (err: unknown) {
       Alert.alert('Error', err instanceof Error ? err.message : 'No se pudo guardar')
       setSaving(false)
@@ -126,7 +161,7 @@ export default function BookAppointmentScreen() {
             <Text style={s.backText}>←</Text>
           </TouchableOpacity>
           <View>
-            <Text style={s.title}>Agendar Cita</Text>
+            <Text style={s.title}>{isReschedule ? 'Reagendar Cita' : 'Agendar Cita'}</Text>
             <Text style={s.subtitle}>El taller confirmará tu solicitud</Text>
           </View>
         </View>
@@ -253,7 +288,7 @@ export default function BookAppointmentScreen() {
             {/* Submit */}
             <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
               <TouchableOpacity onPress={() => void handleSubmit()} disabled={saving} style={s.submitBtn}>
-                {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.submitText}>📅  Solicitar cita</Text>}
+                {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.submitText}>{isReschedule ? '📅  Reagendar cita' : '📅  Solicitar cita'}</Text>}
               </TouchableOpacity>
             </View>
           </>

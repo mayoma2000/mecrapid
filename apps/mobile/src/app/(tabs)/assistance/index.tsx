@@ -4,6 +4,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshContr
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useApi } from '../../../lib/api'
+import { safeDate } from '../../../lib/date'
 
 type AssistanceStatus = 'pending' | 'active' | 'completed' | 'cancelled'
 
@@ -49,7 +50,7 @@ function RequestCard({ item }: { item: AssistanceRequest }) {
       </View>
       <Text style={styles.detail} numberOfLines={2}>{item.detail}</Text>
       <Text style={styles.date}>
-        {new Date(item.createdAt).toLocaleString('es-HN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+        {safeDate(item.createdAt).toLocaleString('es-HN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
       </Text>
     </TouchableOpacity>
   )
