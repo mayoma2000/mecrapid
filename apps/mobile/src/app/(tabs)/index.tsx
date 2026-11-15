@@ -137,6 +137,11 @@ export default function DashboardScreen() {
     queryFn: () => request<{ meta: { total: number } }>(`/api/v1/appointments?from=${today}T00:00:00.000Z&to=${today}T23:59:59.999Z&limit=1`),
     enabled: isStaff,
   })
+  const { data: assistanceAgg } = useQuery({
+    queryKey: ['assistance-pending'],
+    queryFn: () => request<{ meta: { total: number } }>('/api/v1/assistance-requests?status=pending&limit=1'),
+    enabled: isStaff,
+  })
 
   // Cliente final: mis órdenes, citas y solicitudes de asistencia
   const { data: myOrders } = useQuery({
@@ -207,13 +212,20 @@ export default function DashboardScreen() {
                   onPress={() => router.navigate('/orders')}
                 />
               </View>
-              <View style={{ marginTop: 12 }}>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
                 <KPICard
                   label="Citas para hoy"
                   value={appointmentsAgg?.meta.total}
                   icon="📅"
                   color="#11CDEF"
                   onPress={() => router.navigate('/appointments')}
+                />
+                <KPICard
+                  label="Asistencias pendientes"
+                  value={assistanceAgg?.meta.total}
+                  icon="🚨"
+                  color="#F5365C"
+                  onPress={() => router.navigate('/assistance')}
                 />
               </View>
             </View>
@@ -233,6 +245,12 @@ export default function DashboardScreen() {
                   label="Citas"
                   color="#2DCE89"
                   onPress={() => router.navigate('/appointments')}
+                />
+                <QuickAction
+                  icon="🚨"
+                  label="Asistencia"
+                  color="#F5365C"
+                  onPress={() => router.navigate('/assistance')}
                 />
                 <QuickAction
                   icon="👤"

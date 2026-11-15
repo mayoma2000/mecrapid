@@ -49,6 +49,14 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="assistance"
+        options={{
+          href: isStaff ? undefined : null,
+          tabBarStyle: { display: 'none' },
+          tabBarIcon: ({ focused }) => <TabIcon icon="🚨" label="Asistencia" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="customers"
         options={{
           href: isAdmin ? undefined : null,
