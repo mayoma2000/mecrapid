@@ -37,7 +37,7 @@ export async function POST(request: NextRequest, ctx: Ctx) {
     db.orm.public.WorkOrderTimeLog
       .where({ workOrderId: id })
       .where((l) => l.endedAt.isNull())
-      .update({ endedAt: now })
+      .updateAll({ endedAt: now })
 
   if (action === 'start') {
     if (!['pending', 'assigned', 'in_progress', 'quality_check'].includes(order.status)) {
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest, ctx: Ctx) {
       await db.orm.public.WorkOrderTimeLog
         .where({ mechanicId })
         .where((l) => l.endedAt.isNull())
-        .update({ endedAt: now })
+        .updateAll({ endedAt: now })
       await db.orm.public.WorkOrderTimeLog.create({ workOrderId: id, mechanicId, startedAt: now })
     }
     await db.orm.public.WorkOrder.where({ id }).update({

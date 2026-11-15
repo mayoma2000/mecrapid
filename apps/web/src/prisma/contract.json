@@ -24,6 +24,14 @@
       "model": "PartLineItem",
       "namespace": "public"
     },
+    "Quote": {
+      "model": "Quote",
+      "namespace": "public"
+    },
+    "QuoteItem": {
+      "model": "QuoteItem",
+      "namespace": "public"
+    },
     "ServiceLineItem": {
       "model": "ServiceLineItem",
       "namespace": "public"
@@ -696,7 +704,14 @@
               "quantity": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/int4@1",
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "quoteItemId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -730,6 +745,22 @@
               }
             },
             "relations": {
+              "quoteItem": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "quoteItemId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "QuoteItem",
+                  "namespace": "public"
+                }
+              },
               "sparePart": {
                 "cardinality": "N:1",
                 "nullable": true,
@@ -777,6 +808,9 @@
                 "quantity": {
                   "column": "quantity"
                 },
+                "quoteItemId": {
+                  "column": "quoteItemId"
+                },
                 "sparePartId": {
                   "column": "sparePartId"
                 },
@@ -792,6 +826,405 @@
               },
               "namespaceId": "public",
               "table": "PartLineItem"
+            }
+          },
+          "Quote": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "respondedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "respondedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "respondedVia": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "responseNote": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sentAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "taxRate": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "workOrderId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "createdBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "createdById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "items": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "quoteId"
+                  ]
+                },
+                "to": {
+                  "model": "QuoteItem",
+                  "namespace": "public"
+                }
+              },
+              "respondedBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "respondedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "workOrder": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "workOrderId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "WorkOrder",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "createdById": {
+                  "column": "createdById"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "notes": {
+                  "column": "notes"
+                },
+                "respondedAt": {
+                  "column": "respondedAt"
+                },
+                "respondedById": {
+                  "column": "respondedById"
+                },
+                "respondedVia": {
+                  "column": "respondedVia"
+                },
+                "responseNote": {
+                  "column": "responseNote"
+                },
+                "sentAt": {
+                  "column": "sentAt"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "taxRate": {
+                  "column": "taxRate"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "workOrderId": {
+                  "column": "workOrderId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Quote"
+            }
+          },
+          "QuoteItem": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "decidedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "decision": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kind": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "position": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "priority": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "quantity": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "quoteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sparePartId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "unitPrice": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "partLines": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "quoteItemId"
+                  ]
+                },
+                "to": {
+                  "model": "PartLineItem",
+                  "namespace": "public"
+                }
+              },
+              "quote": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "quoteId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Quote",
+                  "namespace": "public"
+                }
+              },
+              "serviceLines": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "quoteItemId"
+                  ]
+                },
+                "to": {
+                  "model": "ServiceLineItem",
+                  "namespace": "public"
+                }
+              },
+              "sparePart": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "sparePartId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "SparePart",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "decidedAt": {
+                  "column": "decidedAt"
+                },
+                "decision": {
+                  "column": "decision"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kind": {
+                  "column": "kind"
+                },
+                "position": {
+                  "column": "position"
+                },
+                "priority": {
+                  "column": "priority"
+                },
+                "quantity": {
+                  "column": "quantity"
+                },
+                "quoteId": {
+                  "column": "quoteId"
+                },
+                "sparePartId": {
+                  "column": "sparePartId"
+                },
+                "unitPrice": {
+                  "column": "unitPrice"
+                }
+              },
+              "namespaceId": "public",
+              "table": "QuoteItem"
             }
           },
           "ServiceLineItem": {
@@ -824,6 +1257,13 @@
                   "kind": "scalar"
                 }
               },
+              "quoteItemId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "workOrderId": {
                 "nullable": false,
                 "type": {
@@ -833,6 +1273,22 @@
               }
             },
             "relations": {
+              "quoteItem": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "quoteItemId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "QuoteItem",
+                  "namespace": "public"
+                }
+              },
               "workOrder": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -863,6 +1319,9 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "quoteItemId": {
+                  "column": "quoteItemId"
                 },
                 "workOrderId": {
                   "column": "workOrderId"
@@ -915,6 +1374,13 @@
                   "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
+              },
+              "price": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {},
@@ -937,6 +1403,9 @@
                 },
                 "name": {
                   "column": "name"
+                },
+                "price": {
+                  "column": "price"
                 }
               },
               "namespaceId": "public",
@@ -1052,6 +1521,21 @@
                   "model": "PartLineItem",
                   "namespace": "public"
                 }
+              },
+              "quoteItems": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "sparePartId"
+                  ]
+                },
+                "to": {
+                  "model": "QuoteItem",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -1165,6 +1649,36 @@
                 },
                 "to": {
                   "model": "WorkOrder",
+                  "namespace": "public"
+                }
+              },
+              "quotesAnswered": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "respondedById"
+                  ]
+                },
+                "to": {
+                  "model": "Quote",
+                  "namespace": "public"
+                }
+              },
+              "quotesCreated": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "createdById"
+                  ]
+                },
+                "to": {
+                  "model": "Quote",
                   "namespace": "public"
                 }
               },
@@ -1554,6 +2068,21 @@
                 },
                 "to": {
                   "model": "PartLineItem",
+                  "namespace": "public"
+                }
+              },
+              "quotes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "workOrderId"
+                  ]
+                },
+                "to": {
+                  "model": "Quote",
                   "namespace": "public"
                 }
               },
@@ -2264,13 +2793,18 @@
                   "nullable": false
                 },
                 "quantity": {
-                  "codecId": "pg/int4@1",
-                  "dataType": "pg/int4",
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
                   "default": {
                     "kind": "literal",
                     "value": 1
                   },
                   "nullable": false
+                },
+                "quoteItemId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
                 },
                 "sparePartId": {
                   "codecId": "pg/text@1",
@@ -2339,9 +2873,36 @@
                     "namespaceId": "public",
                     "tableName": "SparePart"
                   }
+                },
+                {
+                  "index": {
+                    "name": "PartLineItem_quoteItemId_idx_5715e8b3"
+                  },
+                  "source": {
+                    "columns": [
+                      "quoteItemId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PartLineItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "QuoteItem"
+                  }
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "quoteItemId"
+                  ],
+                  "name": "PartLineItem_quoteItemId_idx_5715e8b3",
+                  "prefix": "PartLineItem_quoteItemId_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "sparePartId"
@@ -2356,6 +2917,334 @@
                   ],
                   "name": "PartLineItem_workOrderId_idx_136dd311",
                   "prefix": "PartLineItem_workOrderId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Quote": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "createdById": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notes": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "respondedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "respondedById": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "respondedVia": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "responseNote": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "sentAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "draft"
+                  },
+                  "nullable": false
+                },
+                "taxRate": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0.15
+                  },
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "workOrderId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Quote_workOrderId_idx_136dd311"
+                  },
+                  "source": {
+                    "columns": [
+                      "workOrderId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Quote"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "WorkOrder"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Quote_createdById_idx_8bf640ed"
+                  },
+                  "source": {
+                    "columns": [
+                      "createdById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Quote"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Quote_respondedById_idx_d1211402"
+                  },
+                  "source": {
+                    "columns": [
+                      "respondedById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Quote"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "createdById"
+                  ],
+                  "name": "Quote_createdById_idx_8bf640ed",
+                  "prefix": "Quote_createdById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "respondedById"
+                  ],
+                  "name": "Quote_respondedById_idx_d1211402",
+                  "prefix": "Quote_respondedById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workOrderId"
+                  ],
+                  "name": "Quote_workOrderId_idx_136dd311",
+                  "prefix": "Quote_workOrderId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "QuoteItem": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "decidedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "decision": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "pending"
+                  },
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kind": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "service"
+                  },
+                  "nullable": false
+                },
+                "position": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "priority": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "recommended"
+                  },
+                  "nullable": false
+                },
+                "quantity": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nullable": false
+                },
+                "quoteId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "sparePartId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "unitPrice": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "QuoteItem_quoteId_idx_a7628ce5"
+                  },
+                  "source": {
+                    "columns": [
+                      "quoteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "QuoteItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Quote"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "QuoteItem_sparePartId_idx_5330e868"
+                  },
+                  "source": {
+                    "columns": [
+                      "sparePartId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "QuoteItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "SparePart"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "quoteId"
+                  ],
+                  "name": "QuoteItem_quoteId_idx_a7628ce5",
+                  "prefix": "QuoteItem_quoteId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "sparePartId"
+                  ],
+                  "name": "QuoteItem_sparePartId_idx_5330e868",
+                  "prefix": "QuoteItem_sparePartId_idx",
                   "unique": false
                 }
               ],
@@ -2396,6 +3285,11 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
+                "quoteItemId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "workOrderId": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -2421,9 +3315,36 @@
                     "namespaceId": "public",
                     "tableName": "WorkOrder"
                   }
+                },
+                {
+                  "index": {
+                    "name": "ServiceLineItem_quoteItemId_idx_5715e8b3"
+                  },
+                  "source": {
+                    "columns": [
+                      "quoteItemId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ServiceLineItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "QuoteItem"
+                  }
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "quoteItemId"
+                  ],
+                  "name": "ServiceLineItem_quoteItemId_idx_5715e8b3",
+                  "prefix": "ServiceLineItem_quoteItemId_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "workOrderId"
@@ -2483,6 +3404,11 @@
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": false
+                },
+                "price": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
@@ -3147,10 +4073,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "81c6a6b4145aa8442b4d899bdae85c455a32c1903da715777cf97a5f3182e588"
+    "storageHash": "ae7da4cd90cec45fbba57af80867bc5df0d451952603b990e62989c337357ed7"
   },
   "execution": {
-    "executionHash": "454a695b38acd6e82fa70d2690e41e3bd125b0c155491dfca56958186bf565cc",
+    "executionHash": "f297b0c07cb959d2412e81c6a6f7a9353b5808c690ada89bc64ea3f368cb1155",
     "mutations": {
       "defaults": [
         {
@@ -3249,6 +4175,43 @@
           },
           "ref": {
             "entry": "PartLineItem",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Quote",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Quote",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "QuoteItem",
             "field": "id",
             "namespace": "public"
           }

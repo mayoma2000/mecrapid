@@ -8,22 +8,23 @@ import { safeDate } from '../../../lib/date'
 import { useSession } from '../../../lib/auth-client'
 import { formatDuration, liveSeconds, useNow } from '../../../lib/format'
 import { TimerControls } from '../../../components/TimerControls'
+import { QUOTE_STATUS, money, type Quote } from '../../../lib/quotes'
 
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 
+// Trabajo autorizado: lo aprobado en las cotizaciones se copia a la orden
 interface ServiceItem {
   id: string
-  name: string
-  description: string | null
-  price: number
-  quantity: number
+  description: string
+  cost: number
 }
 
 interface PartItem {
   id: string
+  name: string
   quantity: number
-  unitCost: number
-  sparePart: { name: string; partNumber: string | null }
+  unitPrice: number
+  totalPrice: number
 }
 
 interface WorkOrderDetail {
@@ -131,8 +132,8 @@ export default function OrderDetailScreen() {
   const cfg = STATUS_CONFIG[order.status]
   const transitions = TRANSITIONS[order.status] ?? []
 
-  const servicesTotal = order.serviceItems.reduce((s, i) => s + i.price * i.quantity, 0)
-  const partsTotal = order.partItems.reduce((s, i) => s + i.unitCost * i.quantity, 0)
+  const servicesTotal = order.serviceItems.reduce((s, i) => s + i.cost, 0)
+  const partsTotal = order.partItems.reduce((s, i) => s + i.totalPrice, 0)
   const total = servicesTotal + partsTotal
 
   function handleTransition(next: WorkOrderStatus, label: string) {
@@ -249,50 +250,30 @@ export default function OrderDetailScreen() {
           )}
         </View>
 
-        {/* Services */}
-        {order.serviceItems.length > 0 && (
+        <QuotesSection orderId={order.id} closed={order.status === 'completed' || order.status === 'cancelled'} />
+
+        {/* Trabajo autorizado */}
+        {(order.serviceItems.length > 0 || order.partItems.length > 0) && (
           <View style={styles.card}>
-            <SectionHeader title="Servicios" />
+            <SectionHeader title="Trabajo autorizado" />
             {order.serviceItems.map((item, i) => (
               <View key={item.id}>
                 {i > 0 && <Divider />}
                 <View style={styles.lineItem}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.lineItemName}>{item.name}</Text>
-                    {item.description && <Text style={styles.lineItemDesc}>{item.description}</Text>}
-                  </View>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.lineItemPrice}>L {(item.price * item.quantity).toLocaleString()}</Text>
-                    {item.quantity > 1 && (
-                      <Text style={styles.lineItemQty}>{item.quantity} × L {item.price.toLocaleString()}</Text>
-                    )}
-                  </View>
+                  <Text style={[styles.lineItemName, { flex: 1 }]}>🔧 {item.description}</Text>
+                  <Text style={styles.lineItemPrice}>{money(item.cost)}</Text>
                 </View>
               </View>
             ))}
-          </View>
-        )}
-
-        {/* Parts */}
-        {order.partItems.length > 0 && (
-          <View style={styles.card}>
-            <SectionHeader title="Repuestos" />
             {order.partItems.map((item, i) => (
               <View key={item.id}>
-                {i > 0 && <Divider />}
+                {(i > 0 || order.serviceItems.length > 0) && <Divider />}
                 <View style={styles.lineItem}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.lineItemName}>{item.sparePart.name}</Text>
-                    {item.sparePart.partNumber && (
-                      <Text style={styles.lineItemDesc}>#{item.sparePart.partNumber}</Text>
-                    )}
+                    <Text style={styles.lineItemName}>📦 {item.name}</Text>
+                    {item.quantity !== 1 && <Text style={styles.lineItemQty}>{item.quantity} × {money(item.unitPrice)}</Text>}
                   </View>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.lineItemPrice}>L {(item.unitCost * item.quantity).toLocaleString()}</Text>
-                    {item.quantity > 1 && (
-                      <Text style={styles.lineItemQty}>{item.quantity} × L {item.unitCost.toLocaleString()}</Text>
-                    )}
-                  </View>
+                  <Text style={styles.lineItemPrice}>{money(item.totalPrice)}</Text>
                 </View>
               </View>
             ))}
@@ -481,3 +462,57 @@ const styles = StyleSheet.create({
   },
   actionBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
 })
+
+// Cotizaciones de la orden + crear una nueva (o abrir el borrador que ya exista)
+function QuotesSection({ orderId, closed }: { orderId: string; closed: boolean }) {
+  const { request } = useApi()
+  const { data } = useQuery({
+    queryKey: ['quotes', orderId],
+    queryFn: () => request<{ data: Quote[] }>(`/api/v1/work-orders/${orderId}/quotes`),
+  })
+  const create = useMutation({
+    mutationFn: () => request<{ data: { id: string } }>(`/api/v1/work-orders/${orderId}/quotes`, { method: 'POST' }),
+    onSuccess: ({ data: q }) => router.push(`/(tabs)/orders/quotes/${q.id}`),
+    onError: (e) => Alert.alert('Error', e instanceof Error ? e.message : 'No se pudo crear la cotización.'),
+  })
+  const quotes = data?.data ?? []
+  const existingDraft = quotes.find((q) => q.status === 'draft')
+
+  return (
+    <View style={styles.card}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <SectionHeader title="Cotizaciones" />
+        {!closed && (
+          <TouchableOpacity
+            disabled={create.isPending}
+            onPress={() => (existingDraft ? router.push(`/(tabs)/orders/quotes/${existingDraft.id}`) : create.mutate())}
+          >
+            <Text style={{ fontSize: 13, fontWeight: '800', color: '#5E72E4', marginBottom: 12 }}>
+              {existingDraft ? 'Abrir borrador' : '+ Nueva'}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      {quotes.length === 0 ? (
+        <Text style={{ fontSize: 13, color: '#8898AA' }}>Sin cotizaciones. Armá una para que el cliente la apruebe desde su app.</Text>
+      ) : (
+        quotes.map((q, i) => (
+          <TouchableOpacity key={q.id} onPress={() => router.push(`/(tabs)/orders/quotes/${q.id}`)}>
+            {i > 0 && <Divider />}
+            <View style={[styles.lineItem, { alignItems: 'center' }]}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.lineItemName}>Cotización {i + 1} · {q.items.length} partidas</Text>
+                <Text style={styles.lineItemQty}>
+                  {q.status === 'sent' || q.status === 'draft' ? money(q.total) : `Aprobado ${money(q.approvedTotal)} de ${money(q.total)}`}
+                </Text>
+              </View>
+              <View style={[styles.statusBadge, { backgroundColor: QUOTE_STATUS[q.status].bg }]}>
+                <Text style={[styles.statusText, { color: QUOTE_STATUS[q.status].color }]}>{QUOTE_STATUS[q.status].label}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))
+      )}
+    </View>
+  )
+}

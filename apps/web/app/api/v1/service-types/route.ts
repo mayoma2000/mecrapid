@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { name, description, durationMinutes } = body
+  const { name, description, durationMinutes, price } = body
 
   if (!name) return Response.json({ error: 'name is required' }, { status: 400 })
 
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
     name: String(name).trim(),
     description: description ? String(description).trim() : null,
     durationMinutes: durationMinutes != null ? Number(durationMinutes) : 60,
+    price: price != null && price !== '' ? Number(price) : null,
   })
 
   return Response.json({ data: type }, { status: 201 })

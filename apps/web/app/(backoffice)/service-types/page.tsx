@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-type ServiceType = { id: string; name: string; description: string | null; durationMinutes: number; active: boolean }
+type ServiceType = { id: string; name: string; description: string | null; durationMinutes: number; active: boolean; price: number | null }
 
 export default function ServiceTypesPage() {
   const [types, setTypes] = useState<ServiceType[]>([])
@@ -54,6 +54,7 @@ export default function ServiceTypesPage() {
                 <th className="text-left px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Servicio</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Descripción</th>
                 <th className="text-center px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Duración</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Precio</th>
                 <th className="text-center px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Estado</th>
                 <th className="px-5 py-3" />
               </tr>
@@ -64,6 +65,7 @@ export default function ServiceTypesPage() {
                   <td className="px-5 py-3.5 font-semibold text-neutral-900 dark:text-white">{t.name}</td>
                   <td className="px-5 py-3.5 text-neutral-500 dark:text-neutral-400">{t.description ?? '—'}</td>
                   <td className="px-5 py-3.5 text-center text-neutral-600 dark:text-neutral-400">{t.durationMinutes} min</td>
+                  <td className="px-5 py-3.5 text-right font-mono text-neutral-600 dark:text-neutral-400">{t.price != null ? `L. ${t.price.toFixed(2)}` : '—'}</td>
                   <td className="px-5 py-3.5 text-center">
                     <button
                       onClick={() => void handleToggle(t.id, t.active)}

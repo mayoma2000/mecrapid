@@ -18,9 +18,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'81c6a6b4145aa8442b4d899bdae85c455a32c1903da715777cf97a5f3182e588'>;
+  StorageHashBase<'ae7da4cd90cec45fbba57af80867bc5df0d451952603b990e62989c337357ed7'>;
 export type ExecutionHash =
-  ExecutionHashBase<'454a695b38acd6e82fa70d2690e41e3bd125b0c155491dfca56958186bf565cc'>;
+  ExecutionHashBase<'f297b0c07cb959d2412e81c6a6f7a9353b5808c690ada89bc64ea3f368cb1155'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -281,17 +281,48 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
-      readonly quantity: CodecTypes['pg/int4@1']['output'];
+      readonly quantity: CodecTypes['pg/float8@1']['output'];
+      readonly quoteItemId: CodecTypes['pg/text@1']['output'] | null;
       readonly sparePartId: CodecTypes['pg/text@1']['output'] | null;
       readonly totalPrice: CodecTypes['pg/float8@1']['output'];
       readonly unitPrice: CodecTypes['pg/float8@1']['output'];
       readonly workOrderId: CodecTypes['pg/text@1']['output'];
+    };
+    readonly Quote: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly createdById: CodecTypes['pg/text@1']['output'] | null;
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly notes: CodecTypes['pg/text@1']['output'] | null;
+      readonly respondedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly respondedById: CodecTypes['pg/text@1']['output'] | null;
+      readonly respondedVia: CodecTypes['pg/text@1']['output'] | null;
+      readonly responseNote: CodecTypes['pg/text@1']['output'] | null;
+      readonly sentAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly status: CodecTypes['pg/text@1']['output'];
+      readonly taxRate: CodecTypes['pg/float8@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly workOrderId: CodecTypes['pg/text@1']['output'];
+    };
+    readonly QuoteItem: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly decision: CodecTypes['pg/text@1']['output'];
+      readonly description: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly kind: CodecTypes['pg/text@1']['output'];
+      readonly position: CodecTypes['pg/int4@1']['output'];
+      readonly priority: CodecTypes['pg/text@1']['output'];
+      readonly quantity: CodecTypes['pg/float8@1']['output'];
+      readonly quoteId: CodecTypes['pg/text@1']['output'];
+      readonly sparePartId: CodecTypes['pg/text@1']['output'] | null;
+      readonly unitPrice: CodecTypes['pg/float8@1']['output'];
     };
     readonly ServiceLineItem: {
       readonly cost: CodecTypes['pg/float8@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly description: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
+      readonly quoteItemId: CodecTypes['pg/text@1']['output'] | null;
       readonly workOrderId: CodecTypes['pg/text@1']['output'];
     };
     readonly ServiceType: {
@@ -301,6 +332,7 @@ export type FieldOutputTypes = {
       readonly durationMinutes: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
+      readonly price: CodecTypes['pg/float8@1']['output'] | null;
     };
     readonly SparePart: {
       readonly category: CodecTypes['pg/text@1']['output'] | null;
@@ -424,17 +456,48 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
-      readonly quantity: CodecTypes['pg/int4@1']['input'];
+      readonly quantity: CodecTypes['pg/float8@1']['input'];
+      readonly quoteItemId: CodecTypes['pg/text@1']['input'] | null;
       readonly sparePartId: CodecTypes['pg/text@1']['input'] | null;
       readonly totalPrice: CodecTypes['pg/float8@1']['input'];
       readonly unitPrice: CodecTypes['pg/float8@1']['input'];
       readonly workOrderId: CodecTypes['pg/text@1']['input'];
+    };
+    readonly Quote: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly createdById: CodecTypes['pg/text@1']['input'] | null;
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly notes: CodecTypes['pg/text@1']['input'] | null;
+      readonly respondedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly respondedById: CodecTypes['pg/text@1']['input'] | null;
+      readonly respondedVia: CodecTypes['pg/text@1']['input'] | null;
+      readonly responseNote: CodecTypes['pg/text@1']['input'] | null;
+      readonly sentAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly status: CodecTypes['pg/text@1']['input'];
+      readonly taxRate: CodecTypes['pg/float8@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly workOrderId: CodecTypes['pg/text@1']['input'];
+    };
+    readonly QuoteItem: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly decision: CodecTypes['pg/text@1']['input'];
+      readonly description: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly kind: CodecTypes['pg/text@1']['input'];
+      readonly position: CodecTypes['pg/int4@1']['input'];
+      readonly priority: CodecTypes['pg/text@1']['input'];
+      readonly quantity: CodecTypes['pg/float8@1']['input'];
+      readonly quoteId: CodecTypes['pg/text@1']['input'];
+      readonly sparePartId: CodecTypes['pg/text@1']['input'] | null;
+      readonly unitPrice: CodecTypes['pg/float8@1']['input'];
     };
     readonly ServiceLineItem: {
       readonly cost: CodecTypes['pg/float8@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly description: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
+      readonly quoteItemId: CodecTypes['pg/text@1']['input'] | null;
       readonly workOrderId: CodecTypes['pg/text@1']['input'];
     };
     readonly ServiceType: {
@@ -444,6 +507,7 @@ export type FieldInputTypes = {
       readonly durationMinutes: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
+      readonly price: CodecTypes['pg/float8@1']['input'] | null;
     };
     readonly SparePart: {
       readonly category: CodecTypes['pg/text@1']['input'] | null;
@@ -567,17 +631,48 @@ export type StorageColumnTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
-      readonly quantity: CodecTypes['pg/int4@1']['output'];
+      readonly quantity: CodecTypes['pg/float8@1']['output'];
+      readonly quoteItemId: CodecTypes['pg/text@1']['output'] | null;
       readonly sparePartId: CodecTypes['pg/text@1']['output'] | null;
       readonly totalPrice: CodecTypes['pg/float8@1']['output'];
       readonly unitPrice: CodecTypes['pg/float8@1']['output'];
       readonly workOrderId: CodecTypes['pg/text@1']['output'];
+    };
+    readonly Quote: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly createdById: CodecTypes['pg/text@1']['output'] | null;
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly notes: CodecTypes['pg/text@1']['output'] | null;
+      readonly respondedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly respondedById: CodecTypes['pg/text@1']['output'] | null;
+      readonly respondedVia: CodecTypes['pg/text@1']['output'] | null;
+      readonly responseNote: CodecTypes['pg/text@1']['output'] | null;
+      readonly sentAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly status: CodecTypes['pg/text@1']['output'];
+      readonly taxRate: CodecTypes['pg/float8@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly workOrderId: CodecTypes['pg/text@1']['output'];
+    };
+    readonly QuoteItem: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly decision: CodecTypes['pg/text@1']['output'];
+      readonly description: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly kind: CodecTypes['pg/text@1']['output'];
+      readonly position: CodecTypes['pg/int4@1']['output'];
+      readonly priority: CodecTypes['pg/text@1']['output'];
+      readonly quantity: CodecTypes['pg/float8@1']['output'];
+      readonly quoteId: CodecTypes['pg/text@1']['output'];
+      readonly sparePartId: CodecTypes['pg/text@1']['output'] | null;
+      readonly unitPrice: CodecTypes['pg/float8@1']['output'];
     };
     readonly ServiceLineItem: {
       readonly cost: CodecTypes['pg/float8@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly description: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
+      readonly quoteItemId: CodecTypes['pg/text@1']['output'] | null;
       readonly workOrderId: CodecTypes['pg/text@1']['output'];
     };
     readonly ServiceType: {
@@ -587,6 +682,7 @@ export type StorageColumnTypes = {
       readonly durationMinutes: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
+      readonly price: CodecTypes['pg/float8@1']['output'] | null;
     };
     readonly SparePart: {
       readonly category: CodecTypes['pg/text@1']['output'] | null;
@@ -710,17 +806,48 @@ export type StorageColumnInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
-      readonly quantity: CodecTypes['pg/int4@1']['input'];
+      readonly quantity: CodecTypes['pg/float8@1']['input'];
+      readonly quoteItemId: CodecTypes['pg/text@1']['input'] | null;
       readonly sparePartId: CodecTypes['pg/text@1']['input'] | null;
       readonly totalPrice: CodecTypes['pg/float8@1']['input'];
       readonly unitPrice: CodecTypes['pg/float8@1']['input'];
       readonly workOrderId: CodecTypes['pg/text@1']['input'];
+    };
+    readonly Quote: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly createdById: CodecTypes['pg/text@1']['input'] | null;
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly notes: CodecTypes['pg/text@1']['input'] | null;
+      readonly respondedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly respondedById: CodecTypes['pg/text@1']['input'] | null;
+      readonly respondedVia: CodecTypes['pg/text@1']['input'] | null;
+      readonly responseNote: CodecTypes['pg/text@1']['input'] | null;
+      readonly sentAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly status: CodecTypes['pg/text@1']['input'];
+      readonly taxRate: CodecTypes['pg/float8@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly workOrderId: CodecTypes['pg/text@1']['input'];
+    };
+    readonly QuoteItem: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly decision: CodecTypes['pg/text@1']['input'];
+      readonly description: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly kind: CodecTypes['pg/text@1']['input'];
+      readonly position: CodecTypes['pg/int4@1']['input'];
+      readonly priority: CodecTypes['pg/text@1']['input'];
+      readonly quantity: CodecTypes['pg/float8@1']['input'];
+      readonly quoteId: CodecTypes['pg/text@1']['input'];
+      readonly sparePartId: CodecTypes['pg/text@1']['input'] | null;
+      readonly unitPrice: CodecTypes['pg/float8@1']['input'];
     };
     readonly ServiceLineItem: {
       readonly cost: CodecTypes['pg/float8@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly description: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
+      readonly quoteItemId: CodecTypes['pg/text@1']['input'] | null;
       readonly workOrderId: CodecTypes['pg/text@1']['input'];
     };
     readonly ServiceType: {
@@ -730,6 +857,7 @@ export type StorageColumnInputTypes = {
       readonly durationMinutes: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
+      readonly price: CodecTypes['pg/float8@1']['input'] | null;
     };
     readonly SparePart: {
       readonly category: CodecTypes['pg/text@1']['input'] | null;
@@ -866,23 +994,66 @@ export namespace Models {
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     id: CodecTypes['pg/text@1']['output'];
     name: CodecTypes['pg/text@1']['output'];
-    quantity: CodecTypes['pg/int4@1']['output'];
+    quantity: CodecTypes['pg/float8@1']['output'];
+    quoteItemId: CodecTypes['pg/text@1']['output'] | null;
     sparePartId: CodecTypes['pg/text@1']['output'] | null;
     totalPrice: CodecTypes['pg/float8@1']['output'];
     unitPrice: CodecTypes['pg/float8@1']['output'];
     workOrderId: CodecTypes['pg/text@1']['output'];
+    quoteItem: public_QuoteItem | null;
     sparePart: public_SparePart | null;
     workOrder: public_WorkOrder;
-    readonly [RelationKeys]?: 'sparePart' | 'workOrder';
+    readonly [RelationKeys]?: 'quoteItem' | 'sparePart' | 'workOrder';
+  };
+  export type public_Quote = {
+    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    createdById: CodecTypes['pg/text@1']['output'] | null;
+    id: CodecTypes['pg/text@1']['output'];
+    notes: CodecTypes['pg/text@1']['output'] | null;
+    respondedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    respondedById: CodecTypes['pg/text@1']['output'] | null;
+    respondedVia: CodecTypes['pg/text@1']['output'] | null;
+    responseNote: CodecTypes['pg/text@1']['output'] | null;
+    sentAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    status: CodecTypes['pg/text@1']['output'];
+    taxRate: CodecTypes['pg/float8@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    workOrderId: CodecTypes['pg/text@1']['output'];
+    createdBy: public_User | null;
+    items: public_QuoteItem[];
+    respondedBy: public_User | null;
+    workOrder: public_WorkOrder;
+    readonly [RelationKeys]?: 'createdBy' | 'items' | 'respondedBy' | 'workOrder';
+  };
+  export type public_QuoteItem = {
+    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    decision: CodecTypes['pg/text@1']['output'];
+    description: CodecTypes['pg/text@1']['output'];
+    id: CodecTypes['pg/text@1']['output'];
+    kind: CodecTypes['pg/text@1']['output'];
+    position: CodecTypes['pg/int4@1']['output'];
+    priority: CodecTypes['pg/text@1']['output'];
+    quantity: CodecTypes['pg/float8@1']['output'];
+    quoteId: CodecTypes['pg/text@1']['output'];
+    sparePartId: CodecTypes['pg/text@1']['output'] | null;
+    unitPrice: CodecTypes['pg/float8@1']['output'];
+    partLines: public_PartLineItem[];
+    quote: public_Quote;
+    serviceLines: public_ServiceLineItem[];
+    sparePart: public_SparePart | null;
+    readonly [RelationKeys]?: 'partLines' | 'quote' | 'serviceLines' | 'sparePart';
   };
   export type public_ServiceLineItem = {
     cost: CodecTypes['pg/float8@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     description: CodecTypes['pg/text@1']['output'];
     id: CodecTypes['pg/text@1']['output'];
+    quoteItemId: CodecTypes['pg/text@1']['output'] | null;
     workOrderId: CodecTypes['pg/text@1']['output'];
+    quoteItem: public_QuoteItem | null;
     workOrder: public_WorkOrder;
-    readonly [RelationKeys]?: 'workOrder';
+    readonly [RelationKeys]?: 'quoteItem' | 'workOrder';
   };
   export type public_ServiceType = {
     active: CodecTypes['pg/bool@1']['output'];
@@ -891,6 +1062,7 @@ export namespace Models {
     durationMinutes: CodecTypes['pg/int4@1']['output'];
     id: CodecTypes['pg/text@1']['output'];
     name: CodecTypes['pg/text@1']['output'];
+    price: CodecTypes['pg/float8@1']['output'] | null;
     readonly [RelationKeys]?: never;
   };
   export type public_SparePart = {
@@ -908,7 +1080,8 @@ export namespace Models {
     supplier: CodecTypes['pg/text@1']['output'] | null;
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     partLineItems: public_PartLineItem[];
-    readonly [RelationKeys]?: 'partLineItems';
+    quoteItems: public_QuoteItem[];
+    readonly [RelationKeys]?: 'partLineItems' | 'quoteItems';
   };
   export type public_User = {
     banned: CodecTypes['pg/bool@1']['output'] | null;
@@ -919,8 +1092,10 @@ export namespace Models {
     phone: CodecTypes['pg/text@1']['output'] | null;
     role: CodecTypes['pg/text@1']['output'] | null;
     assignedOrders: public_WorkOrder[];
+    quotesAnswered: public_Quote[];
+    quotesCreated: public_Quote[];
     timeLogs: public_WorkOrderTimeLog[];
-    readonly [RelationKeys]?: 'assignedOrders' | 'timeLogs';
+    readonly [RelationKeys]?: 'assignedOrders' | 'quotesAnswered' | 'quotesCreated' | 'timeLogs';
   };
   export type public_Vehicle = {
     color: CodecTypes['pg/text@1']['output'] | null;
@@ -959,6 +1134,7 @@ export namespace Models {
     customer: public_Customer;
     mechanic: public_User | null;
     partItems: public_PartLineItem[];
+    quotes: public_Quote[];
     serviceItems: public_ServiceLineItem[];
     timeLogs: public_WorkOrderTimeLog[];
     vehicle: public_Vehicle | null;
@@ -967,6 +1143,7 @@ export namespace Models {
       | 'customer'
       | 'mechanic'
       | 'partItems'
+      | 'quotes'
       | 'serviceItems'
       | 'timeLogs'
       | 'vehicle';
@@ -1000,6 +1177,8 @@ export declare const models: {
     AssistanceType: Models.public_AssistanceType;
     Customer: Models.public_Customer;
     PartLineItem: Models.public_PartLineItem;
+    Quote: Models.public_Quote;
+    QuoteItem: Models.public_QuoteItem;
     ServiceLineItem: Models.public_ServiceLineItem;
     ServiceType: Models.public_ServiceType;
     SparePart: Models.public_SparePart;
@@ -1401,13 +1580,19 @@ type ContractBase = Omit<
                   readonly many: false;
                 };
                 readonly quantity: {
-                  readonly dataType: 'pg/int4';
-                  readonly codecId: 'pg/int4@1';
+                  readonly dataType: 'pg/float8';
+                  readonly codecId: 'pg/float8@1';
                   readonly nullable: false;
                   readonly default: {
                     readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
+                    readonly value: DefaultLiteralValue<'pg/float8@1', 1>;
                   };
+                  readonly many: false;
+                };
+                readonly quoteItemId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly sparePartId: {
@@ -1447,6 +1632,12 @@ type ContractBase = Omit<
               uniques: readonly [];
               indexes: readonly [
                 {
+                  readonly name: 'PartLineItem_quoteItemId_idx_5715e8b3';
+                  readonly prefix: 'PartLineItem_quoteItemId_idx';
+                  readonly columns: readonly ['quoteItemId'];
+                  readonly unique: false;
+                },
+                {
                   readonly name: 'PartLineItem_sparePartId_idx_5330e868';
                   readonly prefix: 'PartLineItem_sparePartId_idx';
                   readonly columns: readonly ['sparePartId'];
@@ -1476,6 +1667,312 @@ type ContractBase = Omit<
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'PartLineItem';
+                    readonly columns: readonly ['sparePartId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'SparePart';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'PartLineItem';
+                    readonly columns: readonly ['quoteItemId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'QuoteItem';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly Quote: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly createdById: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly notes: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly respondedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly respondedById: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly respondedVia: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly responseNote: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly sentAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'draft'>;
+                  };
+                  readonly many: false;
+                };
+                readonly taxRate: {
+                  readonly dataType: 'pg/float8';
+                  readonly codecId: 'pg/float8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/float8@1', 0.15>;
+                  };
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly workOrderId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Quote_createdById_idx_8bf640ed';
+                  readonly prefix: 'Quote_createdById_idx';
+                  readonly columns: readonly ['createdById'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Quote_respondedById_idx_d1211402';
+                  readonly prefix: 'Quote_respondedById_idx';
+                  readonly columns: readonly ['respondedById'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Quote_workOrderId_idx_136dd311';
+                  readonly prefix: 'Quote_workOrderId_idx';
+                  readonly columns: readonly ['workOrderId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Quote';
+                    readonly columns: readonly ['workOrderId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'WorkOrder';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Quote';
+                    readonly columns: readonly ['createdById'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Quote';
+                    readonly columns: readonly ['respondedById'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly QuoteItem: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly decidedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly decision: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'pending'>;
+                  };
+                  readonly many: false;
+                };
+                readonly description: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kind: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'service'>;
+                  };
+                  readonly many: false;
+                };
+                readonly position: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                  readonly many: false;
+                };
+                readonly priority: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'recommended'>;
+                  };
+                  readonly many: false;
+                };
+                readonly quantity: {
+                  readonly dataType: 'pg/float8';
+                  readonly codecId: 'pg/float8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/float8@1', 1>;
+                  };
+                  readonly many: false;
+                };
+                readonly quoteId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly sparePartId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly unitPrice: {
+                  readonly dataType: 'pg/float8';
+                  readonly codecId: 'pg/float8@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/float8@1', 0>;
+                  };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'QuoteItem_quoteId_idx_a7628ce5';
+                  readonly prefix: 'QuoteItem_quoteId_idx';
+                  readonly columns: readonly ['quoteId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'QuoteItem_sparePartId_idx_5330e868';
+                  readonly prefix: 'QuoteItem_sparePartId_idx';
+                  readonly columns: readonly ['sparePartId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'QuoteItem';
+                    readonly columns: readonly ['quoteId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Quote';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'QuoteItem';
                     readonly columns: readonly ['sparePartId'];
                   };
                   readonly target: {
@@ -1517,6 +2014,12 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
+                readonly quoteItemId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly workOrderId: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -1527,6 +2030,12 @@ type ContractBase = Omit<
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [];
               indexes: readonly [
+                {
+                  readonly name: 'ServiceLineItem_quoteItemId_idx_5715e8b3';
+                  readonly prefix: 'ServiceLineItem_quoteItemId_idx';
+                  readonly columns: readonly ['quoteItemId'];
+                  readonly unique: false;
+                },
                 {
                   readonly name: 'ServiceLineItem_workOrderId_idx_136dd311';
                   readonly prefix: 'ServiceLineItem_workOrderId_idx';
@@ -1544,6 +2053,18 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'WorkOrder';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ServiceLineItem';
+                    readonly columns: readonly ['quoteItemId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'QuoteItem';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1594,6 +2115,12 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly price: {
+                  readonly dataType: 'pg/float8';
+                  readonly codecId: 'pg/float8@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
               };
@@ -2205,6 +2732,8 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'PartLineItem';
     };
+    readonly Quote: { readonly namespace: 'public' & NamespaceId; readonly model: 'Quote' };
+    readonly QuoteItem: { readonly namespace: 'public' & NamespaceId; readonly model: 'QuoteItem' };
     readonly ServiceLineItem: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'ServiceLineItem';
@@ -2606,7 +3135,11 @@ type ContractBase = Omit<
               };
               readonly quantity: {
                 readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+              readonly quoteItemId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly sparePartId: {
                 readonly nullable: true;
@@ -2626,6 +3159,18 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly quoteItem: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'QuoteItem';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['quoteItemId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly sparePart: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2659,10 +3204,265 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly name: { readonly column: 'name' };
                 readonly quantity: { readonly column: 'quantity' };
+                readonly quoteItemId: { readonly column: 'quoteItemId' };
                 readonly sparePartId: { readonly column: 'sparePartId' };
                 readonly totalPrice: { readonly column: 'totalPrice' };
                 readonly unitPrice: { readonly column: 'unitPrice' };
                 readonly workOrderId: { readonly column: 'workOrderId' };
+              };
+            };
+          };
+          readonly Quote: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly createdById: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notes: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly respondedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly respondedById: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly respondedVia: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly responseNote: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly sentAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly taxRate: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly workOrderId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly createdBy: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['createdById'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly items: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'QuoteItem';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['quoteId'];
+                };
+              };
+              readonly respondedBy: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['respondedById'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly workOrder: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'WorkOrder';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['workOrderId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Quote';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly createdById: { readonly column: 'createdById' };
+                readonly id: { readonly column: 'id' };
+                readonly notes: { readonly column: 'notes' };
+                readonly respondedAt: { readonly column: 'respondedAt' };
+                readonly respondedById: { readonly column: 'respondedById' };
+                readonly respondedVia: { readonly column: 'respondedVia' };
+                readonly responseNote: { readonly column: 'responseNote' };
+                readonly sentAt: { readonly column: 'sentAt' };
+                readonly status: { readonly column: 'status' };
+                readonly taxRate: { readonly column: 'taxRate' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly workOrderId: { readonly column: 'workOrderId' };
+              };
+            };
+          };
+          readonly QuoteItem: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly decidedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly decision: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly description: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kind: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly position: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly priority: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly quantity: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+              readonly quoteId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly sparePartId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly unitPrice: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+            };
+            readonly relations: {
+              readonly partLines: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'PartLineItem';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['quoteItemId'];
+                };
+              };
+              readonly quote: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Quote';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['quoteId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly serviceLines: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ServiceLineItem';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['quoteItemId'];
+                };
+              };
+              readonly sparePart: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'SparePart';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['sparePartId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'QuoteItem';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly decidedAt: { readonly column: 'decidedAt' };
+                readonly decision: { readonly column: 'decision' };
+                readonly description: { readonly column: 'description' };
+                readonly id: { readonly column: 'id' };
+                readonly kind: { readonly column: 'kind' };
+                readonly position: { readonly column: 'position' };
+                readonly priority: { readonly column: 'priority' };
+                readonly quantity: { readonly column: 'quantity' };
+                readonly quoteId: { readonly column: 'quoteId' };
+                readonly sparePartId: { readonly column: 'sparePartId' };
+                readonly unitPrice: { readonly column: 'unitPrice' };
               };
             };
           };
@@ -2687,12 +3487,28 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly quoteItemId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly workOrderId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
             };
             readonly relations: {
+              readonly quoteItem: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'QuoteItem';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['quoteItemId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly workOrder: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2714,6 +3530,7 @@ type ContractBase = Omit<
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly description: { readonly column: 'description' };
                 readonly id: { readonly column: 'id' };
+                readonly quoteItemId: { readonly column: 'quoteItemId' };
                 readonly workOrderId: { readonly column: 'workOrderId' };
               };
             };
@@ -2747,6 +3564,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly price: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
             };
             readonly relations: Record<string, never>;
             readonly storage: {
@@ -2759,6 +3580,7 @@ type ContractBase = Omit<
                 readonly durationMinutes: { readonly column: 'durationMinutes' };
                 readonly id: { readonly column: 'id' };
                 readonly name: { readonly column: 'name' };
+                readonly price: { readonly column: 'price' };
               };
             };
           };
@@ -2835,6 +3657,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['sparePartId'];
                 };
               };
+              readonly quoteItems: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'QuoteItem';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['sparePartId'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'SparePart';
@@ -2900,6 +3733,28 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['mechanicId'];
+                };
+              };
+              readonly quotesAnswered: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Quote';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['respondedById'];
+                };
+              };
+              readonly quotesCreated: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Quote';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['createdById'];
                 };
               };
               readonly timeLogs: {
@@ -3147,6 +4002,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'PartLineItem';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['workOrderId'];
+                };
+              };
+              readonly quotes: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Quote';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -3465,6 +4331,31 @@ type ContractBase = Omit<
           readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'PartLineItem';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Quote';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Quote';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'QuoteItem';
             readonly field: 'id';
             readonly namespace: 'public';
           };

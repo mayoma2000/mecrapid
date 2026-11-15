@@ -25,6 +25,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   if (body.name !== undefined) updates['name'] = String(body.name).trim()
   if (body.description !== undefined) updates['description'] = body.description || null
   if (body.durationMinutes !== undefined) updates['durationMinutes'] = Number(body.durationMinutes)
+  if (body.price !== undefined) updates['price'] = body.price != null && body.price !== '' ? Number(body.price) : null
   if (body.active !== undefined) updates['active'] = Boolean(body.active)
 
   const type = await db.orm.public.ServiceType.where({ id }).update(updates)

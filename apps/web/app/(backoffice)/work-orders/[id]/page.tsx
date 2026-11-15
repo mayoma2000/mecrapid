@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { WorkPanel, type WorkInfo } from './work-panel'
+import { QuotesPanel } from './quotes-panel'
+import { money } from '@/src/lib/quote-labels'
 
-type ServiceItem = { id: string; name: string; description: string | null; price: number; quantity: number }
-type PartItem = { id: string; quantity: number; unitCost: number; sparePart: { name: string; partNumber: string | null } }
+// Trabajo autorizado: lo aprobado en las cotizaciones se copia aquí
+type ServiceItem = { id: string; description: string; cost: number }
+type PartItem = { id: string; name: string; quantity: number; unitPrice: number; totalPrice: number }
 type WorkOrder = WorkInfo & {
   id: string; status: string; complaint: string; diagnosis: string | null
   estimatedCost: number | null; actualCost: number | null; completedAt: string | null
@@ -160,56 +163,36 @@ export default function WorkOrderDetailPage() {
         </div>
       )}
 
-      {/* Service items */}
-      {order.serviceItems.length > 0 && (
+      <QuotesPanel orderId={order.id} closed={order.status === 'completed' || order.status === 'cancelled'} />
+
+      {/* Trabajo autorizado (servicios y repuestos aprobados por el cliente) */}
+      {(order.serviceItems.length > 0 || order.partItems.length > 0) && (
         <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
           <div className="px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
-            <h2 className="font-semibold text-neutral-700 dark:text-neutral-300 text-sm uppercase tracking-wide">Servicios</h2>
+            <h2 className="font-semibold text-neutral-700 dark:text-neutral-300 text-sm uppercase tracking-wide">Trabajo autorizado</h2>
           </div>
           <table className="w-full text-sm">
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
               {order.serviceItems.map((s) => (
                 <tr key={s.id}>
-                  <td className="px-5 py-3 text-neutral-900 dark:text-white">
-                    <p className="font-medium">{s.name}</p>
-                    {s.description && <p className="text-xs text-neutral-400 mt-0.5">{s.description}</p>}
-                  </td>
-                  <td className="px-5 py-3 text-right text-neutral-500 dark:text-neutral-400 text-xs">{s.quantity > 1 ? `×${s.quantity}` : ''}</td>
-                  <td className="px-5 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">L. {(s.price * s.quantity).toFixed(2)}</td>
+                  <td className="px-5 py-3 text-neutral-900 dark:text-white">🔧 {s.description}</td>
+                  <td className="px-5 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">{money(s.cost)}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Part items */}
-      {order.partItems.length > 0 && (
-        <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
-          <div className="px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
-            <h2 className="font-semibold text-neutral-700 dark:text-neutral-300 text-sm uppercase tracking-wide">Repuestos</h2>
-          </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-neutral-100 dark:border-neutral-800">
-                <th className="text-left px-5 py-3 font-medium text-neutral-500">Repuesto</th>
-                <th className="text-right px-5 py-3 font-medium text-neutral-500">Cant.</th>
-                <th className="text-right px-5 py-3 font-medium text-neutral-500">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
               {order.partItems.map((p) => (
                 <tr key={p.id}>
                   <td className="px-5 py-3 text-neutral-900 dark:text-white">
-                    <p className="font-medium">{p.sparePart.name}</p>
-                    {p.sparePart.partNumber && <p className="text-xs text-neutral-400 mt-0.5">#{p.sparePart.partNumber}</p>}
+                    📦 {p.name}
+                    {p.quantity !== 1 && <span className="text-xs text-neutral-400"> · {p.quantity} × {money(p.unitPrice)}</span>}
                   </td>
-                  <td className="px-5 py-3 text-right text-neutral-600 dark:text-neutral-400">{p.quantity}</td>
-                  <td className="px-5 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">L. {(p.unitCost * p.quantity).toFixed(2)}</td>
+                  <td className="px-5 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">{money(p.totalPrice)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <p className="px-5 py-3 text-xs text-neutral-500 border-t border-neutral-100 dark:border-neutral-800">
+            Montos sin ISV. El costo estimado de la orden se actualiza con lo aprobado (ISV incluido).
+          </p>
         </div>
       )}
     </div>

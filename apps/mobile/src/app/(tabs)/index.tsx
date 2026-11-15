@@ -4,6 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useApi } from '../../lib/api'
 import { safeDate } from '../../lib/date'
+import { QUOTE_STATUS, money, type Quote } from '../../lib/quotes'
 import { useSession, signOut } from '../../lib/auth-client'
 import { router } from 'expo-router'
 
@@ -155,6 +156,14 @@ export default function DashboardScreen() {
     enabled: !isStaff,
   })
 
+  const { data: myQuotes } = useQuery({
+    queryKey: ['my-quotes'],
+    queryFn: () => request<{ data: Quote[]; meta: { pending: number } }>('/api/v1/me/quotes'),
+    enabled: !isStaff,
+  })
+  const pendingQuotes = myQuotes?.data.filter((q) => q.status === 'sent') ?? []
+  const answeredQuotes = myQuotes?.data.filter((q) => q.status !== 'sent').slice(0, 3) ?? []
+
   const rawName = session?.user.name ?? ''
   const userEmail = session?.user.email ?? ''
   // If name was accidentally stored as an email address, use the local part
@@ -296,6 +305,37 @@ export default function DashboardScreen() {
             {/* Mi Actividad — sección tabulada */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Mi Actividad</Text>
+
+              {/* Cotizaciones: las que esperan respuesta se destacan */}
+              {pendingQuotes.map((q) => (
+                <TouchableOpacity key={q.id} style={styles.quoteBanner} onPress={() => router.push(`/my-quote/${q.id}`)}>
+                  <Text style={{ fontSize: 28 }}>📋</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.quoteBannerTitle}>Cotización lista para aprobar</Text>
+                    <Text style={styles.quoteBannerSub} numberOfLines={1}>
+                      {q.vehicle ? `${q.vehicle.make} ${q.vehicle.model} · ` : ''}{q.items.length} partidas · {money(q.total)}
+                    </Text>
+                  </View>
+                  <Text style={styles.quoteBannerArrow}>›</Text>
+                </TouchableOpacity>
+              ))}
+              {answeredQuotes.length > 0 && (
+                <View style={{ gap: 8, marginBottom: 6 }}>
+                  {answeredQuotes.map((q) => (
+                    <TouchableOpacity key={q.id} style={styles.listCard} onPress={() => router.push(`/my-quote/${q.id}`)}>
+                      <View style={styles.listCardLeft}>
+                        <Text style={styles.listCardTitle} numberOfLines={1}>
+                          📋 Cotización{q.vehicle ? ` · ${q.vehicle.make} ${q.vehicle.model}` : ''}
+                        </Text>
+                        <Text style={styles.listCardSub}>Aprobado {money(q.approvedTotal)} de {money(q.total)}</Text>
+                      </View>
+                      <View style={[styles.statusBadge, { backgroundColor: QUOTE_STATUS[q.status].bg }]}>
+                        <Text style={[styles.statusText, { color: QUOTE_STATUS[q.status].color }]}>{QUOTE_STATUS[q.status].label}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
 
               {/* Tab chips */}
               <View style={styles.tabRow}>
@@ -763,6 +803,23 @@ const styles = StyleSheet.create({
   ctaSub: { fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
 
   /* ── Tab activity section ── */
+  quoteBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FB6340',
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 10,
+    shadowColor: '#FB6340',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  quoteBannerTitle: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  quoteBannerSub: { color: '#FFE6DC', fontSize: 12, marginTop: 2 },
+  quoteBannerArrow: { color: '#fff', fontSize: 28, fontWeight: '300' },
   tabRow: {
     flexDirection: 'row',
     gap: 8,

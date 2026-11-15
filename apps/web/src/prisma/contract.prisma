@@ -15,6 +15,8 @@ model User {
 
   assignedOrders WorkOrder[]        @relation("assignedMechanic")
   timeLogs       WorkOrderTimeLog[]
+  quotesCreated  Quote[]            @relation("quoteCreatedBy")
+  quotesAnswered Quote[]            @relation("quoteRespondedBy")
 
   createdAt TimestamptzString
 
@@ -110,6 +112,7 @@ model WorkOrder {
   partItems           PartLineItem[]
   assistanceRequests  AssistanceRequest[]
   timeLogs            WorkOrderTimeLog[]
+  quotes              Quote[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
@@ -120,8 +123,10 @@ model ServiceLineItem {
   workOrderId String
   description String
   cost        Float     @default(0)
+  quoteItemId String?
 
   workOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
+  quoteItem   QuoteItem? @relation(fields: [quoteItemId], references: [id])
 
   createdAt TimestamptzString @default(now())
 }
@@ -142,6 +147,7 @@ model SparePart {
   description    String?
 
   partLineItems  PartLineItem[]
+  quoteItems     QuoteItem[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
@@ -152,12 +158,14 @@ model PartLineItem {
   workOrderId String
   sparePartId String?
   name        String
-  quantity    Int       @default(1)
+  quantity    Float     @default(1)
   unitPrice   Float     @default(0)
   totalPrice  Float     @default(0)
+  quoteItemId String?
 
   workOrder   WorkOrder  @relation(fields: [workOrderId], references: [id])
   sparePart   SparePart? @relation(fields: [sparePartId], references: [id])
+  quoteItem   QuoteItem? @relation(fields: [quoteItemId], references: [id])
 
   createdAt TimestamptzString @default(now())
 }
@@ -198,6 +206,7 @@ model ServiceType {
   description     String?
   durationMinutes Int     @default(60)
   active          Boolean @default(true)
+  price           Float?
 
   createdAt       TimestamptzString @default(now())
 }
@@ -240,4 +249,51 @@ model AssistanceRequest {
 
   createdAt         TimestamptzString @default(now())
   updatedAt         temporal.updatedAtString()
+}
+
+// ─── Cotizaciones ──────────────────────────────────────────────────────────
+
+// status: draft → sent → approved | partially_approved | rejected
+model Quote {
+  id            String  @id @default(uuid())
+  workOrderId   String
+  status        String  @default("draft")
+  notes         String?
+  taxRate       Float   @default(0.15)
+  createdById   String?
+  sentAt        TimestamptzString?
+  respondedAt   TimestamptzString?
+  respondedById String?
+  respondedVia  String?
+  responseNote  String?
+
+  workOrder   WorkOrder   @relation(fields: [workOrderId], references: [id])
+  createdBy   User?       @relation("quoteCreatedBy", fields: [createdById], references: [id])
+  respondedBy User?       @relation("quoteRespondedBy", fields: [respondedById], references: [id])
+  items       QuoteItem[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+// kind: service | part · priority: urgent | recommended | optional · decision: pending | approved | rejected
+model QuoteItem {
+  id          String  @id @default(uuid())
+  quoteId     String
+  position    Int     @default(0)
+  kind        String  @default("service")
+  description String
+  quantity    Float   @default(1)
+  unitPrice   Float   @default(0)
+  priority    String  @default("recommended")
+  sparePartId String?
+  decision    String  @default("pending")
+  decidedAt   TimestamptzString?
+
+  quote        Quote             @relation(fields: [quoteId], references: [id])
+  sparePart    SparePart?        @relation(fields: [sparePartId], references: [id])
+  serviceLines ServiceLineItem[]
+  partLines    PartLineItem[]
+
+  createdAt TimestamptzString @default(now())
 }

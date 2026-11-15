@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 
-type ServiceType = { id: string; name: string; description: string | null; durationMinutes: number; active: boolean }
+type ServiceType = { id: string; name: string; description: string | null; durationMinutes: number; active: boolean; price: number | null }
 
 export default function EditServiceTypePage() {
   const router = useRouter()
@@ -11,6 +11,7 @@ export default function EditServiceTypePage() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [durationMinutes, setDurationMinutes] = useState('60')
+  const [price, setPrice] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -22,6 +23,7 @@ export default function EditServiceTypePage() {
         setName(data.name)
         setDescription(data.description ?? '')
         setDurationMinutes(String(data.durationMinutes))
+        setPrice(data.price != null ? String(data.price) : '')
         setLoading(false)
       })
   }, [id])
@@ -33,7 +35,7 @@ export default function EditServiceTypePage() {
     const res = await fetch(`/api/v1/service-types/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, description: description || null, durationMinutes: Number(durationMinutes) }),
+      body: JSON.stringify({ name, description: description || null, durationMinutes: Number(durationMinutes), price: price === '' ? null : Number(price) }),
     })
     if (res.ok) {
       router.push('/service-types')
@@ -63,6 +65,11 @@ export default function EditServiceTypePage() {
         <div>
           <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Duración estimada (minutos)</label>
           <input type="number" value={durationMinutes} onChange={(e) => setDurationMinutes(e.target.value)} min={15} max={480} step={15}
+            className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Precio sugerido (L., sin ISV)</label>
+          <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} min={0} step="0.01" placeholder="Se usa al agregarlo a una cotización"
             className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}

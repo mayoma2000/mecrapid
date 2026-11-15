@@ -93,7 +93,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     await db.orm.public.WorkOrderTimeLog
       .where({ workOrderId: id })
       .where((l) => l.endedAt.isNull())
-      .update({ endedAt: new Date().toISOString() })
+      .updateAll({ endedAt: new Date().toISOString() })
   }
 
   const order = await db.orm.public.WorkOrder.where({ id }).update(updates)
