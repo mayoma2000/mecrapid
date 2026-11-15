@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
       await notifyUsers(await customerUserIds(appt.customerId), {
         type: 'appointment_reminder',
         title: '⏰ Mañana tenés cita en el taller',
-        body: `${appt.serviceType} a las ${time}. Si no podés llegar, reagendá desde la app.`,
+        // La hora ya termina en "p. m.": el texto sigue con guion para no duplicar el punto
+        body: `${appt.serviceType} a las ${time} — si no podés llegar, reagendá desde la app`,
         url: `/my-appointment/${appt.id}`,
       })
       await db.orm.public.Appointment.where({ id: appt.id }).update({ reminderSentAt: new Date().toISOString() })
