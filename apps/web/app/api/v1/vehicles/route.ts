@@ -1,7 +1,10 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
+import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
 
 export async function GET(request: NextRequest) {
+  const g = await requireRole(STAFF_ROLES)
+  if (!g.ok) return g.response
 
   const { searchParams } = request.nextUrl
   const customerId = searchParams.get('customerId')
@@ -21,6 +24,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const g = await requireRole(STAFF_ROLES)
+  if (!g.ok) return g.response
 
   const body = await request.json()
   const { customerId, make, model, year, licensePlate, vin, color, mileage } = body

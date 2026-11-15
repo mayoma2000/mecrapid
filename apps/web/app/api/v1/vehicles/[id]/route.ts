@@ -1,9 +1,12 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
+import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
 
 type Ctx = { params: Promise<{ id: string }> }
 
 export async function GET(_req: NextRequest, ctx: Ctx) {
+  const g = await requireRole(STAFF_ROLES)
+  if (!g.ok) return g.response
   const { id } = await ctx.params
   const vehicle = await db.orm.public.Vehicle
     .where({ id })
@@ -14,6 +17,8 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
 }
 
 export async function PATCH(request: NextRequest, ctx: Ctx) {
+  const g = await requireRole(STAFF_ROLES)
+  if (!g.ok) return g.response
   const { id } = await ctx.params
   const existing = await db.orm.public.Vehicle.first({ id })
   if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
@@ -35,6 +40,8 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 }
 
 export async function DELETE(_req: NextRequest, ctx: Ctx) {
+  const g = await requireRole(['admin'])
+  if (!g.ok) return g.response
   const { id } = await ctx.params
   const existing = await db.orm.public.Vehicle.first({ id })
   if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
