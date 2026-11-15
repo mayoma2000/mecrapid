@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-type WorkOrder = { id: string; status: string; complaint: string; customer: { name: string }; vehicle: { make: string; model: string; year: number; licensePlate: string } }
+type WorkOrder = { id: string; status: string; complaint: string; customer: { name: string }; vehicle: { make: string; model: string; year: number; licensePlate: string } | null }
 
 const STATUS_LABEL: Record<string, string> = {
   pending: 'Pendiente', assigned: 'Asignado', in_progress: 'En Proceso',
@@ -83,7 +83,7 @@ export default function WorkOrdersPage() {
                 <tr key={o.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer" onClick={() => router.push(`/work-orders/${o.id}`)}>
                   <td className="px-4 py-3">
                     <p className="font-medium text-neutral-900 dark:text-white">{o.customer.name}</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{o.vehicle.year} {o.vehicle.make} {o.vehicle.model} · {o.vehicle.licensePlate}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{o.vehicle ? `${o.vehicle.year} ${o.vehicle.make} ${o.vehicle.model} · ${o.vehicle.licensePlate}` : 'Sin vehículo asignado'}</p>
                   </td>
                   <td className="hidden sm:table-cell px-4 py-3 text-neutral-600 dark:text-neutral-400 max-w-xs truncate">{o.complaint}</td>
                   <td className="px-4 py-3">
