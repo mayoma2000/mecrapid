@@ -20,6 +20,9 @@ model User {
   pushTokens     PushToken[]
   notifications  Notification[]
   ownershipsMade VehicleOwnership[]
+  auditActions   StaffAuditLog[]    @relation("auditActor")
+  auditTargeted  StaffAuditLog[]    @relation("auditTarget")
+  sessions       AuthSession[]
 
   createdAt TimestamptzString
 
@@ -378,4 +381,32 @@ model MaintenanceReminder {
 
   vehicle Vehicle         @relation(fields: [vehicleId], references: [id])
   rule    MaintenanceRule @relation(fields: [ruleId], references: [id])
+}
+
+// ─── Usuarios del taller ───────────────────────────────────────────────────
+
+// Registro de cambios sobre cuentas del personal (quién hizo qué a quién)
+model StaffAuditLog {
+  id       String  @id @default(uuid())
+  actorId  String?
+  targetId String?
+  action   String
+  detail   String?
+
+  actor  User? @relation("auditActor", fields: [actorId], references: [id])
+  target User? @relation("auditTarget", fields: [targetId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+}
+
+// Tabla "session" de better-auth, solo para leer el último ingreso (la escribe better-auth)
+model AuthSession {
+  id        String @id
+  userId    String
+  expiresAt TimestamptzString
+  updatedAt TimestamptzString
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("session")
 }

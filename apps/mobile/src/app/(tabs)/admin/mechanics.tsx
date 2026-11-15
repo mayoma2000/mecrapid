@@ -59,6 +59,10 @@ export default function MechanicsScreen() {
     <SafeAreaView style={ui.screen} edges={['top']}>
       <NavHeader title="Mecánicos" right={!creating ? <TextButton label="+ Nuevo" onPress={() => setCreating(true)} /> : undefined} />
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
+        <Text style={[ui.hint, { marginBottom: 12, marginHorizontal: 4 }]}>
+          Aquí se gestionan los mecánicos. Los administradores se gestionan desde el backoffice web → Usuarios del taller.
+        </Text>
+
         {creating && (
           <Card title="Nuevo mecánico">
             <Field label="Nombre *" value={form.name} onChange={(v) => setForm({ ...form, name: v })} caps="words" flex={false} />

@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { auth } from '@/src/lib/auth'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
+import { recordMechanicChange } from '@/src/lib/staff'
 
 // Mecánicos = usuarios de better-auth con role 'mecanico'
 export async function GET(request: NextRequest) {
@@ -41,6 +42,7 @@ export async function POST(request: NextRequest) {
     })
     // El plugin admin solo tipa 'user' | 'admin'; el rol 'mecanico' vive en la misma columna
     await db.orm.public.User.where({ id: user.id }).update({ role: 'mecanico' })
+    await recordMechanicChange({ id: g.session.user.id, name: g.session.user.name }, user.id, 'created', `creó la cuenta de ${name} como mecánico`)
     return Response.json({ data: { id: user.id, name: user.name, email: user.email, active: true } }, { status: 201 })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'No se pudo crear el mecánico'

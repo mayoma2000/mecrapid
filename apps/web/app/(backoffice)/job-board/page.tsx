@@ -80,14 +80,14 @@ export default function JobBoardPage() {
           </p>
         </div>
         {isAdmin && (
-          <Link href="/mechanics" className="text-sm font-semibold text-blue-600 hover:underline">Gestionar mecánicos →</Link>
+          <Link href="/team" className="text-sm font-semibold text-blue-600 hover:underline">Gestionar mecánicos →</Link>
         )}
       </div>
 
       {board.columns.length === 0 && (
         <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-8 text-center text-sm text-neutral-500">
           Todavía no hay mecánicos registrados.{' '}
-          {isAdmin && <Link href="/mechanics" className="text-blue-600 font-semibold hover:underline">Agregar el primero</Link>}
+          {isAdmin && <Link href="/team" className="text-blue-600 font-semibold hover:underline">Agregar el primero</Link>}
         </div>
       )}
 

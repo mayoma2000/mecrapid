@@ -60,6 +60,10 @@
       "model": "SparePart",
       "namespace": "public"
     },
+    "StaffAuditLog": {
+      "model": "StaffAuditLog",
+      "namespace": "public"
+    },
     "Vehicle": {
       "model": "Vehicle",
       "namespace": "public"
@@ -78,6 +82,10 @@
     },
     "WorkSchedule": {
       "model": "WorkSchedule",
+      "namespace": "public"
+    },
+    "session": {
+      "model": "AuthSession",
       "namespace": "public"
     },
     "user": {
@@ -554,6 +562,74 @@
               },
               "namespaceId": "public",
               "table": "AssistanceType"
+            }
+          },
+          "AuthSession": {
+            "fields": {
+              "expiresAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "expiresAt": {
+                  "column": "expiresAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "session"
             }
           },
           "Customer": {
@@ -2026,6 +2102,110 @@
               "table": "SparePart"
             }
           },
+          "StaffAuditLog": {
+            "fields": {
+              "action": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "actorId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "detail": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "targetId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "actor": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "actorId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "target": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "targetId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "action": {
+                  "column": "action"
+                },
+                "actorId": {
+                  "column": "actorId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "detail": {
+                  "column": "detail"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "targetId": {
+                  "column": "targetId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "StaffAuditLog"
+            }
+          },
           "User": {
             "fields": {
               "banned": {
@@ -2091,6 +2271,36 @@
                 },
                 "to": {
                   "model": "WorkOrder",
+                  "namespace": "public"
+                }
+              },
+              "auditActions": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "actorId"
+                  ]
+                },
+                "to": {
+                  "model": "StaffAuditLog",
+                  "namespace": "public"
+                }
+              },
+              "auditTargeted": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "targetId"
+                  ]
+                },
+                "to": {
+                  "model": "StaffAuditLog",
                   "namespace": "public"
                 }
               },
@@ -2166,6 +2376,21 @@
                 },
                 "to": {
                   "model": "Quote",
+                  "namespace": "public"
+                }
+              },
+              "sessions": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "AuthSession",
                   "namespace": "public"
                 }
               },
@@ -4508,6 +4733,108 @@
                 }
               ]
             },
+            "StaffAuditLog": {
+              "columns": {
+                "action": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "actorId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "detail": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "targetId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "StaffAuditLog_actorId_idx_a58f6b4b"
+                  },
+                  "source": {
+                    "columns": [
+                      "actorId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "StaffAuditLog"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "StaffAuditLog_targetId_idx_9852d518"
+                  },
+                  "source": {
+                    "columns": [
+                      "targetId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "StaffAuditLog"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "actorId"
+                  ],
+                  "name": "StaffAuditLog_actorId_idx_a58f6b4b",
+                  "prefix": "StaffAuditLog_actorId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "targetId"
+                  ],
+                  "name": "StaffAuditLog_targetId_idx_9852d518",
+                  "prefix": "StaffAuditLog_targetId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Vehicle": {
               "columns": {
                 "color": {
@@ -5118,6 +5445,67 @@
                 }
               ]
             },
+            "session": {
+              "columns": {
+                "expiresAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "session_userId_idx_a489d58a"
+                  },
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "session"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "session_userId_idx_a489d58a",
+                  "prefix": "session_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "user": {
               "columns": {
                 "banned": {
@@ -5201,10 +5589,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "25b959e21c1fe0bd22555a840fa842f97c3164c79b01594081f37b440583ded0"
+    "storageHash": "783f6667740a38e50fcf147739ca1941ca68c582fac699e64fc910cbec2c2d04"
   },
   "execution": {
-    "executionHash": "5ae2267bc49f0a8517e673260358b3405dbeba3850505984a710565b6e2d5d78",
+    "executionHash": "92a4acbb0b4bf4f1e8ddc4a9c1ff1ff8503dfe5678ce152c1ab25edd137a867d",
     "mutations": {
       "defaults": [
         {
@@ -5448,6 +5836,17 @@
           "ref": {
             "entry": "SparePart",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "StaffAuditLog",
+            "field": "id",
             "namespace": "public"
           }
         },
