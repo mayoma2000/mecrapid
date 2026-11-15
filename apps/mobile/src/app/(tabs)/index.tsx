@@ -237,6 +237,16 @@ export default function DashboardScreen() {
               </TouchableOpacity>
             </View>
 
+            {role === 'admin' && (
+              <View style={[styles.section, { paddingTop: 0 }]}>
+                <TouchableOpacity onPress={() => router.navigate('/reports')} style={styles.reportsLink}>
+                  <Text style={{ fontSize: 20 }}>📈</Text>
+                  <Text style={styles.reportsLinkText}>Reportes: ingresos, ticket promedio y mecánicos</Text>
+                  <Text style={{ fontSize: 22, color: '#C9CED6' }}>›</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             {/* KPI Cards — staff view */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Resumen</Text>
@@ -669,6 +679,17 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: '600',
   },
+  reportsLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#E8EAF0',
+  },
+  reportsLinkText: { flex: 1, fontSize: 14, fontWeight: '700', color: '#172B4D' },
   workBanner: {
     flexDirection: 'row',
     alignItems: 'center',

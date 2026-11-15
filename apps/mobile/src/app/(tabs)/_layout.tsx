@@ -65,6 +65,14 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="reports"
+        options={{
+          href: isAdmin ? undefined : null,
+          tabBarStyle: { display: 'none' },
+          tabBarIcon: ({ focused }) => <TabIcon icon="📈" label="Reportes" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="customers"
         options={{
           href: isAdmin ? undefined : null,

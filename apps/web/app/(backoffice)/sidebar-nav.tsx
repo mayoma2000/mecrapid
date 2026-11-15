@@ -16,6 +16,7 @@ const NAV = [
   { href: '/assistance-requests', label: 'Solicitudes', icon: '🆘' },
   { href: '/customers', label: 'Clientes', icon: '👥' },
   { href: '/vehicles', label: 'Vehículos', icon: '🚗' },
+  { href: '/reports', label: 'Reportes', icon: '📈', adminOnly: true },
   { href: '/mechanics', label: 'Mecánicos', icon: '👷', adminOnly: true },
   { href: '/assistance-types', label: 'Tipos Asistencia', icon: '🔖', adminOnly: true },
   { href: '/service-types', label: 'Servicios', icon: '⚙️', adminOnly: true },
