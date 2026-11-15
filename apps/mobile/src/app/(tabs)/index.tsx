@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, Pressable, Image } from 'react-native'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, Pressable, Image, RefreshControl } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useApi } from '../../lib/api'
@@ -99,6 +99,16 @@ export default function DashboardScreen() {
   const role = (session?.user as { role?: string })?.role ?? 'user'
   const isStaff = role === 'admin' || role === 'mecanico'
 
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
+
+  // Deslizar hacia abajo: vuelve a pedir todo lo que muestra el tablero
+  async function handleRefresh() {
+    setRefreshing(true)
+    await queryClient.refetchQueries({ type: 'active' })
+    setRefreshing(false)
+  }
+
   // Staff KPIs
   const { data: customersAgg } = useQuery({
     queryKey: ['customers-count'],
@@ -160,6 +170,9 @@ export default function DashboardScreen() {
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => { void handleRefresh() }} tintColor="#5E72E4" />
+        }
       >
         {/* Page title */}
         <View style={styles.pageHeader}>
