@@ -1,10 +1,14 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
+import { auth } from '@/src/lib/auth'
+import { headers } from 'next/headers'
 
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 const ACTIVE_STATUSES: WorkOrderStatus[] = ['assigned', 'in_progress', 'quality_check']
 
 export async function GET(request: NextRequest) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = request.nextUrl
   const status = searchParams.get('status')
@@ -39,9 +43,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { customerId, vehicleId, complaint, mechanicId, estimatedCost, notes } = body
+  const { customerId, vehicleId, complaint, diagnosis, mechanicId, estimatedCost, notes } = body
 
   if (!customerId || !vehicleId || !complaint) {
     return Response.json(
@@ -54,6 +60,7 @@ export async function POST(request: NextRequest) {
     customerId: String(customerId),
     vehicleId: String(vehicleId),
     complaint: String(complaint).trim(),
+    diagnosis: diagnosis ? String(diagnosis).trim() : null,
     mechanicId: mechanicId ? String(mechanicId) : null,
     estimatedCost: estimatedCost != null ? Number(estimatedCost) : null,
     notes: notes ? String(notes).trim() : null,

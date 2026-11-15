@@ -12,7 +12,7 @@ interface WorkOrder {
   complaint: string
   status: WorkOrderStatus
   customer: { name: string }
-  vehicle: { make: string; model: string; year: number; licensePlate: string }
+  vehicle: { make: string; model: string; year: number; licensePlate: string } | null
   estimatedCost: number | null
   createdAt: string
 }
@@ -41,7 +41,7 @@ function OrderCard({ order }: { order: WorkOrder }) {
         <View style={{ flex: 1, marginRight: 10 }}>
           <Text style={styles.customerName} numberOfLines={1}>{order.customer.name}</Text>
           <Text style={styles.vehicleText} numberOfLines={1}>
-            {order.vehicle.make} {order.vehicle.model} {order.vehicle.year} · {order.vehicle.licensePlate}
+            {order.vehicle ? `${order.vehicle.make} ${order.vehicle.model} ${order.vehicle.year} · ${order.vehicle.licensePlate}` : 'Sin vehículo asignado'}
           </Text>
         </View>
         <View style={[styles.badge, { backgroundColor: cfg.bg }]}>
@@ -78,6 +78,9 @@ export default function OrdersScreen() {
             <Text style={styles.backBtnText}>‹</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Órdenes</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/orders/new')} style={styles.newBtn}>
+            <Text style={styles.newBtnText}>+ Nueva</Text>
+          </TouchableOpacity>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 14 }}>
           <View style={{ flexDirection: 'row', gap: 8, paddingRight: 4 }}>
@@ -154,6 +157,19 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   backBtnText: { fontSize: 26, color: '#5E72E4', lineHeight: 30 },
+  newBtn: {
+    marginLeft: 'auto',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 12,
+    backgroundColor: '#5E72E4',
+    shadowColor: '#5E72E4',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  newBtnText: { color: '#fff', fontSize: 13, fontWeight: '800' },
   tab: {
     paddingHorizontal: 16,
     paddingVertical: 9,

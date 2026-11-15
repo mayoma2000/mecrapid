@@ -33,7 +33,7 @@ interface WorkOrderDetail {
   createdAt: string
   completedAt: string | null
   customer: { id: string; name: string; phone: string }
-  vehicle: { make: string; model: string; year: number; licensePlate: string }
+  vehicle: { make: string; model: string; year: number; licensePlate: string } | null
   serviceItems: ServiceItem[]
   partItems: PartItem[]
 }
@@ -125,7 +125,7 @@ export default function OrderDetailScreen() {
           <View style={{ flex: 1 }}>
             <Text style={styles.heroName}>{order.customer.name}</Text>
             <Text style={styles.heroVehicle}>
-              {order.vehicle.make} {order.vehicle.model} {order.vehicle.year} · {order.vehicle.licensePlate}
+              {order.vehicle ? `${order.vehicle.make} ${order.vehicle.model} ${order.vehicle.year} · ${order.vehicle.licensePlate}` : 'Sin vehículo asignado'}
             </Text>
             <Text style={styles.heroDate}>
               {safeDate(order.createdAt).toLocaleDateString('es-HN', { day: 'numeric', month: 'long', year: 'numeric' })}
