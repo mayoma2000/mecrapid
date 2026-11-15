@@ -37,7 +37,7 @@ function buildSlots(startHour: number, endHour: number): string[] {
 export default function BookAppointmentScreen() {
   const { request } = useApi()
   const insets = useSafeAreaInsets()
-  const dateScrollRef = useRef<ScrollView>(null)
+  const dateScrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null)
 
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
   const [schedule, setSchedule] = useState<ScheduleRow[]>([])
