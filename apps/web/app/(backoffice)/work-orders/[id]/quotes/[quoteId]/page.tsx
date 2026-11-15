@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { KIND_LABEL, PRIORITY, QUOTE_STATUS, money } from '@/src/lib/quote-labels'
 import { toDate } from '@/src/lib/job-time'
+import { waMessages, whatsappLink } from '@/src/lib/whatsapp'
 
 type Item = {
   id?: string
@@ -18,6 +19,7 @@ type Item = {
 type Quote = {
   id: string; workOrderId: string; status: string; notes: string | null; taxRate: number
   sentAt: string | null; respondedAt: string | null; respondedVia: string | null; responseNote: string | null
+  workOrder: { customer: { name: string; phone: string } | null; vehicle: { make: string; model: string } | null } | null
   items: Item[]; subtotal: number; tax: number; total: number; approvedSubtotal: number; approvedTotal: number
 }
 type ServiceType = { id: string; name: string; price: number | null }
@@ -261,6 +263,17 @@ export default function QuotePage() {
           <button onClick={() => void remove()} disabled={busy} className="px-5 py-2.5 text-sm font-semibold text-red-600 ml-auto">Borrar</button>
         </div>
       )}
+
+      {quote.status === 'sent' && (() => {
+        const c = quote.workOrder?.customer
+        const v = quote.workOrder?.vehicle
+        const link = c ? whatsappLink(c.phone, waMessages.quoteReady(c.name, v ? `su ${v.make} ${v.model}` : 'su vehículo', money(quote.total))) : null
+        return link ? (
+          <a href={link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white text-sm font-semibold rounded-xl hover:opacity-90">
+            💬 Avisar por WhatsApp a {c!.name}
+          </a>
+        ) : null
+      })()}
 
       {quote.status === 'sent' && (
         <div className={`${card} p-4 space-y-3`}>

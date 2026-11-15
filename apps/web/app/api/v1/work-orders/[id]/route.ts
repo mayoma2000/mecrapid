@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
 import { summarizeLogs, bumpVehicleMileage } from '@/src/lib/job-time'
+import { customerUserIds, notifyLater, vehicleLabel } from '@/src/lib/notify'
 
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 type Ctx = { params: Promise<{ id: string }> }
@@ -98,6 +99,13 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 
   const order = await db.orm.public.WorkOrder.where({ id }).update(updates)
   if (updates['mileageIn'] != null) await bumpVehicleMileage(db, existing.vehicleId, updates['mileageIn'] as number)
+
+  if ((status === 'completed' || status === 'cancelled') && status !== existing.status) {
+    const vehicle = existing.vehicleId ? await db.orm.public.Vehicle.first({ id: existing.vehicleId }) : null
+    notifyLater(() => customerUserIds(existing.customerId), status === 'completed'
+      ? { type: 'order_completed', title: '🚗 ¡Tu carro está listo!', body: `Ya podés pasar a recoger ${vehicleLabel(vehicle)}.`, url: '/' }
+      : { type: 'order_cancelled', title: 'Orden cancelada', body: `La orden de ${vehicleLabel(vehicle)} fue cancelada. Llamanos si tenés dudas.`, url: '/' })
+  }
   return Response.json({ data: order })
 }
 

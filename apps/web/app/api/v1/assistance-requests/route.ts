@@ -1,12 +1,10 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
-import { auth } from '@/src/lib/auth'
-import { headers } from 'next/headers'
+import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
 
 export async function GET(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-
+  const g = await requireRole(STAFF_ROLES)
+  if (!g.ok) return g.response
   const { searchParams } = request.nextUrl
   const status = searchParams.get('status')
   const page = Math.max(1, Number(searchParams.get('page') ?? '1'))

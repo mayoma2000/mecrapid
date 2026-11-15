@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert, TextInput, Linking } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../lib/api'
@@ -9,6 +9,7 @@ import { useSession } from '../../../lib/auth-client'
 import { formatDuration, liveSeconds, useNow } from '../../../lib/format'
 import { TimerControls } from '../../../components/TimerControls'
 import { QUOTE_STATUS, money, type Quote } from '../../../lib/quotes'
+import { waMessages, whatsappLink } from '../../../lib/whatsapp'
 
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 
@@ -169,6 +170,18 @@ export default function OrderDetailScreen() {
             <Text style={[styles.statusText, { color: cfg.color }]}>{cfg.label}</Text>
           </View>
         </View>
+
+        {(() => {
+          const vehicle = order.vehicle ? `${order.vehicle.make} ${order.vehicle.model}` : 'su vehículo'
+          const link = whatsappLink(order.customer.phone, order.status === 'completed'
+            ? waMessages.orderReady(order.customer.name, order.vehicle ? `Su ${vehicle}` : 'Su vehículo')
+            : waMessages.orderUpdate(order.customer.name, vehicle))
+          return link ? (
+            <TouchableOpacity style={styles.waBtn} onPress={() => { void Linking.openURL(link) }}>
+              <Text style={styles.waText}>💬 {order.status === 'completed' ? 'Avisar por WhatsApp que está listo' : `WhatsApp a ${order.customer.name}`}</Text>
+            </TouchableOpacity>
+          ) : null
+        })()}
 
         {/* Trabajo en taller: mecánico, kilometraje y cronómetro */}
         <View style={styles.card}>
@@ -410,6 +423,8 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 5,
   },
+  waBtn: { backgroundColor: '#25D366', borderRadius: 14, paddingVertical: 12, alignItems: 'center', marginBottom: 14 },
+  waText: { color: '#fff', fontSize: 14, fontWeight: '800' },
   workTime: { fontSize: 14, fontWeight: '800', color: '#8898AA', marginBottom: 12, fontVariant: ['tabular-nums'] },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: '#F8F9FE', borderWidth: 1, borderColor: '#E9ECEF' },
   chipActive: { backgroundColor: '#5E72E4', borderColor: '#5E72E4' },

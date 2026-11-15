@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 import { db } from '@/src/prisma/db'
+import { adminUserIds, notifyLater } from '@/src/lib/notify'
 
 export async function GET(_request: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -61,5 +62,14 @@ export async function POST(request: NextRequest) {
     longitude: longitude != null ? Number(longitude) : null,
   })
 
+  const typeName = assistanceRequest.assistanceTypeId
+    ? (await db.orm.public.AssistanceType.first({ id: assistanceRequest.assistanceTypeId }))?.name
+    : null
+  notifyLater(adminUserIds, {
+    type: 'assistance_new',
+    title: '🆘 Nueva solicitud de asistencia',
+    body: `${customer.name}${typeName ? ` · ${typeName}` : ''}: ${assistanceRequest.detail}`.slice(0, 180),
+    url: `/(tabs)/assistance/${assistanceRequest.id}`,
+  })
   return Response.json({ data: assistanceRequest }, { status: 201 })
 }

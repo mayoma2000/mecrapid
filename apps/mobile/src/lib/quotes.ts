@@ -26,7 +26,12 @@ export type Quote = {
   approvedTotal: number
   // Solo en las rutas del cliente (/me/quotes)
   vehicle?: { make: string; model: string; year: number; licensePlate: string } | null
-  workOrder?: { id: string; complaint: string; status: string }
+  workOrder?: {
+    id?: string; complaint?: string; status?: string
+    // Solo en las rutas del taller
+    customer?: { name: string; phone: string } | null
+    vehicle?: { make: string; model: string } | null
+  } | null
 }
 
 export const QUOTE_STATUS: Record<Quote['status'], { label: string; bg: string; color: string }> = {

@@ -32,7 +32,11 @@ export function serializeQuote<Q extends { taxRate: number; items: I[] }, I exte
 }
 
 export function loadQuote(id: string) {
-  return db.orm.public.Quote.where({ id }).include('items').include('workOrder').first()
+  return db.orm.public.Quote
+    .where({ id })
+    .include('items')
+    .include('workOrder', (w) => w.include('customer').include('vehicle'))
+    .first()
 }
 
 // Valida y normaliza las partidas que manda el editor (borrador)

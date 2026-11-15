@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
+import { customerUserIds, notifyLater, vehicleLabel } from '@/src/lib/notify'
 
 type Ctx = { params: Promise<{ id: string }> }
 type Action = 'start' | 'pause' | 'finish'
@@ -60,6 +61,15 @@ export async function POST(request: NextRequest, ctx: Ctx) {
       mechanicId,
       ...(order.startedAt ? {} : { startedAt: now }),
     })
+    if (!order.startedAt) {
+      const vehicle = order.vehicleId ? await db.orm.public.Vehicle.first({ id: order.vehicleId }) : null
+      notifyLater(() => customerUserIds(order.customerId), {
+        type: 'order_started',
+        title: '🔧 Empezamos a trabajar en tu carro',
+        body: `Un mecánico ya está trabajando en ${vehicleLabel(vehicle)}. Te avisamos cuando esté listo.`,
+        url: '/',
+      })
+    }
   } else if (action === 'pause') {
     await closeOpenLogs()
   } else {

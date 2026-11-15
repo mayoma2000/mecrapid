@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 import { db } from '@/src/prisma/db'
+import { adminUserIds, hnDateTime, notifyLater } from '@/src/lib/notify'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -46,6 +47,12 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   // Clients can cancel their own appointments
   if (body.status === 'cancelled') {
     const updated = await db.orm.public.Appointment.where({ id }).update({ status: 'cancelled' })
+    notifyLater(adminUserIds, {
+      type: 'appointment_cancelled_by_client',
+      title: 'Cita cancelada por el cliente',
+      body: `${session.user.name} canceló su cita de ${appt.serviceType} (${hnDateTime(appt.scheduledAt)})`,
+      url: `/(tabs)/appointments/${id}`,
+    })
     return Response.json({ data: updated })
   }
 
@@ -67,6 +74,12 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     if (body.notes !== undefined) updates['notes'] = body.notes ? String(body.notes).trim() : null
 
     const updated = await db.orm.public.Appointment.where({ id }).update(updates)
+    notifyLater(adminUserIds, {
+      type: 'appointment_rescheduled_by_client',
+      title: '📅 Cita reagendada por el cliente',
+      body: `${session.user.name} movió su cita de ${appt.serviceType} al ${hnDateTime(scheduledAt.toISOString())}`,
+      url: `/(tabs)/appointments/${id}`,
+    })
     return Response.json({ data: updated })
   }
 

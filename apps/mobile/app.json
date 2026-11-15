@@ -37,7 +37,13 @@
           "locationWhenInUsePermission": "MecRapid necesita tu ubicación para enviar asistencia al lugar correcto."
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-notifications",
+        {
+          "color": "#5E72E4"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

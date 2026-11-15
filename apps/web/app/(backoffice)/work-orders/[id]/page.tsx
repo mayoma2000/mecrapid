@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { WorkPanel, type WorkInfo } from './work-panel'
 import { QuotesPanel } from './quotes-panel'
 import { money } from '@/src/lib/quote-labels'
+import { waMessages, whatsappLink } from '@/src/lib/whatsapp'
 
 // Trabajo autorizado: lo aprobado en las cotizaciones se copia aquí
 type ServiceItem = { id: string; description: string; cost: number }
@@ -13,7 +14,7 @@ type PartItem = { id: string; name: string; quantity: number; unitPrice: number;
 type WorkOrder = WorkInfo & {
   id: string; status: string; complaint: string; diagnosis: string | null
   estimatedCost: number | null; actualCost: number | null; completedAt: string | null
-  customer: { id: string; name: string }
+  customer: { id: string; name: string; phone: string }
   vehicle: { id: string; make: string; model: string; year: number; licensePlate: string } | null
   serviceItems: ServiceItem[]
   partItems: PartItem[]
@@ -114,6 +115,18 @@ export default function WorkOrderDetailPage() {
             )}
           </p>
         </div>
+        {(() => {
+          const vehicle = order.vehicle ? `${order.vehicle.make} ${order.vehicle.model}` : 'su vehículo'
+          const text = order.status === 'completed'
+            ? waMessages.orderReady(order.customer.name, order.vehicle ? `Su ${vehicle}` : 'Su vehículo')
+            : waMessages.orderUpdate(order.customer.name, vehicle)
+          const link = whatsappLink(order.customer.phone, text)
+          return link ? (
+            <a href={link} target="_blank" rel="noopener noreferrer" className="shrink-0 px-3 py-2 bg-[#25D366] text-white text-sm font-semibold rounded-xl hover:opacity-90">
+              💬 {order.status === 'completed' ? 'Avisar que está listo' : 'WhatsApp'}
+            </a>
+          ) : null
+        })()}
       </div>
 
       <WorkPanel order={order} fetchedAt={fetchedAt} onChange={() => void load()} />

@@ -4,6 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useApi } from '../../lib/api'
 import { safeDate } from '../../lib/date'
+import { unregisterPushToken } from '../../lib/push'
 import { QUOTE_STATUS, money, type Quote } from '../../lib/quotes'
 import { useSession, signOut } from '../../lib/auth-client'
 import { router } from 'expo-router'
@@ -164,6 +165,11 @@ export default function DashboardScreen() {
   const pendingQuotes = myQuotes?.data.filter((q) => q.status === 'sent') ?? []
   const answeredQuotes = myQuotes?.data.filter((q) => q.status !== 'sent').slice(0, 3) ?? []
 
+  const { data: inbox } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => request<{ meta: { unread: number } }>('/api/v1/me/notifications'),
+  })
+
   const rawName = session?.user.name ?? ''
   const userEmail = session?.user.email ?? ''
   // If name was accidentally stored as an email address, use the local part
@@ -176,7 +182,7 @@ export default function DashboardScreen() {
     setTimeout(() => {
       Alert.alert('Cerrar sesión', '¿Estás seguro?', [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Salir', style: 'destructive', onPress: () => { void signOut() } },
+        { text: 'Salir', style: 'destructive', onPress: () => { void unregisterPushToken().finally(() => signOut()) } },
       ])
     }, 300)
   }
@@ -191,11 +197,21 @@ export default function DashboardScreen() {
         }
       >
         {/* Page title */}
-        <View style={styles.pageHeader}>
-          <Text style={styles.pageTitle}>Tablero</Text>
-          <Text style={styles.pageDate}>
-            {new Date().toLocaleDateString('es-HN', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </Text>
+        <View style={[styles.pageHeader, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+          <View>
+            <Text style={styles.pageTitle}>Tablero</Text>
+            <Text style={styles.pageDate}>
+              {new Date().toLocaleDateString('es-HN', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </Text>
+          </View>
+          <TouchableOpacity onPress={() => router.push('/notifications')} style={styles.bellBtn}>
+            <Text style={{ fontSize: 20 }}>🔔</Text>
+            {(inbox?.meta.unread ?? 0) > 0 && (
+              <View style={styles.bellBadge}>
+                <Text style={styles.bellBadgeText}>{Math.min(inbox!.meta.unread, 99)}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         {isStaff ? (
@@ -549,6 +565,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FE',
   },
+  bellBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  bellBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    backgroundColor: '#F5365C',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bellBadgeText: { color: '#fff', fontSize: 11, fontWeight: '800' },
   pageHeader: {
     paddingHorizontal: 20,
     paddingTop: 20,

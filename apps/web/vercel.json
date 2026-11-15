@@ -1,5 +1,11 @@
 {
   "framework": "nextjs",
   "buildCommand": "pnpm build",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "crons": [
+    {
+      "path": "/api/cron/appointment-reminders",
+      "schedule": "0 14 * * *"
+    }
+  ]
 }

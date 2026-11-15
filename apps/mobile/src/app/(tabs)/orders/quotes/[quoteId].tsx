@@ -1,13 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import {
-  View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert, Switch,
+  View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert, Switch, Linking,
 } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../../lib/api'
 import { formatShortDateTime } from '../../../../lib/format'
 import { PRIORITY, QUOTE_STATUS, money, type Quote, type QuoteItem } from '../../../../lib/quotes'
+import { waMessages, whatsappLink } from '../../../../lib/whatsapp'
 
 type Draft = Omit<QuoteItem, 'id' | 'decision'> & { key: string; qty: string; price: string }
 type ServiceType = { id: string; name: string; price: number | null }
@@ -271,6 +272,17 @@ export default function QuoteEditorScreen() {
             </TouchableOpacity>
           </View>
         )}
+
+        {quote.status === 'sent' && (() => {
+          const c = quote.workOrder?.customer
+          const v = quote.workOrder?.vehicle
+          const link = c ? whatsappLink(c.phone, waMessages.quoteReady(c.name, v ? `su ${v.make} ${v.model}` : 'su vehículo', money(quote.total))) : null
+          return link ? (
+            <TouchableOpacity style={[styles.primary, { backgroundColor: '#25D366', marginBottom: 12 }]} onPress={() => { void Linking.openURL(link) }}>
+              <Text style={styles.primaryText}>💬 Avisar por WhatsApp</Text>
+            </TouchableOpacity>
+          ) : null
+        })()}
 
         {quote.status === 'sent' && (
           <View style={styles.card}>

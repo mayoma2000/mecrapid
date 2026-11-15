@@ -17,6 +17,8 @@ model User {
   timeLogs       WorkOrderTimeLog[]
   quotesCreated  Quote[]            @relation("quoteCreatedBy")
   quotesAnswered Quote[]            @relation("quoteRespondedBy")
+  pushTokens     PushToken[]
+  notifications  Notification[]
 
   createdAt TimestamptzString
 
@@ -190,6 +192,7 @@ model Appointment {
   serviceType String
   notes       String?
   status      AppointmentStatus @default(scheduled)
+  reminderSentAt TimestamptzString?
 
   customer    Customer  @relation(fields: [customerId], references: [id])
   vehicle     Vehicle?  @relation(fields: [vehicleId], references: [id])
@@ -294,6 +297,34 @@ model QuoteItem {
   sparePart    SparePart?        @relation(fields: [sparePartId], references: [id])
   serviceLines ServiceLineItem[]
   partLines    PartLineItem[]
+
+  createdAt TimestamptzString @default(now())
+}
+
+// ─── Notificaciones ────────────────────────────────────────────────────────
+
+model PushToken {
+  id       String  @id @default(uuid())
+  userId   String
+  token    String  @unique
+  platform String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+model Notification {
+  id     String  @id @default(uuid())
+  userId String
+  type   String
+  title  String
+  body   String
+  url    String?
+  readAt TimestamptzString?
+
+  user User @relation(fields: [userId], references: [id])
 
   createdAt TimestamptzString @default(now())
 }

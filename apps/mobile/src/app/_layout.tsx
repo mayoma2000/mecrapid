@@ -6,6 +6,7 @@ import { AppState } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { useSession } from '../lib/auth-client'
 import { LoadingScreen } from '../components/LoadingScreen'
+import { usePushNotifications } from '../lib/push'
 
 // Datos "casi en tiempo real": cada pantalla montada vuelve a pedir sus datos
 // cada 15 s mientras la app está en primer plano, y al volver del segundo plano.
@@ -29,6 +30,7 @@ function AuthGuard() {
   const { data: session, isPending } = useSession()
   const segments = useSegments()
   const router = useRouter()
+  usePushNotifications(session?.user.id)
 
   useEffect(() => {
     if (isPending) return

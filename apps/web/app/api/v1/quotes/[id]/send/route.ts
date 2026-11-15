@@ -2,6 +2,8 @@ import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
 import { loadQuote, serializeQuote } from '@/src/lib/quotes'
+import { customerUserIds, notifyLater } from '@/src/lib/notify'
+import { money } from '@/src/lib/quote-labels'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -18,5 +20,14 @@ export async function POST(_request: NextRequest, ctx: Ctx) {
 
   await db.orm.public.Quote.where({ id }).where({ status: 'draft' }).update({ status: 'sent', sentAt: new Date().toISOString() })
   const fresh = await loadQuote(id)
+  if (fresh?.workOrder) {
+    const customerId = fresh.workOrder.customerId
+    notifyLater(() => customerUserIds(customerId), {
+      type: 'quote_sent',
+      title: '📋 Tu cotización está lista',
+      body: `Revisá y aprobá cada trabajo desde la app. Total: ${money(serializeQuote(fresh).total)}`,
+      url: `/my-quote/${id}`,
+    })
+  }
   return Response.json({ data: fresh ? serializeQuote(fresh) : null })
 }

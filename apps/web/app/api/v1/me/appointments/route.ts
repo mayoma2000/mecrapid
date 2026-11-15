@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 import { db } from '@/src/prisma/db'
+import { adminUserIds, hnDateTime, notifyLater } from '@/src/lib/notify'
 
 export async function POST(request: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -39,6 +40,12 @@ export async function POST(request: NextRequest) {
     notes: notes ? String(notes).trim() : null,
   })
 
+  notifyLater(adminUserIds, {
+    type: 'appointment_new',
+    title: '📅 Nueva cita solicitada',
+    body: `${customer.name} · ${appointment.serviceType} · ${hnDateTime(appointment.scheduledAt)}`,
+    url: `/(tabs)/appointments/${appointment.id}`,
+  })
   return Response.json({ data: appointment }, { status: 201 })
 }
 
