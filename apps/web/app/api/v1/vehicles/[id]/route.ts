@@ -30,7 +30,14 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   if (make !== undefined) updates['make'] = String(make).trim()
   if (model !== undefined) updates['model'] = String(model).trim()
   if (year !== undefined) updates['year'] = Number(year)
-  if (licensePlate !== undefined) updates['licensePlate'] = String(licensePlate).trim().toUpperCase()
+  if (licensePlate !== undefined) {
+    const plate = String(licensePlate).trim().toUpperCase()
+    const other = await db.orm.public.Vehicle.first({ licensePlate: plate })
+    if (other && other.id !== id) {
+      return Response.json({ error: `Ya hay otro vehículo con la placa ${plate}` }, { status: 409 })
+    }
+    updates['licensePlate'] = plate
+  }
   if (vin !== undefined) updates['vin'] = vin ? String(vin).trim().toUpperCase() : null
   if (color !== undefined) updates['color'] = color ? String(color).trim() : null
   if (mileage !== undefined) updates['mileage'] = mileage != null ? Number(mileage) : 0

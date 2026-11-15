@@ -2,7 +2,13 @@ import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole } from '@/src/lib/authz'
 
-export async function GET() {
+// Público: solo activos (la app los usa para agendar). ?all=1 con sesión de admin: todos
+export async function GET(request: NextRequest) {
+  if (request.nextUrl.searchParams.get('all') === '1') {
+    const g = await requireRole(['admin'])
+    if (!g.ok) return g.response
+    return Response.json({ data: await db.orm.public.ServiceType.orderBy((t) => t.name.asc()).all() })
+  }
   const types = await db.orm.public.ServiceType
     .where({ active: true })
     .orderBy((t) => t.name.asc())

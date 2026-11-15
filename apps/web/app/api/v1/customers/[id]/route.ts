@@ -48,6 +48,27 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   const existing = await db.orm.public.Customer.first({ id })
   if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
 
+  // Solo se borran clientes sin historial (p. ej. duplicados creados por error):
+  // las órdenes, citas, solicitudes y vehículos son registro del taller
+  const [orders, appointments, requests, vehicles] = await Promise.all([
+    db.orm.public.WorkOrder.where({ customerId: id }).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.Appointment.where({ customerId: id }).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.AssistanceRequest.where({ customerId: id }).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.VehicleOwnership.where({ customerId: id }).aggregate((a) => ({ count: a.count() })),
+  ])
+  const parts = [
+    orders.count && `${orders.count} órdenes`,
+    appointments.count && `${appointments.count} citas`,
+    requests.count && `${requests.count} solicitudes de asistencia`,
+    vehicles.count && `vehículos registrados`,
+  ].filter(Boolean)
+  if (parts.length > 0) {
+    return Response.json(
+      { error: `No se puede borrar: tiene ${parts.join(', ')}. Se conserva para no perder el historial.` },
+      { status: 409 },
+    )
+  }
+
   await db.orm.public.Customer.where({ id }).delete()
   return new Response(null, { status: 204 })
 }

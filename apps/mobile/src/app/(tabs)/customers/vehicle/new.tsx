@@ -1,27 +1,51 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert, StyleSheet } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../../lib/api'
 
-// Registrar un vehículo para un cliente desde la app del taller (mismo formulario que el backoffice).
-// ?customerId= obligatorio; ?name= solo para mostrar de quién es.
+type Vehicle = {
+  id: string; customerId: string; make: string; model: string; year: number; licensePlate: string
+  color: string | null; mileage: number; vin: string | null; customer: { name: string } | null
+}
+
+// Registrar un vehículo (?customerId=, y ?name= para mostrar de quién es) o editarlo (?id=).
+// Mismo formulario que el backoffice.
 export default function NewVehicleScreen() {
-  const { customerId, name } = useLocalSearchParams<{ customerId: string; name?: string }>()
+  const { customerId: paramCustomerId, name: paramName, id } = useLocalSearchParams<{ customerId?: string; name?: string; id?: string }>()
+  const editing = !!id
   const { request } = useApi()
   const queryClient = useQueryClient()
   const insets = useSafeAreaInsets()
 
   const [form, setForm] = useState({ make: '', model: '', year: '', licensePlate: '', color: '', mileage: '', vin: '' })
+  const [loaded, setLoaded] = useState(!editing)
   const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }))
+
+  const { data: existing } = useQuery({
+    queryKey: ['vehicle-form', id],
+    queryFn: async () => {
+      const { data: v } = await request<{ data: Vehicle }>(`/api/v1/vehicles/${id}`)
+      setForm({
+        make: v.make, model: v.model, year: String(v.year), licensePlate: v.licensePlate,
+        color: v.color ?? '', mileage: v.mileage ? String(v.mileage) : '', vin: v.vin ?? '',
+      })
+      setLoaded(true)
+      return v
+    },
+    enabled: editing,
+    refetchInterval: false,
+  })
+  const customerId = paramCustomerId ?? existing?.customerId
+  const name = paramName ?? existing?.customer?.name
 
   const create = useMutation({
     mutationFn: () =>
-      request<{ data: { id: string } }>('/api/v1/vehicles', {
-        method: 'POST',
+      request<{ data: { id: string } }>(editing ? `/api/v1/vehicles/${id}` : '/api/v1/vehicles', {
+        method: editing ? 'PATCH' : 'POST',
         body: JSON.stringify({
-          customerId,
+          ...(editing ? {} : { customerId }),
           make: form.make.trim(),
           model: form.model.trim(),
           year: Number(form.year),
@@ -34,6 +58,7 @@ export default function NewVehicleScreen() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['customer', customerId] })
       void queryClient.invalidateQueries({ queryKey: ['customer-vehicles', customerId] })
+      void queryClient.invalidateQueries({ queryKey: ['vehicle-history', id] })
       router.back()
     },
     onError: (e) => Alert.alert('No se pudo guardar', e instanceof Error ? e.message : 'Intentá de nuevo.'),
@@ -51,10 +76,11 @@ export default function NewVehicleScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}><Text style={styles.backBtnText}>‹</Text></TouchableOpacity>
-        <Text style={styles.navTitle}>Nuevo vehículo</Text>
+        <Text style={styles.navTitle}>{editing ? 'Editar vehículo' : 'Nuevo vehículo'}</Text>
         <View style={{ width: 40 }} />
       </View>
 
+      {!loaded ? <ActivityIndicator style={{ marginTop: 40 }} size="large" color="#5E72E4" /> : (
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
         {name && <Text style={styles.owner}>Cliente: {name}</Text>}
         <View style={styles.card}>
@@ -74,9 +100,10 @@ export default function NewVehicleScreen() {
         </View>
 
         <TouchableOpacity style={[styles.submit, create.isPending && { opacity: 0.5 }]} onPress={submit} disabled={create.isPending}>
-          {create.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>🚗  Guardar vehículo</Text>}
+          {create.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>{editing ? 'Guardar cambios' : '🚗  Guardar vehículo'}</Text>}
         </TouchableOpacity>
       </ScrollView>
+      )}
     </SafeAreaView>
   )
 }

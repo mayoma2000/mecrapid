@@ -80,7 +80,9 @@ export default function StaffVehicleScreen() {
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}><Text style={styles.backBtnText}>‹</Text></TouchableOpacity>
         <Text style={styles.navTitle}>Vehículo</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity onPress={() => router.push(`/(tabs)/customers/vehicle/new?id=${id}`)} hitSlop={10}>
+          <Text style={styles.link}>Editar</Text>
+        </TouchableOpacity>
       </View>
 
       {isLoading || !h ? (

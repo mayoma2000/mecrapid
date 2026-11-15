@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet } from 'react-native'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../lib/api'
+import { useSession } from '../../../lib/auth-client'
 
 interface CustomerDetail {
   id: string
@@ -30,6 +31,20 @@ function getAvatarColor(name: string) {
 export default function CustomerDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { request } = useApi()
+  const queryClient = useQueryClient()
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin'
+
+  // Solo se borran clientes sin historial; el servidor explica por qué si no se puede
+  const remove = useMutation({
+    mutationFn: () => request(`/api/v1/customers/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['customers'] })
+      void queryClient.invalidateQueries({ queryKey: ['customers-count'] })
+      router.back()
+    },
+    onError: (e) => Alert.alert('No se puede borrar', e instanceof Error ? e.message : 'Intentá de nuevo.'),
+  })
 
   const { data, isLoading } = useQuery({
     queryKey: ['customer', id],
@@ -67,7 +82,9 @@ export default function CustomerDetailScreen() {
           <Text style={styles.backBtnText}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.navTitle}>Cliente</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity onPress={() => router.push(`/(tabs)/customers/form?id=${customer.id}`)} hitSlop={10}>
+          <Text style={{ fontSize: 14, fontWeight: '800', color: '#5E72E4' }}>Editar</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
@@ -138,6 +155,18 @@ export default function CustomerDetailScreen() {
               <Text style={{ fontSize: 24, color: '#C9CED6' }}>›</Text>
             </TouchableOpacity>
           ))
+        )}
+        {isAdmin && (
+          <TouchableOpacity
+            style={{ alignItems: 'center', paddingVertical: 18 }}
+            disabled={remove.isPending}
+            onPress={() => Alert.alert('Eliminar cliente', `¿Eliminar a ${customer.name}? Solo se puede si no tiene órdenes, citas ni vehículos.`, [
+              { text: 'Cancelar', style: 'cancel' },
+              { text: 'Eliminar', style: 'destructive', onPress: () => remove.mutate() },
+            ])}
+          >
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#F5365C' }}>{remove.isPending ? 'Eliminando…' : 'Eliminar cliente'}</Text>
+          </TouchableOpacity>
         )}
       </ScrollView>
     </SafeAreaView>

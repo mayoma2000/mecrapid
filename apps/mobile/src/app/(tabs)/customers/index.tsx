@@ -62,6 +62,9 @@ export default function CustomersScreen() {
             <Text style={styles.backBtnText}>‹</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Clientes</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/customers/form')} style={styles.newBtn}>
+            <Text style={styles.newBtnText}>+ Nuevo</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.searchBox}>
           <Text style={{ fontSize: 16, marginRight: 8, color: '#8898AA' }}>🔍</Text>
@@ -108,6 +111,8 @@ export default function CustomersScreen() {
 }
 
 const styles = StyleSheet.create({
+  newBtn: { marginLeft: 'auto', paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12, backgroundColor: '#5E72E4' },
+  newBtnText: { color: '#fff', fontSize: 13, fontWeight: '800' },
   screen: {
     flex: 1,
     backgroundColor: '#F8F9FE',

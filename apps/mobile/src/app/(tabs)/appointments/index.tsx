@@ -95,6 +95,9 @@ export default function AppointmentsScreen() {
             <Text style={styles.backBtnText}>‹</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Citas</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/appointments/new')} style={styles.newBtn}>
+            <Text style={styles.newBtnText}>+ Nueva</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.weekNav}>
           <TouchableOpacity
@@ -143,6 +146,8 @@ export default function AppointmentsScreen() {
 }
 
 const styles = StyleSheet.create({
+  newBtn: { marginLeft: 'auto', paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12, backgroundColor: '#5E72E4' },
+  newBtnText: { color: '#fff', fontSize: 13, fontWeight: '800' },
   screen: {
     flex: 1,
     backgroundColor: '#F8F9FE',

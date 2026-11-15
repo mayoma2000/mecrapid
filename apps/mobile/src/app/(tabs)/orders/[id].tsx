@@ -74,6 +74,9 @@ export default function OrderDetailScreen() {
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin'
   const now = useNow()
   const [mileage, setMileage] = useState<string | null>(null)
+  // null = sin cambios locales; el campo muestra lo guardado
+  const [diagnosis, setDiagnosis] = useState<string | null>(null)
+  const [estimate, setEstimate] = useState<string | null>(null)
 
   const { data: mechanics } = useQuery({
     queryKey: ['mechanics'],
@@ -244,16 +247,45 @@ export default function OrderDetailScreen() {
           />
         </View>
 
-        {/* Complaint + Diagnosis */}
+        {/* Problema + diagnóstico y costo (editables por el taller) */}
         <View style={styles.card}>
           <SectionHeader title="Diagnóstico" />
           <Text style={styles.fieldLabel}>Motivo de ingreso</Text>
-          <Text style={styles.fieldValue}>{order.complaint}</Text>
-          {order.diagnosis && (
-            <>
-              <Text style={[styles.fieldLabel, { marginTop: 12 }]}>Diagnóstico técnico</Text>
-              <Text style={styles.fieldValue}>{order.diagnosis}</Text>
-            </>
+          <Text style={[styles.fieldValue, { marginBottom: 12 }]}>{order.complaint}</Text>
+          <Text style={styles.fieldLabel}>Diagnóstico técnico</Text>
+          <TextInput
+            value={diagnosis ?? order.diagnosis ?? ''}
+            onChangeText={setDiagnosis}
+            placeholder="Qué encontró el mecánico…"
+            placeholderTextColor="#8898AA"
+            multiline
+            style={[styles.input, { minHeight: 70, textAlignVertical: 'top', marginBottom: 12 }]}
+          />
+          <Text style={styles.fieldLabel}>Costo estimado (L, con ISV)</Text>
+          <TextInput
+            value={estimate ?? (order.estimatedCost != null ? String(order.estimatedCost) : '')}
+            onChangeText={setEstimate}
+            placeholder="0.00"
+            placeholderTextColor="#8898AA"
+            keyboardType="decimal-pad"
+            style={[styles.input, { marginBottom: 6 }]}
+          />
+          <Text style={{ fontSize: 11, color: '#8898AA', marginBottom: 10 }}>Se actualiza solo cuando el cliente aprueba una cotización.</Text>
+          {(diagnosis !== null || estimate !== null) && (
+            <TouchableOpacity
+              style={[styles.saveBtn, { paddingVertical: 12, alignItems: 'center' }]}
+              disabled={patch.isPending}
+              onPress={() => {
+                const cost = estimate === null ? undefined : estimate.trim() === '' ? null : Number(estimate.replace(',', '.'))
+                if (typeof cost === 'number' && (!Number.isFinite(cost) || cost < 0)) { Alert.alert('Costo inválido', 'Escribí solo números, ej. 1500.50'); return }
+                patch.mutate(
+                  { ...(diagnosis !== null ? { diagnosis: diagnosis.trim() } : {}), ...(cost !== undefined ? { estimatedCost: cost } : {}) },
+                  { onSuccess: () => { setDiagnosis(null); setEstimate(null) } },
+                )
+              }}
+            >
+              <Text style={styles.saveBtnText}>{patch.isPending ? 'Guardando…' : 'Guardar diagnóstico'}</Text>
+            </TouchableOpacity>
           )}
           {order.notes && (
             <>

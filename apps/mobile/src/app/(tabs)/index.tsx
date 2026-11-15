@@ -232,6 +232,11 @@ export default function DashboardScreen() {
                   <Text style={styles.reportsLinkText}>Reportes: ingresos, ticket promedio y mecánicos</Text>
                   <Text style={{ fontSize: 22, color: '#C9CED6' }}>›</Text>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.navigate('/admin')} style={[styles.reportsLink, { marginTop: 10 }]}>
+                  <Text style={{ fontSize: 20 }}>⚙️</Text>
+                  <Text style={styles.reportsLinkText}>Administración: mecánicos, servicios, horario…</Text>
+                  <Text style={{ fontSize: 22, color: '#C9CED6' }}>›</Text>
+                </TouchableOpacity>
               </View>
             )}
 
