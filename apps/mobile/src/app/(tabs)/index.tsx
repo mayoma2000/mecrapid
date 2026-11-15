@@ -4,6 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useApi } from '../../lib/api'
 import { safeDate } from '../../lib/date'
+import { statusColor, statusLabel } from '../../lib/status'
 import { unregisterPushToken } from '../../lib/push'
 import { QUOTE_STATUS, money, type Quote } from '../../lib/quotes'
 import { useSession, signOut } from '../../lib/auth-client'
@@ -18,6 +19,9 @@ interface KPICardProps {
   color: string
   onPress?: () => void
 }
+
+// En el inicio se muestran solo las más recientes; el resto en "Ver todas"
+const HOME_LIMIT = 5
 
 function KPICard({ label, value, icon, color, onPress }: KPICardProps) {
   return (
@@ -40,27 +44,6 @@ function QuickAction({ icon, label, color, onPress }: { icon: string; label: str
   )
 }
 
-function statusColor(status: string) {
-  if (status === 'completed' || status === 'done') return '#2DCE89'
-  if (status === 'cancelled') return '#F5365C'
-  if (status === 'in_progress' || status === 'confirmed' || status === 'active') return '#FB6340'
-  if (status === 'scheduled') return '#5E72E4'
-  return '#8898AA'
-}
-
-function statusLabel(status: string) {
-  const map: Record<string, string> = {
-    pending: 'Pendiente',
-    in_progress: 'En proceso',
-    active: 'Activa',
-    completed: 'Completado',
-    done: 'Completado',
-    cancelled: 'Cancelado',
-    confirmed: 'Confirmada',
-    scheduled: 'Programada',
-  }
-  return map[status] ?? status
-}
 
 function getInitials(name: string) {
   return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
@@ -143,23 +126,28 @@ export default function DashboardScreen() {
   // Cliente final: mis órdenes, citas y solicitudes de asistencia
   const { data: myOrders } = useQuery({
     queryKey: ['my-orders'],
-    queryFn: () => request<{ data: { id: string; status: string; complaint: string; createdAt: string }[] }>('/api/v1/me/orders'),
+    queryFn: () => request<{ data: { id: string; status: string; complaint: string; createdAt: string }[]; meta: { total: number } }>(`/api/v1/me/orders?limit=${HOME_LIMIT}`),
     enabled: !isStaff,
   })
   const { data: myAppointments } = useQuery({
     queryKey: ['my-appointments'],
-    queryFn: () => request<{ data: { id: string; status: string; scheduledAt: string; serviceType: string }[] }>('/api/v1/me/appointments'),
+    queryFn: () => request<{ data: { id: string; status: string; scheduledAt: string; serviceType: string }[]; meta: { total: number } }>(`/api/v1/me/appointments?limit=${HOME_LIMIT}`),
     enabled: !isStaff,
   })
   const { data: myAssistance } = useQuery({
     queryKey: ['my-assistance'],
-    queryFn: () => request<{ data: { id: string; status: string; detail: string; createdAt: string; assistanceType: { name: string } | null }[] }>('/api/v1/me/assistance-requests'),
+    queryFn: () => request<{ data: { id: string; status: string; detail: string; createdAt: string; assistanceType: { name: string } | null }[]; meta: { total: number } }>(`/api/v1/me/assistance-requests?limit=${HOME_LIMIT}`),
     enabled: !isStaff,
   })
 
   const { data: myQuotes } = useQuery({
-    queryKey: ['my-quotes'],
-    queryFn: () => request<{ data: Quote[]; meta: { pending: number } }>('/api/v1/me/quotes'),
+    queryKey: ['my-quotes', 'pending'],
+    queryFn: () => request<{ data: Quote[]; meta: { pending: number } }>('/api/v1/me/quotes?status=pending'),
+    enabled: !isStaff,
+  })
+  const { data: myAnsweredQuotes } = useQuery({
+    queryKey: ['my-quotes', 'answered'],
+    queryFn: () => request<{ data: Quote[]; meta: { total: number } }>('/api/v1/me/quotes?status=answered&limit=3'),
     enabled: !isStaff,
   })
   const { data: myVehicles } = useQuery({
@@ -167,8 +155,8 @@ export default function DashboardScreen() {
     queryFn: () => request<{ data: { id: string; make: string; model: string; year: number; licensePlate: string; mileage: number; servicesCount: number }[] }>('/api/v1/me/vehicles'),
     enabled: !isStaff,
   })
-  const pendingQuotes = myQuotes?.data.filter((q) => q.status === 'sent') ?? []
-  const answeredQuotes = myQuotes?.data.filter((q) => q.status !== 'sent').slice(0, 3) ?? []
+  const pendingQuotes = myQuotes?.data ?? []
+  const answeredQuotes = myAnsweredQuotes?.data ?? []
 
   const { data: inbox } = useQuery({
     queryKey: ['notifications'],
@@ -287,7 +275,7 @@ export default function DashboardScreen() {
             {/* Quick Actions — staff view */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Acciones rápidas</Text>
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 12 }}>
                 <QuickAction
                   icon="🔧"
                   label="Órdenes"
@@ -299,6 +287,12 @@ export default function DashboardScreen() {
                   label="Citas"
                   color="#2DCE89"
                   onPress={() => router.navigate('/appointments')}
+                />
+                <QuickAction
+                  icon="📋"
+                  label="Cotizaciones"
+                  color="#FB6340"
+                  onPress={() => router.navigate('/quotes')}
                 />
                 <QuickAction
                   icon="🚨"
@@ -382,6 +376,11 @@ export default function DashboardScreen() {
                       </View>
                     </TouchableOpacity>
                   ))}
+                  {(myAnsweredQuotes?.meta.total ?? 0) > answeredQuotes.length && (
+                    <TouchableOpacity style={styles.seeAll} onPress={() => router.push('/my-activity/quotes')}>
+                      <Text style={styles.seeAllText}>Ver todas las cotizaciones ({myAnsweredQuotes!.meta.total}) ›</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               )}
 
@@ -389,9 +388,9 @@ export default function DashboardScreen() {
               <View style={styles.tabRow}>
                 {(
                   [
-                    { key: 'solicitudes', label: 'Solicitudes', count: myAssistance?.data.length ?? 0 },
-                    { key: 'ordenes', label: 'Órdenes', count: myOrders?.data.length ?? 0 },
-                    { key: 'citas', label: 'Citas', count: myAppointments?.data.length ?? 0 },
+                    { key: 'solicitudes', label: 'Solicitudes', count: myAssistance?.meta.total ?? 0 },
+                    { key: 'ordenes', label: 'Órdenes', count: myOrders?.meta.total ?? 0 },
+                    { key: 'citas', label: 'Citas', count: myAppointments?.meta.total ?? 0 },
                   ] as const
                 ).map((tab) => {
                   const active = activeTab === tab.key
@@ -514,6 +513,17 @@ export default function DashboardScreen() {
                   </View>
                 )
               )}
+
+              {/* Con más de las que entran en el inicio: lista completa paginada */}
+              {(() => {
+                const kind = activeTab === 'solicitudes' ? 'assistance' : activeTab === 'ordenes' ? 'orders' : 'appointments'
+                const total = (activeTab === 'solicitudes' ? myAssistance : activeTab === 'ordenes' ? myOrders : myAppointments)?.meta.total ?? 0
+                return total > HOME_LIMIT ? (
+                  <TouchableOpacity style={styles.seeAll} onPress={() => router.push(`/my-activity/${kind}`)}>
+                    <Text style={styles.seeAllText}>Ver todas ({total}) ›</Text>
+                  </TouchableOpacity>
+                ) : null
+              })()}
             </View>
           </>
         )}
@@ -707,7 +717,8 @@ const styles = StyleSheet.create({
   workBannerSub: { color: '#C9D1F5', fontSize: 12, marginTop: 3 },
   workBannerArrow: { color: '#fff', fontSize: 30, fontWeight: '300' },
   quickAction: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: '30%',
     borderRadius: 20,
     padding: 16,
     alignItems: 'center',
@@ -901,6 +912,8 @@ const styles = StyleSheet.create({
   },
   vehicleChipTitle: { fontSize: 14, fontWeight: '800', color: '#172B4D' },
   vehicleChipSub: { fontSize: 11, color: '#8898AA', marginTop: 1 },
+  seeAll: { alignItems: 'center', paddingVertical: 12 },
+  seeAllText: { fontSize: 14, fontWeight: '800', color: '#5E72E4' },
   quoteBanner: {
     flexDirection: 'row',
     alignItems: 'center',

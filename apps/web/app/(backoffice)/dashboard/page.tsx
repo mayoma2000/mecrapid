@@ -9,14 +9,15 @@ type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' 
 export default async function DashboardPage() {
   await connection()
 
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
-  const todayEnd = new Date()
-  todayEnd.setHours(23, 59, 59, 999)
+  // "Hoy" en hora de Honduras (UTC-6 todo el año); el servidor corre en UTC
+  const HN_OFFSET_MS = 6 * 60 * 60 * 1000
+  const hnNow = new Date(Date.now() - HN_OFFSET_MS)
+  const todayStart = new Date(Date.UTC(hnNow.getUTCFullYear(), hnNow.getUTCMonth(), hnNow.getUTCDate()) + HN_OFFSET_MS)
+  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1)
 
   const activeStatuses: WorkOrderStatus[] = ['assigned', 'in_progress', 'quality_check']
 
-  const [customersAgg, ordersAgg, appointmentsAgg] = await Promise.all([
+  const [customersAgg, ordersAgg, appointmentsAgg, quotesAgg, assistanceAgg] = await Promise.all([
     db.orm.public.Customer.aggregate((a) => ({ count: a.count() })),
     db.orm.public.WorkOrder
       .where((o) => o.status.in(activeStatuses))
@@ -26,16 +27,20 @@ export default async function DashboardPage() {
       .where((a) => a.scheduledAt.lte(todayEnd.toISOString()))
       .where((a) => a.status.neq('cancelled' as AppointmentStatus))
       .aggregate((a) => ({ count: a.count() })),
+    db.orm.public.Quote.where({ status: 'sent' }).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.AssistanceRequest.where({ status: 'pending' }).aggregate((a) => ({ count: a.count() })),
   ])
 
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Tablero</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <KPICard label="Clientes" value={customersAgg.count} href="/customers" />
         <KPICard label="Órdenes en proceso" value={ordersAgg.count} href="/work-orders" />
         <KPICard label="Citas para hoy" value={appointmentsAgg.count} href="/appointments" />
+        <KPICard label="Cotizaciones esperando cliente" value={quotesAgg.count} href="/quotes" />
+        <KPICard label="Asistencias pendientes" value={assistanceAgg.count} href="/assistance-requests" />
       </div>
     </div>
   )

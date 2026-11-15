@@ -37,12 +37,24 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  const plate = String(licensePlate).trim().toUpperCase()
+  if (await db.orm.public.Vehicle.first({ licensePlate: plate })) {
+    return Response.json({ error: `Ya hay un vehículo registrado con la placa ${plate}` }, { status: 409 })
+  }
+  if (!(await db.orm.public.Customer.first({ id: String(customerId) }))) {
+    return Response.json({ error: 'Cliente no encontrado' }, { status: 404 })
+  }
+  const yearNum = Number(year)
+  if (!Number.isInteger(yearNum) || yearNum < 1950 || yearNum > new Date().getFullYear() + 1) {
+    return Response.json({ error: 'Año inválido' }, { status: 400 })
+  }
+
   const vehicle = await db.orm.public.Vehicle.create({
     customerId: String(customerId),
     make: String(make).trim(),
     model: String(model).trim(),
-    year: Number(year),
-    licensePlate: String(licensePlate).trim().toUpperCase(),
+    year: yearNum,
+    licensePlate: plate,
     vin: vin ? String(vin).trim().toUpperCase() : null,
     color: color ? String(color).trim() : null,
     mileage: mileage ? Number(mileage) : 0,

@@ -2,9 +2,12 @@ import { db } from '@/src/prisma/db'
 import { requireRole } from '@/src/lib/authz'
 import { customerForEmail } from '@/src/lib/me'
 import { serializeQuote } from '@/src/lib/quotes'
+import { parsePaging } from '@/src/lib/paging'
+import type { NextRequest } from 'next/server'
 
-// Cotizaciones del cliente (las enviadas y respondidas; los borradores no se ven)
-export async function GET() {
+// Cotizaciones del cliente (las enviadas y respondidas; los borradores no se ven).
+// ?status=pending|answered filtra; ?limit=&offset= pagina
+export async function GET(request: NextRequest) {
   const g = await requireRole()
   if (!g.ok) return g.response
 
@@ -26,5 +29,13 @@ export async function GET() {
     // Primero las que esperan respuesta, luego las más recientes
     .sort((a, b) => Number(b.status === 'sent') - Number(a.status === 'sent') || (b.sentAt ?? '').localeCompare(a.sentAt ?? ''))
 
-  return Response.json({ data, meta: { total: data.length, pending: data.filter((q) => q.status === 'sent').length } })
+  const pending = data.filter((q) => q.status === 'sent').length
+  const filter = request.nextUrl.searchParams.get('status')
+  const filtered = filter === 'pending' ? data.filter((q) => q.status === 'sent')
+    : filter === 'answered' ? data.filter((q) => q.status !== 'sent')
+    : data
+  const { limit, offset } = parsePaging(request)
+  const page = limit == null ? filtered : filtered.slice(offset, offset + limit)
+
+  return Response.json({ data: page, meta: { total: filtered.length, pending, offset } })
 }

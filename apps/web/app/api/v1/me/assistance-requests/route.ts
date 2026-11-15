@@ -2,9 +2,10 @@ import type { NextRequest } from 'next/server'
 import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 import { db } from '@/src/prisma/db'
+import { parsePaging } from '@/src/lib/paging'
 import { adminUserIds, notifyLater } from '@/src/lib/notify'
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -12,17 +13,19 @@ export async function GET(_request: NextRequest) {
     .where((c) => c.email.eq(session.user.email))
     .limit(1)
     .all()
-
   if (customers.length === 0) return Response.json({ data: [], meta: { total: 0 } })
 
-  const customer = customers[0]!
-  const requests = await db.orm.public.AssistanceRequest
-    .where({ customerId: customer.id })
-    .include('assistanceType')
-    .orderBy((r) => r.createdAt.desc())
-    .all()
+  // Solicitudes del cliente, más recientes primero. ?limit=&offset= para paginar
+  const { limit, offset } = parsePaging(request)
+  const base = db.orm.public.AssistanceRequest.where({ customerId: customers[0]!.id })
+  const [requests, agg] = await Promise.all([
+    limit == null
+      ? base.include('assistanceType').orderBy((r) => r.createdAt.desc()).all()
+      : base.include('assistanceType').orderBy((r) => r.createdAt.desc()).limit(limit).offset(offset).all(),
+    base.aggregate((a) => ({ count: a.count() })),
+  ])
 
-  return Response.json({ data: requests, meta: { total: requests.length } })
+  return Response.json({ data: requests, meta: { total: agg.count, offset } })
 }
 
 export async function POST(request: NextRequest) {

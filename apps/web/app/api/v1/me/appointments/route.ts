@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 import { db } from '@/src/prisma/db'
+import { parsePaging } from '@/src/lib/paging'
 import { adminUserIds, hnDateTime, notifyLater } from '@/src/lib/notify'
 
 export async function POST(request: NextRequest) {
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
   return Response.json({ data: appointment }, { status: 201 })
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -57,17 +58,17 @@ export async function GET(_request: NextRequest) {
     .where((c) => c.email.eq(session.user.email))
     .limit(1)
     .all()
+  if (customers.length === 0) return Response.json({ data: [], meta: { total: 0 } })
 
-  if (customers.length === 0) {
-    return Response.json({ data: [], meta: { total: 0 } })
-  }
+  // Citas del cliente, las más lejanas en el futuro primero. ?limit=&offset= para paginar
+  const { limit, offset } = parsePaging(request)
+  const base = db.orm.public.Appointment.where((a) => a.customerId.eq(customers[0]!.id))
+  const [appointments, agg] = await Promise.all([
+    limit == null
+      ? base.orderBy((a) => a.scheduledAt.desc()).all()
+      : base.orderBy((a) => a.scheduledAt.desc()).limit(limit).offset(offset).all(),
+    base.aggregate((a) => ({ count: a.count() })),
+  ])
 
-  const customer = customers[0]!
-
-  const appointments = await db.orm.public.Appointment
-    .where((a) => a.customerId.eq(customer.id))
-    .orderBy((a) => a.scheduledAt.desc())
-    .all()
-
-  return Response.json({ data: appointments, meta: { total: appointments.length } })
+  return Response.json({ data: appointments, meta: { total: agg.count, offset } })
 }

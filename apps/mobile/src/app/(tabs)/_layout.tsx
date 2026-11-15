@@ -65,6 +65,14 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="quotes"
+        options={{
+          href: isStaff ? undefined : null,
+          tabBarStyle: { display: 'none' },
+          tabBarIcon: ({ focused }) => <TabIcon icon="📋" label="Cotizaciones" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="reports"
         options={{
           href: isAdmin ? undefined : null,

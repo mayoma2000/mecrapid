@@ -107,7 +107,14 @@ export default function CustomerDetailScreen() {
         </View>
 
         {/* Vehicles */}
-        <Text style={styles.sectionTitle}>Vehículos ({customer.vehicles.length})</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={styles.sectionTitle}>Vehículos ({customer.vehicles.length})</Text>
+          <TouchableOpacity
+            onPress={() => router.push(`/(tabs)/customers/vehicle/new?customerId=${customer.id}&name=${encodeURIComponent(customer.name)}`)}
+          >
+            <Text style={{ fontSize: 14, fontWeight: '800', color: '#5E72E4' }}>+ Agregar</Text>
+          </TouchableOpacity>
+        </View>
         {customer.vehicles.length === 0 ? (
           <View style={[styles.card, { alignItems: 'center', paddingVertical: 28 }]}>
             <Text style={{ fontSize: 32, marginBottom: 8 }}>🚗</Text>

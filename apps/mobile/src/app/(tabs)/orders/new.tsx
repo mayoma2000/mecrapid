@@ -148,9 +148,15 @@ export default function NewOrderScreen() {
             {loadingVehicles ? (
               <ActivityIndicator color="#5E72E4" style={{ marginVertical: 8 }} />
             ) : (vehicles?.data.length ?? 0) === 0 ? (
-              <Text style={styles.empty}>
-                Este cliente no tiene vehículos registrados. Regístralo primero desde el backoffice.
-              </Text>
+              <View style={{ gap: 10 }}>
+                <Text style={styles.empty}>Este cliente no tiene vehículos registrados.</Text>
+                <TouchableOpacity
+                  style={[styles.option, { alignItems: 'center', borderStyle: 'dashed', borderColor: '#5E72E4' }]}
+                  onPress={() => router.push(`/(tabs)/customers/vehicle/new?customerId=${customer.id}&name=${encodeURIComponent(customer.name)}`)}
+                >
+                  <Text style={[styles.optionName, { color: '#5E72E4' }]}>+ Agregar vehículo</Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <View style={{ gap: 8 }}>
                 {vehicles?.data.map((v) => {

@@ -12,6 +12,7 @@ const NAV = [
   { href: '/dashboard', label: 'Tablero', icon: '📊' },
   { href: '/job-board', label: 'Trabajo en taller', icon: '🧰' },
   { href: '/work-orders', label: 'Órdenes', icon: '🔧' },
+  { href: '/quotes', label: 'Cotizaciones', icon: '📋' },
   { href: '/appointments', label: 'Citas', icon: '📅' },
   { href: '/assistance-requests', label: 'Solicitudes', icon: '🆘' },
   { href: '/customers', label: 'Clientes', icon: '👥' },
