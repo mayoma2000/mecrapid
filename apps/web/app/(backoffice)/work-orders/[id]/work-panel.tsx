@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSession } from '@/src/lib/auth-client'
 import { formatDuration, liveSeconds } from '@/src/lib/format'
 import { useNow } from '@/src/lib/use-now'
+import { toDate } from '@/src/lib/job-time'
 
 type Mechanic = { id: string; name: string }
 type TimeLog = { id: string; mechanicId: string; startedAt: string; endedAt: string | null }
@@ -144,8 +145,8 @@ export function WorkPanel({ order, fetchedAt, onChange }: {
         <div className="border-t border-neutral-100 dark:border-neutral-800 pt-3 space-y-1.5">
           <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">Registro de tiempo</p>
           {order.timeLogs.map((l) => {
-            const start = new Date(l.startedAt.replace(' ', 'T'))
-            const end = l.endedAt ? new Date(l.endedAt.replace(' ', 'T')) : null
+            const start = toDate(l.startedAt)
+            const end = l.endedAt ? toDate(l.endedAt) : null
             const secs = ((end?.getTime() ?? now) - start.getTime()) / 1000
             return (
               <div key={l.id} className="flex justify-between text-sm text-neutral-600 dark:text-neutral-400">

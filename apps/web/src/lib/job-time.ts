@@ -1,9 +1,10 @@
 // Tiempo trabajado en una orden a partir de sus tramos (WorkOrderTimeLog).
 type Log = { startedAt: string; endedAt: string | null; mechanicId: string }
 
-// La DB devuelve timestamptz como "2026-11-17 17:00:00+00"; se normaliza a ISO
+// La DB devuelve timestamptz como "2026-11-17 17:00:00.123+00"; se normaliza a
+// ISO 8601 completo ("T" y offset "+00:00"), que todos los motores parsean igual
 export function toDate(s: string): Date {
-  return new Date(s.replace(' ', 'T'))
+  return new Date(s.trim().replace(' ', 'T').replace(/([+-]\d{2})$/, '$1:00'))
 }
 
 export function summarizeLogs(logs: Log[], now = Date.now()) {
