@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
-import { auth } from '@/src/lib/auth'
-import { headers } from 'next/headers'
+import { requireRole } from '@/src/lib/authz'
 
 export async function GET() {
   const types = await db.orm.public.ServiceType
@@ -13,8 +12,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const g = await requireRole(['admin'])
+  if (!g.ok) return g.response
 
   const body = await request.json()
   const { name, description, durationMinutes, price } = body

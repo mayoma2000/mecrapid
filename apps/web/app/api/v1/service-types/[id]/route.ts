@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
-import { auth } from '@/src/lib/auth'
-import { headers } from 'next/headers'
+import { requireRole } from '@/src/lib/authz'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -13,8 +12,8 @@ export async function GET(_request: NextRequest, ctx: Ctx) {
 }
 
 export async function PATCH(request: NextRequest, ctx: Ctx) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const g = await requireRole(['admin'])
+  if (!g.ok) return g.response
 
   const { id } = await ctx.params
   const existing = await db.orm.public.ServiceType.first({ id })
@@ -33,8 +32,8 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 }
 
 export async function DELETE(_request: NextRequest, ctx: Ctx) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const g = await requireRole(['admin'])
+  if (!g.ok) return g.response
 
   const { id } = await ctx.params
   const existing = await db.orm.public.ServiceType.first({ id })
