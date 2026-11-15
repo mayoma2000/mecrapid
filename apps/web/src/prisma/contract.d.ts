@@ -18,9 +18,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'ebed3873c9b4274dc7db9bbb3a062c9a4aa826895d13e447c2e80fb956a2b330'>;
+  StorageHashBase<'81c6a6b4145aa8442b4d899bdae85c455a32c1903da715777cf97a5f3182e588'>;
 export type ExecutionHash =
-  ExecutionHashBase<'eb80ed97d55585921ce6fd4bd63c5c5ce7c530decaca29e92e40763d2bb52321'>;
+  ExecutionHashBase<'454a695b38acd6e82fa70d2690e41e3bd125b0c155491dfca56958186bf565cc'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -318,14 +318,13 @@ export type FieldOutputTypes = {
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly User: {
-      readonly clerkId: CodecTypes['pg/text@1']['output'];
+      readonly banned: CodecTypes['pg/bool@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
       readonly phone: CodecTypes['pg/text@1']['output'] | null;
-      readonly role: 'admin' | 'mechanic' | 'receptionist';
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly role: CodecTypes['pg/text@1']['output'] | null;
     };
     readonly Vehicle: {
       readonly color: CodecTypes['pg/text@1']['output'] | null;
@@ -350,11 +349,22 @@ export type FieldOutputTypes = {
       readonly estimatedCost: CodecTypes['pg/float8@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly mechanicId: CodecTypes['pg/text@1']['output'] | null;
+      readonly mileageIn: CodecTypes['pg/int4@1']['output'] | null;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
+      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly status:
         'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly vehicleId: CodecTypes['pg/text@1']['output'] | null;
+    };
+    readonly WorkOrderTimeLog: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly endedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly mechanicId: CodecTypes['pg/text@1']['output'];
+      readonly note: CodecTypes['pg/text@1']['output'] | null;
+      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly workOrderId: CodecTypes['pg/text@1']['output'];
     };
     readonly WorkSchedule: {
       readonly active: CodecTypes['pg/bool@1']['output'];
@@ -451,14 +461,13 @@ export type FieldInputTypes = {
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly User: {
-      readonly clerkId: CodecTypes['pg/text@1']['input'];
+      readonly banned: CodecTypes['pg/bool@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
       readonly phone: CodecTypes['pg/text@1']['input'] | null;
-      readonly role: 'admin' | 'mechanic' | 'receptionist';
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly role: CodecTypes['pg/text@1']['input'] | null;
     };
     readonly Vehicle: {
       readonly color: CodecTypes['pg/text@1']['input'] | null;
@@ -483,11 +492,22 @@ export type FieldInputTypes = {
       readonly estimatedCost: CodecTypes['pg/float8@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly mechanicId: CodecTypes['pg/text@1']['input'] | null;
+      readonly mileageIn: CodecTypes['pg/int4@1']['input'] | null;
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
+      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly status:
         'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly vehicleId: CodecTypes['pg/text@1']['input'] | null;
+    };
+    readonly WorkOrderTimeLog: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly endedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly mechanicId: CodecTypes['pg/text@1']['input'];
+      readonly note: CodecTypes['pg/text@1']['input'] | null;
+      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly workOrderId: CodecTypes['pg/text@1']['input'];
     };
     readonly WorkSchedule: {
       readonly active: CodecTypes['pg/bool@1']['input'];
@@ -583,15 +603,14 @@ export type StorageColumnTypes = {
       readonly supplier: CodecTypes['pg/text@1']['output'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
-    readonly User: {
-      readonly clerkId: CodecTypes['pg/text@1']['output'];
+    readonly user: {
+      readonly banned: CodecTypes['pg/bool@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
       readonly phone: CodecTypes['pg/text@1']['output'] | null;
-      readonly role: 'admin' | 'mechanic' | 'receptionist';
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly role: CodecTypes['pg/text@1']['output'] | null;
     };
     readonly Vehicle: {
       readonly color: CodecTypes['pg/text@1']['output'] | null;
@@ -616,11 +635,22 @@ export type StorageColumnTypes = {
       readonly estimatedCost: CodecTypes['pg/float8@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly mechanicId: CodecTypes['pg/text@1']['output'] | null;
+      readonly mileageIn: CodecTypes['pg/int4@1']['output'] | null;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
+      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly status:
         'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly vehicleId: CodecTypes['pg/text@1']['output'] | null;
+    };
+    readonly WorkOrderTimeLog: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly endedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly mechanicId: CodecTypes['pg/text@1']['output'];
+      readonly note: CodecTypes['pg/text@1']['output'] | null;
+      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly workOrderId: CodecTypes['pg/text@1']['output'];
     };
     readonly WorkSchedule: {
       readonly active: CodecTypes['pg/bool@1']['output'];
@@ -716,15 +746,14 @@ export type StorageColumnInputTypes = {
       readonly supplier: CodecTypes['pg/text@1']['input'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
-    readonly User: {
-      readonly clerkId: CodecTypes['pg/text@1']['input'];
+    readonly user: {
+      readonly banned: CodecTypes['pg/bool@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
       readonly phone: CodecTypes['pg/text@1']['input'] | null;
-      readonly role: 'admin' | 'mechanic' | 'receptionist';
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly role: CodecTypes['pg/text@1']['input'] | null;
     };
     readonly Vehicle: {
       readonly color: CodecTypes['pg/text@1']['input'] | null;
@@ -749,11 +778,22 @@ export type StorageColumnInputTypes = {
       readonly estimatedCost: CodecTypes['pg/float8@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly mechanicId: CodecTypes['pg/text@1']['input'] | null;
+      readonly mileageIn: CodecTypes['pg/int4@1']['input'] | null;
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
+      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly status:
         'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly vehicleId: CodecTypes['pg/text@1']['input'] | null;
+    };
+    readonly WorkOrderTimeLog: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly endedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly mechanicId: CodecTypes['pg/text@1']['input'];
+      readonly note: CodecTypes['pg/text@1']['input'] | null;
+      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly workOrderId: CodecTypes['pg/text@1']['input'];
     };
     readonly WorkSchedule: {
       readonly active: CodecTypes['pg/bool@1']['input'];
@@ -871,16 +911,16 @@ export namespace Models {
     readonly [RelationKeys]?: 'partLineItems';
   };
   export type public_User = {
-    clerkId: CodecTypes['pg/text@1']['output'];
+    banned: CodecTypes['pg/bool@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     email: CodecTypes['pg/text@1']['output'];
     id: CodecTypes['pg/text@1']['output'];
     name: CodecTypes['pg/text@1']['output'];
     phone: CodecTypes['pg/text@1']['output'] | null;
-    role: 'admin' | 'mechanic' | 'receptionist';
-    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    role: CodecTypes['pg/text@1']['output'] | null;
     assignedOrders: public_WorkOrder[];
-    readonly [RelationKeys]?: 'assignedOrders';
+    timeLogs: public_WorkOrderTimeLog[];
+    readonly [RelationKeys]?: 'assignedOrders' | 'timeLogs';
   };
   export type public_Vehicle = {
     color: CodecTypes['pg/text@1']['output'] | null;
@@ -909,7 +949,9 @@ export namespace Models {
     estimatedCost: CodecTypes['pg/float8@1']['output'] | null;
     id: CodecTypes['pg/text@1']['output'];
     mechanicId: CodecTypes['pg/text@1']['output'] | null;
+    mileageIn: CodecTypes['pg/int4@1']['output'] | null;
     notes: CodecTypes['pg/text@1']['output'] | null;
+    startedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     status: 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled';
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     vehicleId: CodecTypes['pg/text@1']['output'] | null;
@@ -918,9 +960,28 @@ export namespace Models {
     mechanic: public_User | null;
     partItems: public_PartLineItem[];
     serviceItems: public_ServiceLineItem[];
+    timeLogs: public_WorkOrderTimeLog[];
     vehicle: public_Vehicle | null;
     readonly [RelationKeys]?:
-      'assistanceRequests' | 'customer' | 'mechanic' | 'partItems' | 'serviceItems' | 'vehicle';
+      | 'assistanceRequests'
+      | 'customer'
+      | 'mechanic'
+      | 'partItems'
+      | 'serviceItems'
+      | 'timeLogs'
+      | 'vehicle';
+  };
+  export type public_WorkOrderTimeLog = {
+    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    endedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    id: CodecTypes['pg/text@1']['output'];
+    mechanicId: CodecTypes['pg/text@1']['output'];
+    note: CodecTypes['pg/text@1']['output'] | null;
+    startedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    workOrderId: CodecTypes['pg/text@1']['output'];
+    mechanic: public_User;
+    workOrder: public_WorkOrder;
+    readonly [RelationKeys]?: 'mechanic' | 'workOrder';
   };
   export type public_WorkSchedule = {
     active: CodecTypes['pg/bool@1']['output'];
@@ -945,6 +1006,7 @@ export declare const models: {
     User: Models.public_User;
     Vehicle: Models.public_Vehicle;
     WorkOrder: Models.public_WorkOrder;
+    WorkOrderTimeLog: Models.public_WorkOrderTimeLog;
     WorkSchedule: Models.public_WorkSchedule;
   };
 };
@@ -1643,19 +1705,18 @@ type ContractBase = Omit<
               indexes: readonly [];
               foreignKeys: readonly [];
             };
-            readonly User: {
+            readonly user: {
               columns: {
-                readonly clerkId: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
+                readonly banned: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly createdAt: {
                   readonly dataType: 'pg/timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                   readonly many: false;
                 };
                 readonly email: {
@@ -1685,25 +1746,12 @@ type ContractBase = Omit<
                 readonly role: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'receptionist'>;
-                  };
-                  readonly many: false;
-                };
-                readonly updatedAt: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
+                  readonly nullable: true;
                   readonly many: false;
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [
-                { readonly columns: readonly ['clerkId'] },
-                { readonly columns: readonly ['email'] },
-              ];
+              uniques: readonly [{ readonly columns: readonly ['email'] }];
               indexes: readonly [];
               foreignKeys: readonly [];
             };
@@ -1863,9 +1911,21 @@ type ContractBase = Omit<
                   readonly nullable: true;
                   readonly many: false;
                 };
+                readonly mileageIn: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly notes: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly startedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: true;
                   readonly many: false;
                 };
@@ -1947,7 +2007,97 @@ type ContractBase = Omit<
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'User';
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly WorkOrderTimeLog: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly endedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly mechanicId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly note: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly startedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly workOrderId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'WorkOrderTimeLog_mechanicId_idx_30292d1f';
+                  readonly prefix: 'WorkOrderTimeLog_mechanicId_idx';
+                  readonly columns: readonly ['mechanicId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'WorkOrderTimeLog_workOrderId_idx_136dd311';
+                  readonly prefix: 'WorkOrderTimeLog_workOrderId_idx';
+                  readonly columns: readonly ['workOrderId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'WorkOrderTimeLog';
+                    readonly columns: readonly ['workOrderId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'WorkOrder';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'WorkOrderTimeLog';
+                    readonly columns: readonly ['mechanicId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -2016,10 +2166,6 @@ type ContractBase = Omit<
                 'no_show',
               ];
             };
-            readonly UserRole: {
-              readonly kind: 'valueSet';
-              readonly values: readonly ['admin', 'mechanic', 'receptionist'];
-            };
             readonly WorkOrderStatus: {
               readonly kind: 'valueSet';
               readonly values: readonly [
@@ -2068,13 +2214,17 @@ type ContractBase = Omit<
       readonly model: 'ServiceType';
     };
     readonly SparePart: { readonly namespace: 'public' & NamespaceId; readonly model: 'SparePart' };
-    readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
     readonly Vehicle: { readonly namespace: 'public' & NamespaceId; readonly model: 'Vehicle' };
     readonly WorkOrder: { readonly namespace: 'public' & NamespaceId; readonly model: 'WorkOrder' };
+    readonly WorkOrderTimeLog: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'WorkOrderTimeLog';
+    };
     readonly WorkSchedule: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'WorkSchedule';
     };
+    readonly user: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
   };
   readonly domain: {
     readonly namespaces: {
@@ -2708,9 +2858,9 @@ type ContractBase = Omit<
           };
           readonly User: {
             readonly fields: {
-              readonly clerkId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              readonly banned: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
               };
               readonly createdAt: {
                 readonly nullable: false;
@@ -2736,15 +2886,8 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly role: {
-                readonly nullable: false;
+                readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly updatedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
               };
             };
             readonly relations: {
@@ -2759,19 +2902,29 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['mechanicId'];
                 };
               };
+              readonly timeLogs: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'WorkOrderTimeLog';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['mechanicId'];
+                };
+              };
             };
             readonly storage: {
-              readonly table: 'User';
+              readonly table: 'user';
               readonly namespaceId: 'public';
               readonly fields: {
-                readonly clerkId: { readonly column: 'clerkId' };
+                readonly banned: { readonly column: 'banned' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly email: { readonly column: 'email' };
                 readonly id: { readonly column: 'id' };
                 readonly name: { readonly column: 'name' };
                 readonly phone: { readonly column: 'phone' };
                 readonly role: { readonly column: 'role' };
-                readonly updatedAt: { readonly column: 'updatedAt' };
               };
             };
           };
@@ -2926,9 +3079,20 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly mileageIn: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
               readonly notes: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
               };
               readonly status: {
                 readonly nullable: false;
@@ -3001,6 +3165,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['workOrderId'];
                 };
               };
+              readonly timeLogs: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'WorkOrderTimeLog';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['workOrderId'];
+                };
+              };
               readonly vehicle: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3027,10 +3202,89 @@ type ContractBase = Omit<
                 readonly estimatedCost: { readonly column: 'estimatedCost' };
                 readonly id: { readonly column: 'id' };
                 readonly mechanicId: { readonly column: 'mechanicId' };
+                readonly mileageIn: { readonly column: 'mileageIn' };
                 readonly notes: { readonly column: 'notes' };
+                readonly startedAt: { readonly column: 'startedAt' };
                 readonly status: { readonly column: 'status' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
                 readonly vehicleId: { readonly column: 'vehicleId' };
+              };
+            };
+          };
+          readonly WorkOrderTimeLog: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly endedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly mechanicId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly note: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly workOrderId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly mechanic: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['mechanicId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly workOrder: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'WorkOrder';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['workOrderId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'WorkOrderTimeLog';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly endedAt: { readonly column: 'endedAt' };
+                readonly id: { readonly column: 'id' };
+                readonly mechanicId: { readonly column: 'mechanicId' };
+                readonly note: { readonly column: 'note' };
+                readonly startedAt: { readonly column: 'startedAt' };
+                readonly workOrderId: { readonly column: 'workOrderId' };
               };
             };
           };
@@ -3083,14 +3337,6 @@ type ContractBase = Omit<
               { readonly name: 'no_show'; readonly value: 'no_show' },
             ];
           };
-          readonly UserRole: {
-            readonly codecId: 'pg/text@1';
-            readonly members: readonly [
-              { readonly name: 'admin'; readonly value: 'admin' },
-              { readonly name: 'mechanic'; readonly value: 'mechanic' },
-              { readonly name: 'receptionist'; readonly value: 'receptionist' },
-            ];
-          };
           readonly WorkOrderStatus: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
@@ -3111,11 +3357,6 @@ type ContractBase = Omit<
             { readonly name: 'completed'; readonly value: 'completed' },
             { readonly name: 'cancelled'; readonly value: 'cancelled' },
             { readonly name: 'no_show'; readonly value: 'no_show' },
-          ];
-          readonly UserRole: readonly [
-            { readonly name: 'admin'; readonly value: 'admin' },
-            { readonly name: 'mechanic'; readonly value: 'mechanic' },
-            { readonly name: 'receptionist'; readonly value: 'receptionist' },
           ];
           readonly WorkOrderStatus: readonly [
             { readonly name: 'pending'; readonly value: 'pending' },
@@ -3264,23 +3505,6 @@ type ContractBase = Omit<
         {
           readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
           readonly ref: {
-            readonly entry: 'User';
-            readonly field: 'id';
-            readonly namespace: 'public';
-          };
-        },
-        {
-          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly ref: {
-            readonly entry: 'User';
-            readonly field: 'updatedAt';
-            readonly namespace: 'public';
-          };
-        },
-        {
-          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
-          readonly ref: {
             readonly entry: 'Vehicle';
             readonly field: 'id';
             readonly namespace: 'public';
@@ -3309,6 +3533,14 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'WorkOrder';
             readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'WorkOrderTimeLog';
+            readonly field: 'id';
             readonly namespace: 'public';
           };
         },

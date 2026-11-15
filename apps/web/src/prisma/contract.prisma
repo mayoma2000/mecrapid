@@ -2,24 +2,23 @@
 
 // ─── Users & Auth ──────────────────────────────────────────────────────────
 
-enum UserRole {
-  admin
-  mechanic
-  receptionist
-}
-
+// Tabla "user" de better-auth (login). El rol lo maneja el plugin admin:
+// 'admin' | 'mecanico' | 'user' (cliente). Las columnas de auth (emailVerified,
+// banReason, etc.) se omiten porque solo las toca better-auth.
 model User {
-  id        String   @id @default(uuid())
-  clerkId   String   @unique
-  email     String   @unique
+  id        String  @id
   name      String
-  role      UserRole @default(receptionist)
+  email     String  @unique
+  role      String?
   phone     String?
+  banned    Boolean?
 
-  assignedOrders WorkOrder[] @relation("assignedMechanic")
+  assignedOrders WorkOrder[]        @relation("assignedMechanic")
+  timeLogs       WorkOrderTimeLog[]
 
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  createdAt TimestamptzString
+
+  @@map("user")
 }
 
 // ─── Customers ─────────────────────────────────────────────────────────────
@@ -39,6 +38,22 @@ model Customer {
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
+}
+
+// Cada tramo de trabajo de un mecánico sobre una orden (Iniciar → Pausar/Terminar).
+// endedAt null = el mecánico está trabajando esa orden ahora mismo.
+model WorkOrderTimeLog {
+  id          String            @id @default(uuid())
+  workOrderId String
+  mechanicId  String
+  startedAt   TimestamptzString @default(now())
+  endedAt     TimestamptzString?
+  note        String?
+
+  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
+  mechanic    User      @relation(fields: [mechanicId], references: [id])
+
+  createdAt TimestamptzString @default(now())
 }
 
 // ─── Vehicles ──────────────────────────────────────────────────────────────
@@ -85,6 +100,8 @@ model WorkOrder {
   actualCost       Float?
   notes            String?
   completedAt      TimestamptzString?
+  startedAt        TimestamptzString?
+  mileageIn        Int?
 
   customer            Customer            @relation(fields: [customerId], references: [id])
   vehicle             Vehicle?            @relation(fields: [vehicleId], references: [id])
@@ -92,6 +109,7 @@ model WorkOrder {
   serviceItems        ServiceLineItem[]
   partItems           PartLineItem[]
   assistanceRequests  AssistanceRequest[]
+  timeLogs            WorkOrderTimeLog[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()

@@ -6,6 +6,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useApi } from '../../../lib/api'
+import { useSession } from '../../../lib/auth-client'
 
 type Customer = { id: string; name: string; phone: string }
 type Vehicle = { id: string; make: string; model: string; year: number; licensePlate: string }
@@ -22,6 +23,17 @@ export default function NewOrderScreen() {
   const [complaint, setComplaint] = useState('')
   const [diagnosis, setDiagnosis] = useState('')
   const [estimatedCost, setEstimatedCost] = useState('')
+  const [mileageIn, setMileageIn] = useState('')
+  const [mechanicId, setMechanicId] = useState<string | null>(null)
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin'
+
+  const { data: mechanics } = useQuery({
+    queryKey: ['mechanics'],
+    queryFn: () => request<{ data: { id: string; name: string }[] }>('/api/v1/mechanics'),
+    enabled: isAdmin,
+    refetchInterval: false,
+  })
 
   const { data: customers, isFetching: loadingCustomers } = useQuery({
     queryKey: ['customers-search', search.trim()],
@@ -47,6 +59,8 @@ export default function NewOrderScreen() {
           complaint: complaint.trim(),
           diagnosis: diagnosis.trim() || null,
           estimatedCost: estimatedCost ? Number(estimatedCost.replace(',', '.')) : null,
+          mileageIn: mileageIn ? Number(mileageIn) : null,
+          mechanicId,
         }),
       }),
     onSuccess: ({ data }) => {
@@ -179,6 +193,15 @@ export default function NewOrderScreen() {
             style={[styles.input, styles.multiline]}
             multiline
           />
+          <Text style={[styles.label, { marginTop: 14 }]}>Kilometraje</Text>
+          <TextInput
+            value={mileageIn}
+            onChangeText={setMileageIn}
+            placeholder="Ej. 85000"
+            placeholderTextColor="#8898AA"
+            style={styles.input}
+            keyboardType="number-pad"
+          />
           <Text style={[styles.label, { marginTop: 14 }]}>Costo estimado (L.)</Text>
           <TextInput
             value={estimatedCost}
@@ -189,6 +212,26 @@ export default function NewOrderScreen() {
             keyboardType="decimal-pad"
           />
         </View>
+
+        {isAdmin && (mechanics?.data.length ?? 0) > 0 && (
+          <View style={styles.card}>
+            <Text style={styles.label}>Mecánico</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {[{ id: '', name: 'Asignar después' }, ...(mechanics?.data ?? [])].map((m) => {
+                const active = (mechanicId ?? '') === m.id
+                return (
+                  <TouchableOpacity
+                    key={m.id || 'none'}
+                    style={[styles.option, { marginBottom: 0 }, active && styles.optionActive]}
+                    onPress={() => setMechanicId(m.id || null)}
+                  >
+                    <Text style={[styles.optionName, active && { color: '#fff' }]}>{m.name}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+          </View>
+        )}
 
         <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={create.isPending}>
           {create.isPending

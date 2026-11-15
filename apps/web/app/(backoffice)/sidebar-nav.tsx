@@ -5,19 +5,24 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { signOut } from '@/src/lib/auth-client'
 
+type Role = 'admin' | 'mecanico' | 'user'
+
+// adminOnly: configuración del taller y gestión de personal
 const NAV = [
   { href: '/dashboard', label: 'Tablero', icon: '📊' },
-  { href: '/customers', label: 'Clientes', icon: '👥' },
-  { href: '/vehicles', label: 'Vehículos', icon: '🚗' },
+  { href: '/job-board', label: 'Trabajo en taller', icon: '🧰' },
   { href: '/work-orders', label: 'Órdenes', icon: '🔧' },
   { href: '/appointments', label: 'Citas', icon: '📅' },
   { href: '/assistance-requests', label: 'Solicitudes', icon: '🆘' },
-  { href: '/assistance-types', label: 'Tipos Asistencia', icon: '🔖' },
-  { href: '/service-types', label: 'Servicios', icon: '⚙️' },
-  { href: '/work-schedule', label: 'Horario', icon: '🕐' },
+  { href: '/customers', label: 'Clientes', icon: '👥' },
+  { href: '/vehicles', label: 'Vehículos', icon: '🚗' },
+  { href: '/mechanics', label: 'Mecánicos', icon: '👷', adminOnly: true },
+  { href: '/assistance-types', label: 'Tipos Asistencia', icon: '🔖', adminOnly: true },
+  { href: '/service-types', label: 'Servicios', icon: '⚙️', adminOnly: true },
+  { href: '/work-schedule', label: 'Horario', icon: '🕐', adminOnly: true },
 ]
 
-export function SidebarNav() {
+export function SidebarNav({ role }: { role: Role }) {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
@@ -47,14 +52,14 @@ export function SidebarNav() {
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div className="fixed inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <div className="relative w-64 bg-white dark:bg-neutral-900 flex flex-col shadow-xl">
-            <NavContent pathname={pathname} onClose={() => setOpen(false)} onSignOut={handleSignOut} />
+            <NavContent pathname={pathname} role={role} onClose={() => setOpen(false)} onSignOut={handleSignOut} />
           </div>
         </div>
       )}
 
       {/* Desktop sidebar */}
       <div className="hidden lg:flex w-56 flex-col bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 sticky top-0 h-screen flex-shrink-0">
-        <NavContent pathname={pathname} onSignOut={handleSignOut} />
+        <NavContent pathname={pathname} role={role} onSignOut={handleSignOut} />
       </div>
     </>
   )
@@ -62,10 +67,12 @@ export function SidebarNav() {
 
 function NavContent({
   pathname,
+  role,
   onClose,
   onSignOut,
 }: {
   pathname: string
+  role: Role
   onClose?: () => void
   onSignOut: () => void
 }) {
@@ -76,7 +83,7 @@ function NavContent({
         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Backoffice</p>
       </div>
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-        {NAV.map((item) => {
+        {NAV.filter((item) => !item.adminOnly || role === 'admin').map((item) => {
           const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
           return (
             <Link

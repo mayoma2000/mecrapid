@@ -36,10 +36,6 @@
       "model": "SparePart",
       "namespace": "public"
     },
-    "User": {
-      "model": "User",
-      "namespace": "public"
-    },
     "Vehicle": {
       "model": "Vehicle",
       "namespace": "public"
@@ -48,8 +44,16 @@
       "model": "WorkOrder",
       "namespace": "public"
     },
+    "WorkOrderTimeLog": {
+      "model": "WorkOrderTimeLog",
+      "namespace": "public"
+    },
     "WorkSchedule": {
       "model": "WorkSchedule",
+      "namespace": "public"
+    },
+    "user": {
+      "model": "User",
       "namespace": "public"
     }
   },
@@ -83,23 +87,6 @@
               {
                 "name": "no_show",
                 "value": "no_show"
-              }
-            ]
-          },
-          "UserRole": {
-            "codecId": "pg/text@1",
-            "members": [
-              {
-                "name": "admin",
-                "value": "admin"
-              },
-              {
-                "name": "mechanic",
-                "value": "mechanic"
-              },
-              {
-                "name": "receptionist",
-                "value": "receptionist"
               }
             ]
           },
@@ -1115,10 +1102,10 @@
           },
           "User": {
             "fields": {
-              "clerkId": {
-                "nullable": false,
+              "banned": {
+                "nullable": true,
                 "type": {
-                  "codecId": "pg/text@1",
+                  "codecId": "pg/bool@1",
                   "kind": "scalar"
                 }
               },
@@ -1158,22 +1145,9 @@
                 }
               },
               "role": {
-                "nullable": false,
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
-                  "kind": "scalar"
-                },
-                "valueSet": {
-                  "entityKind": "enum",
-                  "entityName": "UserRole",
-                  "namespaceId": "public",
-                  "plane": "domain"
-                }
-              },
-              "updatedAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               }
@@ -1193,12 +1167,27 @@
                   "model": "WorkOrder",
                   "namespace": "public"
                 }
+              },
+              "timeLogs": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "mechanicId"
+                  ]
+                },
+                "to": {
+                  "model": "WorkOrderTimeLog",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
               "fields": {
-                "clerkId": {
-                  "column": "clerkId"
+                "banned": {
+                  "column": "banned"
                 },
                 "createdAt": {
                   "column": "createdAt"
@@ -1217,13 +1206,10 @@
                 },
                 "role": {
                   "column": "role"
-                },
-                "updatedAt": {
-                  "column": "updatedAt"
                 }
               },
               "namespaceId": "public",
-              "table": "User"
+              "table": "user"
             }
           },
           "Vehicle": {
@@ -1459,10 +1445,24 @@
                   "kind": "scalar"
                 }
               },
+              "mileageIn": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "notes": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -1572,6 +1572,21 @@
                   "namespace": "public"
                 }
               },
+              "timeLogs": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "workOrderId"
+                  ]
+                },
+                "to": {
+                  "model": "WorkOrderTimeLog",
+                  "namespace": "public"
+                }
+              },
               "vehicle": {
                 "cardinality": "N:1",
                 "nullable": true,
@@ -1618,8 +1633,14 @@
                 "mechanicId": {
                   "column": "mechanicId"
                 },
+                "mileageIn": {
+                  "column": "mileageIn"
+                },
                 "notes": {
                   "column": "notes"
+                },
+                "startedAt": {
+                  "column": "startedAt"
                 },
                 "status": {
                   "column": "status"
@@ -1633,6 +1654,120 @@
               },
               "namespaceId": "public",
               "table": "WorkOrder"
+            }
+          },
+          "WorkOrderTimeLog": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "endedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "mechanicId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "note": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "workOrderId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "mechanic": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "mechanicId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "workOrder": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "workOrderId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "WorkOrder",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "endedAt": {
+                  "column": "endedAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "mechanicId": {
+                  "column": "mechanicId"
+                },
+                "note": {
+                  "column": "note"
+                },
+                "startedAt": {
+                  "column": "startedAt"
+                },
+                "workOrderId": {
+                  "column": "workOrderId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "WorkOrderTimeLog"
             }
           },
           "WorkSchedule": {
@@ -2462,90 +2597,6 @@
                 }
               ]
             },
-            "User": {
-              "checks": [
-                {
-                  "expression": "\"role\" IN ('admin', 'mechanic', 'receptionist')",
-                  "name": "User_role_check_06cea4f0",
-                  "prefix": "User_role_check"
-                }
-              ],
-              "columns": {
-                "clerkId": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "createdAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nullable": false
-                },
-                "email": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "name": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "phone": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
-                "role": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "default": {
-                    "kind": "literal",
-                    "value": "receptionist"
-                  },
-                  "nullable": false,
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "UserRole",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
-                },
-                "updatedAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [],
-              "indexes": [],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ]
-              },
-              "uniques": [
-                {
-                  "columns": [
-                    "clerkId"
-                  ]
-                },
-                {
-                  "columns": [
-                    "email"
-                  ]
-                }
-              ]
-            },
             "Vehicle": {
               "columns": {
                 "color": {
@@ -2714,9 +2765,19 @@
                   "dataType": "pg/text",
                   "nullable": true
                 },
+                "mileageIn": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
                 "notes": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
+                  "nullable": true
+                },
+                "startedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
                   "nullable": true
                 },
                 "status": {
@@ -2800,7 +2861,7 @@
                       "id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "User"
+                    "tableName": "user"
                   }
                 }
               ],
@@ -2827,6 +2888,117 @@
                   ],
                   "name": "WorkOrder_vehicleId_idx_e2df58fc",
                   "prefix": "WorkOrder_vehicleId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "WorkOrderTimeLog": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "endedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "mechanicId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "note": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "startedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "workOrderId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "WorkOrderTimeLog_workOrderId_idx_136dd311"
+                  },
+                  "source": {
+                    "columns": [
+                      "workOrderId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "WorkOrderTimeLog"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "WorkOrder"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "WorkOrderTimeLog_mechanicId_idx_30292d1f"
+                  },
+                  "source": {
+                    "columns": [
+                      "mechanicId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "WorkOrderTimeLog"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "mechanicId"
+                  ],
+                  "name": "WorkOrderTimeLog_mechanicId_idx_30292d1f",
+                  "prefix": "WorkOrderTimeLog_mechanicId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workOrderId"
+                  ],
+                  "name": "WorkOrderTimeLog_workOrderId_idx_136dd311",
+                  "prefix": "WorkOrderTimeLog_workOrderId_idx",
                   "unique": false
                 }
               ],
@@ -2891,6 +3063,59 @@
                   ]
                 }
               ]
+            },
+            "user": {
+              "columns": {
+                "banned": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "phone": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "role": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "email"
+                  ]
+                }
+              ]
             }
           },
           "valueSet": {
@@ -2903,14 +3128,6 @@
                 "completed",
                 "cancelled",
                 "no_show"
-              ]
-            },
-            "UserRole": {
-              "kind": "valueSet",
-              "values": [
-                "admin",
-                "mechanic",
-                "receptionist"
               ]
             },
             "WorkOrderStatus": {
@@ -2930,10 +3147,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "ebed3873c9b4274dc7db9bbb3a062c9a4aa826895d13e447c2e80fb956a2b330"
+    "storageHash": "81c6a6b4145aa8442b4d899bdae85c455a32c1903da715777cf97a5f3182e588"
   },
   "execution": {
-    "executionHash": "eb80ed97d55585921ce6fd4bd63c5c5ce7c530decaca29e92e40763d2bb52321",
+    "executionHash": "454a695b38acd6e82fa70d2690e41e3bd125b0c155491dfca56958186bf565cc",
     "mutations": {
       "defaults": [
         {
@@ -3090,32 +3307,6 @@
             "kind": "generator"
           },
           "ref": {
-            "entry": "User",
-            "field": "id",
-            "namespace": "public"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "entry": "User",
-            "field": "updatedAt",
-            "namespace": "public"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "uuidv4",
-            "kind": "generator"
-          },
-          "ref": {
             "entry": "Vehicle",
             "field": "id",
             "namespace": "public"
@@ -3159,6 +3350,17 @@
           "ref": {
             "entry": "WorkOrder",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "WorkOrderTimeLog",
+            "field": "id",
             "namespace": "public"
           }
         },

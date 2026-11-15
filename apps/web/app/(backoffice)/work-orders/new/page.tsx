@@ -5,13 +5,15 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 type Customer = { id: string; name: string }
+type Mechanic = { id: string; name: string }
 type Vehicle = { id: string; make: string; model: string; year: number; licensePlate: string }
 
 export default function NewWorkOrderPage() {
   const router = useRouter()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
-  const [form, setForm] = useState({ customerId: '', vehicleId: '', complaint: '', diagnosis: '', estimatedCost: '' })
+  const [mechanics, setMechanics] = useState<Mechanic[]>([])
+  const [form, setForm] = useState({ customerId: '', vehicleId: '', complaint: '', diagnosis: '', estimatedCost: '', mechanicId: '', mileageIn: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -19,6 +21,9 @@ export default function NewWorkOrderPage() {
     void fetch('/api/v1/customers?limit=200')
       .then((r) => r.json() as Promise<{ data: Customer[] }>)
       .then(({ data }) => setCustomers(data))
+    void fetch('/api/v1/mechanics')
+      .then((r) => r.json() as Promise<{ data: Mechanic[] }>)
+      .then(({ data }) => setMechanics(data ?? []))
   }, [])
 
   useEffect(() => {
@@ -36,7 +41,12 @@ export default function NewWorkOrderPage() {
     const res = await fetch('/api/v1/work-orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, estimatedCost: form.estimatedCost ? Number(form.estimatedCost) : null }),
+      body: JSON.stringify({
+        ...form,
+        estimatedCost: form.estimatedCost ? Number(form.estimatedCost) : null,
+        mechanicId: form.mechanicId || null,
+        mileageIn: form.mileageIn ? Number(form.mileageIn) : null,
+      }),
     })
     if (!res.ok) { setError((await res.json() as { error?: string }).error ?? 'Error'); setSaving(false); return }
     const { data } = await res.json() as { data: { id: string } }
@@ -67,6 +77,20 @@ export default function NewWorkOrderPage() {
             <option value="">Seleccionar vehículo…</option>
             {vehicles.map((v) => <option key={v.id} value={v.id}>{v.year} {v.make} {v.model} — {v.licensePlate}</option>)}
           </select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Kilometraje</label>
+            <input type="number" min="0" value={form.mileageIn} onChange={(e) => set('mileageIn', e.target.value)} placeholder="Ej. 85000" className={cls} />
+          </div>
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Mecánico</label>
+            <select value={form.mechanicId} onChange={(e) => set('mechanicId', e.target.value)} className={cls}>
+              <option value="">Asignar después</option>
+              {mechanics.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </div>
         </div>
 
         <div className="space-y-1">

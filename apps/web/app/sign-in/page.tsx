@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { signIn } from '@/src/lib/auth-client'
+import { signIn, signOut } from '@/src/lib/auth-client'
 
 export default function SignInPage() {
   const router = useRouter()
@@ -19,10 +19,19 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      const { error: err } = await signIn.email({ email, password })
+      const { data, error: err } = await signIn.email({ email, password })
 
       if (err) {
         setError(err.message ?? 'Credenciales incorrectas. Verificá tu correo y contraseña.')
+        setLoading(false)
+        return
+      }
+
+      // El backoffice es solo para admin y mecánicos; los clientes usan la app
+      const role = (data?.user as { role?: string | null } | undefined)?.role
+      if (role !== 'admin' && role !== 'mecanico') {
+        await signOut()
+        setError('Esta cuenta es de cliente. Usá la app MecRapid en tu celular.')
         setLoading(false)
         return
       }

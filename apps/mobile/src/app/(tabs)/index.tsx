@@ -125,6 +125,13 @@ export default function DashboardScreen() {
     queryFn: () => request<{ meta: { total: number } }>(`/api/v1/appointments?from=${today}T00:00:00.000Z&to=${today}T23:59:59.999Z&limit=1`),
     enabled: isStaff,
   })
+  const { data: jobBoard } = useQuery({
+    queryKey: ['job-board'],
+    queryFn: () => request<{ data: { columns: { mechanic: { id: string }; working: boolean; orders: unknown[] }[]; unassigned: unknown[] } }>('/api/v1/job-board'),
+    enabled: isStaff,
+  })
+  const myJobs = jobBoard?.data.columns.find((c) => c.mechanic.id === session?.user.id)
+  const workingCount = jobBoard?.data.columns.filter((c) => c.working).length
   const { data: assistanceAgg } = useQuery({
     queryKey: ['assistance-pending'],
     queryFn: () => request<{ meta: { total: number } }>('/api/v1/assistance-requests?status=pending&limit=1'),
@@ -184,6 +191,22 @@ export default function DashboardScreen() {
 
         {isStaff ? (
           <>
+            {/* Trabajo en taller — admin ve el tablero, el mecánico sus trabajos */}
+            <View style={styles.section}>
+              <TouchableOpacity onPress={() => router.navigate('/job-board')} style={styles.workBanner}>
+                <Text style={{ fontSize: 30 }}>🧰</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.workBannerTitle}>{role === 'mecanico' ? 'Mis trabajos' : 'Trabajo en taller'}</Text>
+                  <Text style={styles.workBannerSub}>
+                    {role === 'mecanico'
+                      ? `${myJobs?.orders.length ?? 0} órdenes asignadas · ${myJobs?.working ? 'trabajando ahora' : 'en pausa'}`
+                      : `${workingCount ?? 0} mecánicos trabajando · ${jobBoard?.data.unassigned.length ?? 0} sin asignar`}
+                  </Text>
+                </View>
+                <Text style={styles.workBannerArrow}>›</Text>
+              </TouchableOpacity>
+            </View>
+
             {/* KPI Cards — staff view */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Resumen</Text>
@@ -542,6 +565,22 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: '600',
   },
+  workBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    backgroundColor: '#172B4D',
+    borderRadius: 20,
+    padding: 18,
+    shadowColor: '#172B4D',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  workBannerTitle: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  workBannerSub: { color: '#C9D1F5', fontSize: 12, marginTop: 3 },
+  workBannerArrow: { color: '#fff', fontSize: 30, fontWeight: '300' },
   quickAction: {
     flex: 1,
     borderRadius: 20,

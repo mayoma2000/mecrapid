@@ -8,6 +8,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    additionalFields: {
+      phone: { type: 'string', required: false },
+    },
+  },
   plugins: [expo(), admin()],
   trustedOrigins: [
     process.env['BETTER_AUTH_URL'] ?? 'http://localhost:3000',

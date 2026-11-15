@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { WorkPanel, type WorkInfo } from './work-panel'
 
 type ServiceItem = { id: string; name: string; description: string | null; price: number; quantity: number }
 type PartItem = { id: string; quantity: number; unitCost: number; sparePart: { name: string; partNumber: string | null } }
-type WorkOrder = {
+type WorkOrder = WorkInfo & {
   id: string; status: string; complaint: string; diagnosis: string | null
   estimatedCost: number | null; actualCost: number | null; completedAt: string | null
   customer: { id: string; name: string }
-  vehicle: { id: string; make: string; model: string; year: number; licensePlate: string }
+  vehicle: { id: string; make: string; model: string; year: number; licensePlate: string } | null
   serviceItems: ServiceItem[]
   partItems: PartItem[]
 }
@@ -42,15 +43,24 @@ export default function WorkOrderDetailPage() {
   const [editDiagnosis, setEditDiagnosis] = useState('')
   const [editCost, setEditCost] = useState('')
   const [saving, setSaving] = useState(false)
+  const [fetchedAt, setFetchedAt] = useState(() => new Date().toISOString())
 
-  useEffect(() => {
-    void fetch(`/api/v1/work-orders/${id}`)
+  function load(initial = false) {
+    return fetch(`/api/v1/work-orders/${id}`)
       .then((r) => r.json() as Promise<{ data: WorkOrder }>)
       .then(({ data }) => {
         setOrder(data)
-        setEditDiagnosis(data.diagnosis ?? '')
-        setEditCost(data.estimatedCost != null ? String(data.estimatedCost) : '')
+        setFetchedAt(new Date().toISOString())
+        if (initial) {
+          setEditDiagnosis(data.diagnosis ?? '')
+          setEditCost(data.estimatedCost != null ? String(data.estimatedCost) : '')
+        }
       })
+  }
+
+  useEffect(() => {
+    void load(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   async function transition(newStatus: string) {
@@ -60,8 +70,7 @@ export default function WorkOrderDetailPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),
     })
-    const { data } = await res.json() as { data: WorkOrder }
-    setOrder((prev) => prev ? { ...prev, status: data.status, completedAt: data.completedAt } : prev)
+    if (res.ok) await load()
     setUpdating(false)
   }
 
@@ -95,10 +104,16 @@ export default function WorkOrderDetailPage() {
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
             <Link href={`/customers/${order.customer.id}`} className="hover:underline text-blue-600">{order.customer.name}</Link>
             {' · '}
-            <Link href={`/vehicles/${order.vehicle.id}`} className="hover:underline">{order.vehicle.year} {order.vehicle.make} {order.vehicle.model} ({order.vehicle.licensePlate})</Link>
+            {order.vehicle ? (
+              <Link href={`/vehicles/${order.vehicle.id}`} className="hover:underline">{order.vehicle.year} {order.vehicle.make} {order.vehicle.model} ({order.vehicle.licensePlate})</Link>
+            ) : (
+              <span>Sin vehículo asignado</span>
+            )}
           </p>
         </div>
       </div>
+
+      <WorkPanel order={order} fetchedAt={fetchedAt} onChange={() => void load()} />
 
       {/* Problem */}
       <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-5 space-y-3">
