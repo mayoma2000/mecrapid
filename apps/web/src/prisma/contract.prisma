@@ -79,6 +79,7 @@ model Vehicle {
   workOrders   WorkOrder[]
   appointments Appointment[]
   ownerships   VehicleOwnership[]
+  maintenanceReminders MaintenanceReminder[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
@@ -349,4 +350,32 @@ model VehicleOwnership {
   createdBy User?    @relation(fields: [createdById], references: [id])
 
   createdAt TimestamptzString @default(now())
+}
+
+// ─── Mantenimiento preventivo ──────────────────────────────────────────────
+
+// keywords: separadas por coma; si aparecen en un trabajo autorizado de una orden completada, cuenta como hecho
+model MaintenanceRule {
+  id             String  @id @default(uuid())
+  name           String
+  keywords       String
+  intervalKm     Int?
+  intervalMonths Int?
+  active         Boolean @default(true)
+
+  reminders MaintenanceReminder[]
+
+  createdAt TimestamptzString @default(now())
+}
+
+model MaintenanceReminder {
+  id        String @id @default(uuid())
+  vehicleId String
+  ruleId    String
+  cycleKey  String
+  level     String
+  sentAt    TimestamptzString @default(now())
+
+  vehicle Vehicle         @relation(fields: [vehicleId], references: [id])
+  rule    MaintenanceRule @relation(fields: [ruleId], references: [id])
 }

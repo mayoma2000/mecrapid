@@ -19,6 +19,7 @@ const NAV = [
   { href: '/mechanics', label: 'Mecánicos', icon: '👷', adminOnly: true },
   { href: '/assistance-types', label: 'Tipos Asistencia', icon: '🔖', adminOnly: true },
   { href: '/service-types', label: 'Servicios', icon: '⚙️', adminOnly: true },
+  { href: '/maintenance-rules', label: 'Mantenimientos', icon: '🛢️', adminOnly: true },
   { href: '/work-schedule', label: 'Horario', icon: '🕐', adminOnly: true },
 ]
 

@@ -7,6 +7,8 @@ import { useApi } from '../../../../lib/api'
 import { useSession } from '../../../../lib/auth-client'
 import { safeDate } from '../../../../lib/date'
 import { money } from '../../../../lib/quotes'
+import type { Maintenance } from '../../../../lib/maintenance'
+import { MaintenanceList } from '../../../../components/MaintenanceList'
 
 type Owner = { customerId: string; name: string; startedAt: string; endedAt: string | null; note: string | null }
 type Entry = {
@@ -16,7 +18,7 @@ type Entry = {
 }
 type History = {
   vehicle: { make: string; model: string; year: number; licensePlate: string; mileage: number }
-  owners: Owner[]; entries: Entry[]
+  owners: Owner[]; entries: Entry[]; maintenance: Maintenance | null
 }
 type Customer = { id: string; name: string; phone: string }
 
@@ -137,6 +139,8 @@ export default function StaffVehicleScreen() {
               </View>
             )}
           </View>
+
+          {h.maintenance && <MaintenanceList maintenance={h.maintenance} />}
 
           <Text style={[styles.section, { marginLeft: 4, marginBottom: 10 }]}>Historial de servicios · {h.entries.length}</Text>
           {h.entries.length === 0 && <Text style={[styles.sub, { textAlign: 'center', marginTop: 20 }]}>Sin órdenes todavía</Text>}

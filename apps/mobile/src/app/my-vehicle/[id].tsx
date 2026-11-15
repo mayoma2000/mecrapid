@@ -5,6 +5,8 @@ import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../lib/api'
 import { safeDate } from '../../lib/date'
 import { money } from '../../lib/quotes'
+import type { Maintenance } from '../../lib/maintenance'
+import { MaintenanceList } from '../../components/MaintenanceList'
 
 type Entry = {
   id: string
@@ -23,6 +25,7 @@ type History = {
   previousOwners: number
   entries: Entry[]
   summary: { services: number; lastServiceAt: string | null; lastMileage: number | null }
+  maintenance: Maintenance | null
 }
 
 const day = (s: string) => safeDate(s).toLocaleDateString('es-HN', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -70,6 +73,8 @@ export default function MyVehicleScreen() {
             <Stat label="Último servicio" value={h.summary.lastServiceAt ? safeDate(h.summary.lastServiceAt).toLocaleDateString('es-HN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—'} />
             <Stat label="Dueños anteriores" value={String(h.previousOwners)} />
           </View>
+
+          {h.maintenance && <MaintenanceList maintenance={h.maintenance} canBook />}
 
           {h.entries.length === 0 ? (
             <View style={{ alignItems: 'center', paddingVertical: 50 }}>

@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { requireRole } from '@/src/lib/authz'
 import { customerForEmail } from '@/src/lib/me'
 import { getVehicleHistory } from '@/src/lib/vehicle-history'
+import { getVehicleMaintenance } from '@/src/lib/maintenance'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -17,5 +18,7 @@ export async function GET(_request: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params
   const history = await getVehicleHistory(id, { kind: 'customer', customerId: customer.id })
   if (!history) return Response.json({ error: 'Not found' }, { status: 404 })
-  return Response.json({ data: history })
+  // Estado de mantenimiento preventivo (cambio de aceite, llantas, frenos…)
+  const maintenance = await getVehicleMaintenance(id)
+  return Response.json({ data: { ...history, maintenance } })
 }

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSession } from '@/src/lib/auth-client'
 import { toDate } from '@/src/lib/job-time'
 import { money } from '@/src/lib/quote-labels'
+import { MAINT_STATUS, everyLabel } from '@/src/lib/maintenance-labels'
 
 type Owner = { customerId: string; name: string; startedAt: string; endedAt: string | null; note: string | null }
 type Entry = {
@@ -12,8 +13,16 @@ type Entry = {
   total: number; customer: { id: string; name: string } | null; mechanic: string | null
   services: { description: string; cost: number }[]; parts: { name: string; quantity: number; total: number }[]
 }
+type Maintenance = {
+  estimatedKm: number | null; kmPerDay: number; estimatedFromHistory: boolean
+  items: {
+    ruleId: string; name: string; intervalKm: number | null; intervalMonths: number | null; status: string
+    lastDoneAt: string | null; lastDoneKm: number | null; nextDueKm: number | null; nextDueAt: string | null
+    kmRemaining: number | null; daysRemaining: number | null
+  }[]
+}
 type History = {
-  owners: Owner[]; entries: Entry[]
+  owners: Owner[]; entries: Entry[]; maintenance: Maintenance | null
   summary: { services: number; lastServiceAt: string | null; lastMileage: number | null }
 }
 type Customer = { id: string; name: string; phone: string }
@@ -135,6 +144,40 @@ export function HistoryPanel({ vehicleId, onTransferred }: { vehicleId: string; 
           </div>
         )}
       </div>
+
+      {/* Mantenimiento preventivo */}
+      {history.maintenance && history.maintenance.items.length > 0 && (
+        <div className={`${card} overflow-hidden`}>
+          <div className="px-5 py-4 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between gap-3">
+            <h2 className="font-semibold text-neutral-700 dark:text-neutral-300 text-sm uppercase tracking-wide">Mantenimiento</h2>
+            {history.maintenance.estimatedKm != null && (
+              <span className="text-xs text-neutral-500 text-right">
+                ~{history.maintenance.estimatedKm.toLocaleString('es-HN')} km hoy (estimado, {history.maintenance.kmPerDay} km/día
+                {history.maintenance.estimatedFromHistory ? ' según su historial' : ' promedio'})
+              </span>
+            )}
+          </div>
+          <ul className="divide-y divide-neutral-100 dark:divide-neutral-800">
+            {history.maintenance.items.map((m) => {
+              const st = MAINT_STATUS[m.status] ?? MAINT_STATUS['unknown']!
+              return (
+                <li key={m.ruleId} className="px-5 py-3 flex items-center justify-between gap-3 text-sm">
+                  <div>
+                    <p className="font-semibold text-neutral-900 dark:text-white">{m.name} <span className="font-normal text-neutral-400">· cada {everyLabel(m.intervalKm, m.intervalMonths)}</span></p>
+                    <p className="text-xs text-neutral-500 mt-0.5">
+                      {m.lastDoneAt
+                        ? <>Último: {day(m.lastDoneAt)}{m.lastDoneKm != null && ` a los ${m.lastDoneKm.toLocaleString('es-HN')} km`}
+                            {' · próximo: '}{[m.nextDueKm != null ? `${m.nextDueKm.toLocaleString('es-HN')} km` : null, m.nextDueAt ? day(m.nextDueAt) : null].filter(Boolean).join(' o ')}</>
+                        : 'No se ha hecho en el taller'}
+                    </p>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${st.cls}`}>{st.label}</span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
 
       {/* Historial de servicios */}
       <div className={`${card} overflow-hidden`}>

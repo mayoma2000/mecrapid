@@ -18,9 +18,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'9909b052a23bf5d25b60707765fa9ef36adb2d999f1f26203cacdfe6f23c8178'>;
+  StorageHashBase<'25b959e21c1fe0bd22555a840fa842f97c3164c79b01594081f37b440583ded0'>;
 export type ExecutionHash =
-  ExecutionHashBase<'9bbba9a9e181debe789afc0ed49f018240ca8920764ce0d5f81ced2d6c1d1b74'>;
+  ExecutionHashBase<'5ae2267bc49f0a8517e673260358b3405dbeba3850505984a710565b6e2d5d78'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -278,6 +278,23 @@ export type FieldOutputTypes = {
       readonly phone: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly MaintenanceReminder: {
+      readonly cycleKey: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly level: CodecTypes['pg/text@1']['output'];
+      readonly ruleId: CodecTypes['pg/text@1']['output'];
+      readonly sentAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly vehicleId: CodecTypes['pg/text@1']['output'];
+    };
+    readonly MaintenanceRule: {
+      readonly active: CodecTypes['pg/bool@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly intervalKm: CodecTypes['pg/int4@1']['output'] | null;
+      readonly intervalMonths: CodecTypes['pg/int4@1']['output'] | null;
+      readonly keywords: CodecTypes['pg/text@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+    };
     readonly Notification: {
       readonly body: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -481,6 +498,23 @@ export type FieldInputTypes = {
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly phone: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly MaintenanceReminder: {
+      readonly cycleKey: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly level: CodecTypes['pg/text@1']['input'];
+      readonly ruleId: CodecTypes['pg/text@1']['input'];
+      readonly sentAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly vehicleId: CodecTypes['pg/text@1']['input'];
+    };
+    readonly MaintenanceRule: {
+      readonly active: CodecTypes['pg/bool@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly intervalKm: CodecTypes['pg/int4@1']['input'] | null;
+      readonly intervalMonths: CodecTypes['pg/int4@1']['input'] | null;
+      readonly keywords: CodecTypes['pg/text@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
     };
     readonly Notification: {
       readonly body: CodecTypes['pg/text@1']['input'];
@@ -686,6 +720,23 @@ export type StorageColumnTypes = {
       readonly phone: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly MaintenanceReminder: {
+      readonly cycleKey: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly level: CodecTypes['pg/text@1']['output'];
+      readonly ruleId: CodecTypes['pg/text@1']['output'];
+      readonly sentAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly vehicleId: CodecTypes['pg/text@1']['output'];
+    };
+    readonly MaintenanceRule: {
+      readonly active: CodecTypes['pg/bool@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly intervalKm: CodecTypes['pg/int4@1']['output'] | null;
+      readonly intervalMonths: CodecTypes['pg/int4@1']['output'] | null;
+      readonly keywords: CodecTypes['pg/text@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+    };
     readonly Notification: {
       readonly body: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -889,6 +940,23 @@ export type StorageColumnInputTypes = {
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly phone: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly MaintenanceReminder: {
+      readonly cycleKey: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly level: CodecTypes['pg/text@1']['input'];
+      readonly ruleId: CodecTypes['pg/text@1']['input'];
+      readonly sentAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly vehicleId: CodecTypes['pg/text@1']['input'];
+    };
+    readonly MaintenanceRule: {
+      readonly active: CodecTypes['pg/bool@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly intervalKm: CodecTypes['pg/int4@1']['input'] | null;
+      readonly intervalMonths: CodecTypes['pg/int4@1']['input'] | null;
+      readonly keywords: CodecTypes['pg/text@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
     };
     readonly Notification: {
       readonly body: CodecTypes['pg/text@1']['input'];
@@ -1109,6 +1177,28 @@ export namespace Models {
     readonly [RelationKeys]?:
       'appointments' | 'assistanceRequests' | 'vehicleOwnerships' | 'vehicles' | 'workOrders';
   };
+  export type public_MaintenanceReminder = {
+    cycleKey: CodecTypes['pg/text@1']['output'];
+    id: CodecTypes['pg/text@1']['output'];
+    level: CodecTypes['pg/text@1']['output'];
+    ruleId: CodecTypes['pg/text@1']['output'];
+    sentAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    vehicleId: CodecTypes['pg/text@1']['output'];
+    rule: public_MaintenanceRule;
+    vehicle: public_Vehicle;
+    readonly [RelationKeys]?: 'rule' | 'vehicle';
+  };
+  export type public_MaintenanceRule = {
+    active: CodecTypes['pg/bool@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    id: CodecTypes['pg/text@1']['output'];
+    intervalKm: CodecTypes['pg/int4@1']['output'] | null;
+    intervalMonths: CodecTypes['pg/int4@1']['output'] | null;
+    keywords: CodecTypes['pg/text@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    reminders: public_MaintenanceReminder[];
+    readonly [RelationKeys]?: 'reminders';
+  };
   export type public_Notification = {
     body: CodecTypes['pg/text@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -1262,9 +1352,11 @@ export namespace Models {
     year: CodecTypes['pg/int4@1']['output'];
     appointments: public_Appointment[];
     customer: public_Customer;
+    maintenanceReminders: public_MaintenanceReminder[];
     ownerships: public_VehicleOwnership[];
     workOrders: public_WorkOrder[];
-    readonly [RelationKeys]?: 'appointments' | 'customer' | 'ownerships' | 'workOrders';
+    readonly [RelationKeys]?:
+      'appointments' | 'customer' | 'maintenanceReminders' | 'ownerships' | 'workOrders';
   };
   export type public_VehicleOwnership = {
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -1342,6 +1434,8 @@ export declare const models: {
     AssistanceRequest: Models.public_AssistanceRequest;
     AssistanceType: Models.public_AssistanceType;
     Customer: Models.public_Customer;
+    MaintenanceReminder: Models.public_MaintenanceReminder;
+    MaintenanceRule: Models.public_MaintenanceRule;
     Notification: Models.public_Notification;
     PartLineItem: Models.public_PartLineItem;
     PushToken: Models.public_PushToken;
@@ -1724,6 +1818,144 @@ type ContractBase = Omit<
                 readonly updatedAt: {
                   readonly dataType: 'pg/timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
+            readonly MaintenanceReminder: {
+              columns: {
+                readonly cycleKey: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly level: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly ruleId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly sentAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly vehicleId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'MaintenanceReminder_ruleId_idx_05e770f7';
+                  readonly prefix: 'MaintenanceReminder_ruleId_idx';
+                  readonly columns: readonly ['ruleId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'MaintenanceReminder_vehicleId_idx_e2df58fc';
+                  readonly prefix: 'MaintenanceReminder_vehicleId_idx';
+                  readonly columns: readonly ['vehicleId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'MaintenanceReminder';
+                    readonly columns: readonly ['vehicleId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Vehicle';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'MaintenanceReminder';
+                    readonly columns: readonly ['ruleId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'MaintenanceRule';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly MaintenanceRule: {
+              columns: {
+                readonly active: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly intervalKm: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly intervalMonths: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly keywords: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly name: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                   readonly many: false;
                 };
@@ -3159,6 +3391,14 @@ type ContractBase = Omit<
       readonly model: 'AssistanceType';
     };
     readonly Customer: { readonly namespace: 'public' & NamespaceId; readonly model: 'Customer' };
+    readonly MaintenanceReminder: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'MaintenanceReminder';
+    };
+    readonly MaintenanceRule: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'MaintenanceRule';
+    };
     readonly Notification: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Notification';
@@ -3572,6 +3812,136 @@ type ContractBase = Omit<
                 readonly notes: { readonly column: 'notes' };
                 readonly phone: { readonly column: 'phone' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly MaintenanceReminder: {
+            readonly fields: {
+              readonly cycleKey: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly level: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly ruleId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly sentAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly vehicleId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly rule: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'MaintenanceRule';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['ruleId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly vehicle: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Vehicle';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['vehicleId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'MaintenanceReminder';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly cycleKey: { readonly column: 'cycleKey' };
+                readonly id: { readonly column: 'id' };
+                readonly level: { readonly column: 'level' };
+                readonly ruleId: { readonly column: 'ruleId' };
+                readonly sentAt: { readonly column: 'sentAt' };
+                readonly vehicleId: { readonly column: 'vehicleId' };
+              };
+            };
+          };
+          readonly MaintenanceRule: {
+            readonly fields: {
+              readonly active: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly intervalKm: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly intervalMonths: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly keywords: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly reminders: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'MaintenanceReminder';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['ruleId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'MaintenanceRule';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly active: { readonly column: 'active' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly id: { readonly column: 'id' };
+                readonly intervalKm: { readonly column: 'intervalKm' };
+                readonly intervalMonths: { readonly column: 'intervalMonths' };
+                readonly keywords: { readonly column: 'keywords' };
+                readonly name: { readonly column: 'name' };
               };
             };
           };
@@ -4476,6 +4846,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
+              readonly maintenanceReminders: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'MaintenanceReminder';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['vehicleId'];
+                };
+              };
               readonly ownerships: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -5045,6 +5426,22 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'Customer';
             readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'MaintenanceReminder';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'MaintenanceRule';
+            readonly field: 'id';
             readonly namespace: 'public';
           };
         },

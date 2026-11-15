@@ -20,6 +20,14 @@
       "model": "Customer",
       "namespace": "public"
     },
+    "MaintenanceReminder": {
+      "model": "MaintenanceReminder",
+      "namespace": "public"
+    },
+    "MaintenanceRule": {
+      "model": "MaintenanceRule",
+      "namespace": "public"
+    },
     "Notification": {
       "model": "Notification",
       "namespace": "public"
@@ -713,6 +721,207 @@
               },
               "namespaceId": "public",
               "table": "Customer"
+            }
+          },
+          "MaintenanceReminder": {
+            "fields": {
+              "cycleKey": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "level": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ruleId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sentAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "vehicleId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "rule": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "ruleId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "MaintenanceRule",
+                  "namespace": "public"
+                }
+              },
+              "vehicle": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "vehicleId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Vehicle",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "cycleKey": {
+                  "column": "cycleKey"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "level": {
+                  "column": "level"
+                },
+                "ruleId": {
+                  "column": "ruleId"
+                },
+                "sentAt": {
+                  "column": "sentAt"
+                },
+                "vehicleId": {
+                  "column": "vehicleId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "MaintenanceReminder"
+            }
+          },
+          "MaintenanceRule": {
+            "fields": {
+              "active": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "intervalKm": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "intervalMonths": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "keywords": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "reminders": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "ruleId"
+                  ]
+                },
+                "to": {
+                  "model": "MaintenanceReminder",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "active": {
+                  "column": "active"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "intervalKm": {
+                  "column": "intervalKm"
+                },
+                "intervalMonths": {
+                  "column": "intervalMonths"
+                },
+                "keywords": {
+                  "column": "keywords"
+                },
+                "name": {
+                  "column": "name"
+                }
+              },
+              "namespaceId": "public",
+              "table": "MaintenanceRule"
             }
           },
           "Notification": {
@@ -2116,6 +2325,21 @@
                   "namespace": "public"
                 }
               },
+              "maintenanceReminders": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "vehicleId"
+                  ]
+                },
+                "to": {
+                  "model": "MaintenanceReminder",
+                  "namespace": "public"
+                }
+              },
               "ownerships": {
                 "cardinality": "1:N",
                 "on": {
@@ -3197,6 +3421,163 @@
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "MaintenanceReminder": {
+              "columns": {
+                "cycleKey": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "level": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "ruleId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "sentAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "vehicleId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "MaintenanceReminder_vehicleId_idx_e2df58fc"
+                  },
+                  "source": {
+                    "columns": [
+                      "vehicleId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "MaintenanceReminder"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Vehicle"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "MaintenanceReminder_ruleId_idx_05e770f7"
+                  },
+                  "source": {
+                    "columns": [
+                      "ruleId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "MaintenanceReminder"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "MaintenanceRule"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "ruleId"
+                  ],
+                  "name": "MaintenanceReminder_ruleId_idx_05e770f7",
+                  "prefix": "MaintenanceReminder_ruleId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "vehicleId"
+                  ],
+                  "name": "MaintenanceReminder_vehicleId_idx_e2df58fc",
+                  "prefix": "MaintenanceReminder_vehicleId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "MaintenanceRule": {
+              "columns": {
+                "active": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "intervalKm": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "intervalMonths": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "keywords": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
                   "nullable": false
                 }
               },
@@ -4820,10 +5201,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "9909b052a23bf5d25b60707765fa9ef36adb2d999f1f26203cacdfe6f23c8178"
+    "storageHash": "25b959e21c1fe0bd22555a840fa842f97c3164c79b01594081f37b440583ded0"
   },
   "execution": {
-    "executionHash": "9bbba9a9e181debe789afc0ed49f018240ca8920764ce0d5f81ced2d6c1d1b74",
+    "executionHash": "5ae2267bc49f0a8517e673260358b3405dbeba3850505984a710565b6e2d5d78",
     "mutations": {
       "defaults": [
         {
@@ -4912,6 +5293,28 @@
           "ref": {
             "entry": "Customer",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "MaintenanceReminder",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "MaintenanceRule",
+            "field": "id",
             "namespace": "public"
           }
         },

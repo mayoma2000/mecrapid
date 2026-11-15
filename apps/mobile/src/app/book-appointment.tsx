@@ -41,7 +41,8 @@ export default function BookAppointmentScreen() {
   const { request } = useApi()
   const queryClient = useQueryClient()
   // Con ?id=<cita> la pantalla reagenda una cita existente en lugar de crear una nueva
-  const { id: rescheduleId } = useLocalSearchParams<{ id?: string }>()
+  // Con ?service=<nombre> llega con el servicio elegido (desde un recordatorio de mantenimiento)
+  const { id: rescheduleId, service: suggestedService } = useLocalSearchParams<{ id?: string; service?: string }>()
   const isReschedule = !!rescheduleId
   const insets = useSafeAreaInsets()
   const dateScrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null)
@@ -58,6 +59,13 @@ export default function BookAppointmentScreen() {
   const [saving, setSaving] = useState(false)
 
   const DAYS = buildDays(21)
+
+  function pickService(name: string, types: ServiceType[]) {
+    const norm = (x: string) => x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
+    const match = types.find((t) => norm(t.name) === norm(name))
+    if (match) setSelectedServiceId(match.id)
+    else { setSelectedServiceId('otro'); setCustomService(name) }
+  }
 
   // Prellena el formulario con la cita a reagendar (servicio, notas, día y hora si siguen disponibles)
   function prefill(appt: Appointment, types: ServiceType[], sched: ScheduleRow[]) {
@@ -87,11 +95,14 @@ export default function BookAppointmentScreen() {
         ? request<{ data: Appointment }>(`/api/v1/me/appointments/${rescheduleId}`).then(({ data }) => data)
         : Promise.resolve(null),
     ])
-      .then(([types, sched, appt]) => { if (appt) prefill(appt, types, sched) })
+      .then(([types, sched, appt]) => {
+        if (appt) prefill(appt, types, sched)
+        else if (suggestedService) pickService(suggestedService, types)
+      })
       .catch(() => Alert.alert('Error', 'No se pudo cargar la información.'))
       .finally(() => setLoadingCatalogs(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rescheduleId])
+  }, [rescheduleId, suggestedService])
 
   function scheduleForDay(date: Date): ScheduleRow | undefined {
     return schedule.find((s) => s.dayOfWeek === date.getDay())
