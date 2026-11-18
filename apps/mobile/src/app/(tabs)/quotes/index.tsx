@@ -48,6 +48,7 @@ export default function QuotesScreen() {
           <TouchableOpacity onPress={() => router.navigate('/')} style={styles.backBtn}><Text style={styles.backBtnText}>‹</Text></TouchableOpacity>
           <Text style={styles.title}>Cotizaciones</Text>
         </View>
+        <Text style={{ fontSize: 13, color: '#8898AA', marginTop: 8 }}>Seguimiento de todas. Se crean desde cada orden de trabajo.</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 14 }}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {TABS.map((t) => (

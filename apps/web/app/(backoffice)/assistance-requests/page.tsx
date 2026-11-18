@@ -8,19 +8,21 @@ type AssistanceRequest = {
   id: string; detail: string; phone: string; status: string; createdAt: string
   customer: { name: string; email: string | null } | null
   assistanceType: { name: string } | null
+  mechanic: { name: string } | null
 }
 
+// Asistencia = atención afuera del taller
 const STATUS_LABEL: Record<string, string> = {
-  pending: 'Pendiente', active: 'Activa', completed: 'Completada', cancelled: 'Cancelada',
+  pending: 'Pendiente', en_route: 'En camino', attended: 'Atendida', cancelled: 'Cancelada',
 }
 const STATUS_COLOR: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  active: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  completed: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
+  en_route: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  attended: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   cancelled: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
 }
 
-const FILTERS = ['all', 'pending', 'active', 'completed', 'cancelled']
+const FILTERS = ['pending', 'en_route', 'attended', 'cancelled', 'all']
 
 export default function AssistanceRequestsPage() {
   const [requests, setRequests] = useState<AssistanceRequest[]>([])
@@ -64,6 +66,7 @@ export default function AssistanceRequestsPage() {
                 <th className="text-left px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Cliente</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Tipo</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Teléfono</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Mecánico</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Fecha</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Estado</th>
                 <th className="px-5 py-3" />
@@ -76,6 +79,7 @@ export default function AssistanceRequestsPage() {
                   <td className="px-5 py-3.5 font-semibold text-neutral-900 dark:text-white">{r.customer?.name ?? '—'}</td>
                   <td className="px-5 py-3.5 text-neutral-600 dark:text-neutral-400">{r.assistanceType?.name ?? '—'}</td>
                   <td className="px-5 py-3.5 text-neutral-600 dark:text-neutral-400">{r.phone}</td>
+                  <td className="px-5 py-3.5 text-neutral-600 dark:text-neutral-400">{r.mechanic?.name ?? '—'}</td>
                   <td className="px-5 py-3.5 text-neutral-500 dark:text-neutral-400 text-xs">{new Date(r.createdAt).toLocaleString('es-HN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</td>
                   <td className="px-5 py-3.5">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLOR[r.status] ?? 'bg-neutral-100 text-neutral-600'}`}>

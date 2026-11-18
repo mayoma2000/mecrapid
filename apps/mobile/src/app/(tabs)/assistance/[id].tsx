@@ -5,7 +5,8 @@ import { useLocalSearchParams, router } from 'expo-router'
 import { useApi } from '../../../lib/api'
 import { safeDate } from '../../../lib/date'
 
-type AssistanceStatus = 'pending' | 'active' | 'completed' | 'cancelled'
+// Asistencia = atención afuera del taller: Pendiente → En camino → Atendida (o Cancelada)
+type AssistanceStatus = 'pending' | 'en_route' | 'attended' | 'cancelled'
 
 interface AssistanceRequestDetail {
   id: string
@@ -19,34 +20,35 @@ interface AssistanceRequestDetail {
   customer: { id: string; name: string; email: string | null; phone: string } | null
   assistanceType: { name: string; description: string | null } | null
   vehicle: { make: string; model: string; year: number; licensePlate: string } | null
+  mechanic: { id: string; name: string } | null
 }
 
-type Action = { label: string; color: string; body: { action?: 'activate'; status?: AssistanceStatus }; destructive?: boolean }
+type Action = { label: string; color: string; body: { action?: 'attend' | 'create_order'; status?: AssistanceStatus }; destructive?: boolean; confirm?: string }
 
 const STATUS_CONFIG: Record<AssistanceStatus, { label: string; bg: string; color: string }> = {
   pending:   { label: 'Pendiente',  bg: '#FFF5EC', color: '#FB6340' },
-  active:    { label: 'Activa',     bg: '#EEF0FD', color: '#5E72E4' },
-  completed: { label: 'Completada', bg: '#E6FAF3', color: '#2DCE89' },
+  en_route:  { label: 'En camino',  bg: '#EEF0FD', color: '#5E72E4' },
+  attended:  { label: 'Atendida',   bg: '#E6FAF3', color: '#2DCE89' },
   cancelled: { label: 'Cancelada',  bg: '#F8F9FA', color: '#8898AA' },
 }
 
-// Mismas acciones que el backoffice (apps/web/app/(backoffice)/assistance-requests/[id])
+// Mismas acciones que el backoffice. "Aceptar y enviar" se hace con los chips de mecánico (arriba).
 function actionsFor(req: AssistanceRequestDetail): Action[] {
   const actions: Action[] = []
-  if (req.status === 'pending' && !req.workOrderId) {
-    actions.push({ label: 'Activar → Crear orden', color: '#5E72E4', body: { action: 'activate' } })
+  if (req.status === 'en_route') {
+    actions.push({ label: '✅ Marcar atendida', color: '#2DCE89', body: { action: 'attend' } })
   }
-  if (req.status === 'active') {
-    actions.push({ label: 'Marcar completada', color: '#2DCE89', body: { status: 'completed' } })
+  if (req.status !== 'cancelled' && !req.workOrderId) {
+    actions.push({
+      label: '🏁 Llevar al taller (crear orden)', color: '#5E72E4', body: { action: 'create_order' },
+      confirm: 'Se crea una orden de trabajo con este cliente, vehículo y problema.',
+    })
   }
-  if (req.status === 'pending' || req.status === 'active') {
+  if (req.status === 'pending' || req.status === 'en_route') {
     actions.push({ label: 'Cancelar solicitud', color: '#F5365C', body: { status: 'cancelled' }, destructive: true })
   }
   if (req.status === 'cancelled') {
     actions.push({ label: 'Reactivar (volver a pendiente)', color: '#FB6340', body: { status: 'pending' } })
-  }
-  if (req.status === 'completed') {
-    actions.push({ label: 'Reabrir solicitud', color: '#8898AA', body: { status: 'active' } })
   }
   return actions
 }
@@ -61,10 +63,18 @@ export default function AssistanceDetailScreen() {
     queryFn: () => request<{ data: AssistanceRequestDetail }>(`/api/v1/assistance-requests/${id}`),
   })
 
+  const { data: mechanics } = useQuery({
+    queryKey: ['mechanics'],
+    queryFn: () => request<{ data: { id: string; name: string }[] }>('/api/v1/mechanics'),
+    refetchInterval: false,
+  })
+
   const mutation = useMutation({
-    mutationFn: (body: Action['body']) =>
-      request(`/api/v1/assistance-requests/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
-    onSuccess: () => {
+    mutationFn: (body: Action['body'] | { action: 'accept'; mechanicId: string }) =>
+      request<{ data?: { workOrderId?: string } }>(`/api/v1/assistance-requests/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    onSuccess: (res, body) => {
+      // "Llevar al taller" abre la orden recién creada
+      if ('action' in body && body.action === 'create_order' && res.data?.workOrderId) router.push(`/(tabs)/orders/${res.data.workOrderId}`)
       void queryClient.invalidateQueries({ queryKey: ['assistance-request', id] })
       void queryClient.invalidateQueries({ queryKey: ['assistance-requests'] })
       void queryClient.invalidateQueries({ queryKey: ['assistance-pending'] })
@@ -99,7 +109,7 @@ export default function AssistanceDetailScreen() {
   const hasLocation = req.latitude != null && req.longitude != null
 
   function handleAction(a: Action) {
-    Alert.alert(a.label, '¿Confirmas esta acción?', [
+    Alert.alert(a.label, a.confirm ?? '¿Confirmas esta acción?', [
       { text: 'No', style: 'cancel' },
       { text: 'Sí', style: a.destructive ? 'destructive' : 'default', onPress: () => mutation.mutate(a.body) },
     ])
@@ -130,9 +140,11 @@ export default function AssistanceDetailScreen() {
         </View>
 
         <View style={styles.card}>
+          <Text style={styles.fieldLabel}>Mecánico</Text>
+          <Text style={[styles.fieldValue, { marginBottom: 12 }]}>{req.mechanic?.name ?? 'Sin asignar'}</Text>
           <Text style={styles.fieldLabel}>Vehículo</Text>
           <Text style={[styles.fieldValue, { marginBottom: 12 }]}>
-            {req.vehicle ? `${req.vehicle.make} ${req.vehicle.model} ${req.vehicle.year} · ${req.vehicle.licensePlate}` : 'No indicado (asignarlo en la orden)'}
+            {req.vehicle ? `${req.vehicle.make} ${req.vehicle.model} ${req.vehicle.year} · ${req.vehicle.licensePlate}` : 'No indicado'}
           </Text>
           <Text style={styles.fieldLabel}>Detalle</Text>
           <Text style={styles.fieldValue}>{req.detail}</Text>
@@ -168,6 +180,27 @@ export default function AssistanceDetailScreen() {
         )}
 
         <View style={{ gap: 10 }}>
+          {req.status === 'pending' && (
+            <View style={styles.card}>
+              <Text style={styles.fieldLabel}>¿Qué mecánico va?</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
+                {(mechanics?.data ?? []).map((m) => (
+                  <TouchableOpacity
+                    key={m.id}
+                    style={styles.mechChip}
+                    disabled={mutation.isPending}
+                    onPress={() => Alert.alert('Aceptar y enviar', `¿Enviar a ${m.name}? El cliente recibe el aviso de que van en camino.`, [
+                      { text: 'No', style: 'cancel' },
+                      { text: 'Enviar', onPress: () => mutation.mutate({ action: 'accept', mechanicId: m.id }) },
+                    ])}
+                  >
+                    <Text style={styles.mechChipText}>🚗 {m.name}</Text>
+                  </TouchableOpacity>
+                ))}
+                {(mechanics?.data.length ?? 0) === 0 && <Text style={styles.fieldValue}>No hay mecánicos activos.</Text>}
+              </View>
+            </View>
+          )}
           {actionsFor(req).map((a) => (
             <TouchableOpacity
               key={a.label}
@@ -253,6 +286,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   orderLinkTitle: { fontSize: 13, fontWeight: '700', color: '#172B4D', marginBottom: 4 },
+  mechChip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, backgroundColor: '#5E72E4' },
+  mechChipText: { color: '#fff', fontSize: 13, fontWeight: '800' },
   actionBtn: {
     borderRadius: 16,
     paddingVertical: 16,

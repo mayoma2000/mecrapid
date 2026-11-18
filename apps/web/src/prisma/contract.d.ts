@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'848a1cb0e94a45040418ddcb19077fbba122aed9d1df70cb22f967a26931f0e1'>;
+  StorageHashBase<'8eddbc3ca21f40548c2e9ac8896bf4a58abc76f6927a1136522f94cbc70f35ba'>;
 export type ExecutionHash =
   ExecutionHashBase<'92a4acbb0b4bf4f1e8ddc4a9c1ff1ff8503dfe5678ce152c1ab25edd137a867d'>;
 export type ProfileHash =
@@ -250,12 +250,15 @@ export type FieldOutputTypes = {
     };
     readonly AssistanceRequest: {
       readonly assistanceTypeId: CodecTypes['pg/text@1']['output'] | null;
+      readonly attendedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly customerId: CodecTypes['pg/text@1']['output'] | null;
       readonly detail: CodecTypes['pg/text@1']['output'];
+      readonly enRouteAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly latitude: CodecTypes['pg/float8@1']['output'] | null;
       readonly longitude: CodecTypes['pg/float8@1']['output'] | null;
+      readonly mechanicId: CodecTypes['pg/text@1']['output'] | null;
       readonly phone: CodecTypes['pg/text@1']['output'];
       readonly status: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -486,12 +489,15 @@ export type FieldInputTypes = {
     };
     readonly AssistanceRequest: {
       readonly assistanceTypeId: CodecTypes['pg/text@1']['input'] | null;
+      readonly attendedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly customerId: CodecTypes['pg/text@1']['input'] | null;
       readonly detail: CodecTypes['pg/text@1']['input'];
+      readonly enRouteAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly latitude: CodecTypes['pg/float8@1']['input'] | null;
       readonly longitude: CodecTypes['pg/float8@1']['input'] | null;
+      readonly mechanicId: CodecTypes['pg/text@1']['input'] | null;
       readonly phone: CodecTypes['pg/text@1']['input'];
       readonly status: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -722,12 +728,15 @@ export type StorageColumnTypes = {
     };
     readonly AssistanceRequest: {
       readonly assistanceTypeId: CodecTypes['pg/text@1']['output'] | null;
+      readonly attendedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly customerId: CodecTypes['pg/text@1']['output'] | null;
       readonly detail: CodecTypes['pg/text@1']['output'];
+      readonly enRouteAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly latitude: CodecTypes['pg/float8@1']['output'] | null;
       readonly longitude: CodecTypes['pg/float8@1']['output'] | null;
+      readonly mechanicId: CodecTypes['pg/text@1']['output'] | null;
       readonly phone: CodecTypes['pg/text@1']['output'];
       readonly status: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -958,12 +967,15 @@ export type StorageColumnInputTypes = {
     };
     readonly AssistanceRequest: {
       readonly assistanceTypeId: CodecTypes['pg/text@1']['input'] | null;
+      readonly attendedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly customerId: CodecTypes['pg/text@1']['input'] | null;
       readonly detail: CodecTypes['pg/text@1']['input'];
+      readonly enRouteAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly latitude: CodecTypes['pg/float8@1']['input'] | null;
       readonly longitude: CodecTypes['pg/float8@1']['input'] | null;
+      readonly mechanicId: CodecTypes['pg/text@1']['input'] | null;
       readonly phone: CodecTypes['pg/text@1']['input'];
       readonly status: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -1196,12 +1208,15 @@ export namespace Models {
   };
   export type public_AssistanceRequest = {
     assistanceTypeId: CodecTypes['pg/text@1']['output'] | null;
+    attendedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     customerId: CodecTypes['pg/text@1']['output'] | null;
     detail: CodecTypes['pg/text@1']['output'];
+    enRouteAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     id: CodecTypes['pg/text@1']['output'];
     latitude: CodecTypes['pg/float8@1']['output'] | null;
     longitude: CodecTypes['pg/float8@1']['output'] | null;
+    mechanicId: CodecTypes['pg/text@1']['output'] | null;
     phone: CodecTypes['pg/text@1']['output'];
     status: CodecTypes['pg/text@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -1209,9 +1224,10 @@ export namespace Models {
     workOrderId: CodecTypes['pg/text@1']['output'] | null;
     assistanceType: public_AssistanceType | null;
     customer: public_Customer | null;
+    mechanic: public_User | null;
     vehicle: public_Vehicle | null;
     workOrder: public_WorkOrder | null;
-    readonly [RelationKeys]?: 'assistanceType' | 'customer' | 'vehicle' | 'workOrder';
+    readonly [RelationKeys]?: 'assistanceType' | 'customer' | 'mechanic' | 'vehicle' | 'workOrder';
   };
   export type public_AssistanceType = {
     active: CodecTypes['pg/bool@1']['output'];
@@ -1404,6 +1420,7 @@ export namespace Models {
     phone: CodecTypes['pg/text@1']['output'] | null;
     role: CodecTypes['pg/text@1']['output'] | null;
     assignedOrders: public_WorkOrder[];
+    assistanceJobs: public_AssistanceRequest[];
     auditActions: public_StaffAuditLog[];
     auditTargeted: public_StaffAuditLog[];
     notifications: public_Notification[];
@@ -1415,6 +1432,7 @@ export namespace Models {
     timeLogs: public_WorkOrderTimeLog[];
     readonly [RelationKeys]?:
       | 'assignedOrders'
+      | 'assistanceJobs'
       | 'auditActions'
       | 'auditTargeted'
       | 'notifications'
@@ -1695,6 +1713,12 @@ type ContractBase = Omit<
                   readonly nullable: true;
                   readonly many: false;
                 };
+                readonly attendedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly createdAt: {
                   readonly dataType: 'pg/timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -1714,6 +1738,12 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
+                readonly enRouteAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly id: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -1729,6 +1759,12 @@ type ContractBase = Omit<
                 readonly longitude: {
                   readonly dataType: 'pg/float8';
                   readonly codecId: 'pg/float8@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly mechanicId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                   readonly many: false;
                 };
@@ -1780,6 +1816,12 @@ type ContractBase = Omit<
                   readonly name: 'AssistanceRequest_customerId_idx_b2a8a46c';
                   readonly prefix: 'AssistanceRequest_customerId_idx';
                   readonly columns: readonly ['customerId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'AssistanceRequest_mechanicId_idx_30292d1f';
+                  readonly prefix: 'AssistanceRequest_mechanicId_idx';
+                  readonly columns: readonly ['mechanicId'];
                   readonly unique: false;
                 },
                 {
@@ -1841,6 +1883,18 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Vehicle';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'AssistanceRequest';
+                    readonly columns: readonly ['mechanicId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -3807,6 +3861,13 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly attendedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -3822,6 +3883,13 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly enRouteAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -3833,6 +3901,10 @@ type ContractBase = Omit<
               readonly longitude: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+              readonly mechanicId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly phone: {
                 readonly nullable: false;
@@ -3883,6 +3955,15 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
+              readonly mechanic: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['mechanicId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly vehicle: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3913,12 +3994,15 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly assistanceTypeId: { readonly column: 'assistanceTypeId' };
+                readonly attendedAt: { readonly column: 'attendedAt' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly customerId: { readonly column: 'customerId' };
                 readonly detail: { readonly column: 'detail' };
+                readonly enRouteAt: { readonly column: 'enRouteAt' };
                 readonly id: { readonly column: 'id' };
                 readonly latitude: { readonly column: 'latitude' };
                 readonly longitude: { readonly column: 'longitude' };
+                readonly mechanicId: { readonly column: 'mechanicId' };
                 readonly phone: { readonly column: 'phone' };
                 readonly status: { readonly column: 'status' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
@@ -5067,6 +5151,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'WorkOrder';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['mechanicId'];
+                };
+              };
+              readonly assistanceJobs: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'AssistanceRequest';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {

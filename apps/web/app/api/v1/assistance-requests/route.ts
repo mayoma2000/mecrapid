@@ -12,11 +12,15 @@ export async function GET(request: NextRequest) {
 
   let base = db.orm.public.AssistanceRequest as typeof db.orm.public.AssistanceRequest
   if (status) base = base.where({ status }) as typeof base
+  // ?mine=1: las asistencias asignadas al mecánico que consulta
+  if (searchParams.get('mine') === '1') base = base.where({ mechanicId: g.session.user.id }) as typeof base
 
   const [requests, agg] = await Promise.all([
     base
       .include('customer')
       .include('assistanceType')
+      .include('vehicle')
+      .include('mechanic')
       .orderBy((r) => r.createdAt.desc())
       .limit(limit)
       .offset((page - 1) * limit)

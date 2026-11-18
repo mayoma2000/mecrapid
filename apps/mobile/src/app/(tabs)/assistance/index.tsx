@@ -6,7 +6,7 @@ import { router } from 'expo-router'
 import { useApi } from '../../../lib/api'
 import { safeDate } from '../../../lib/date'
 
-type AssistanceStatus = 'pending' | 'active' | 'completed' | 'cancelled'
+type AssistanceStatus = 'pending' | 'en_route' | 'attended' | 'cancelled'
 
 interface AssistanceRequest {
   id: string
@@ -20,16 +20,16 @@ interface AssistanceRequest {
 
 const TABS = [
   { key: 'pending',   label: 'Pendientes' },
-  { key: 'active',    label: 'Activas' },
-  { key: 'completed', label: 'Completadas' },
+  { key: 'en_route',  label: 'En camino' },
+  { key: 'attended',  label: 'Atendidas' },
   { key: 'cancelled', label: 'Canceladas' },
   { key: 'all',       label: 'Todas' },
 ]
 
 const ASSISTANCE_STATUS: Record<AssistanceStatus, { label: string; bg: string; color: string }> = {
   pending:   { label: 'Pendiente',  bg: '#FFF5EC', color: '#FB6340' },
-  active:    { label: 'Activa',     bg: '#EEF0FD', color: '#5E72E4' },
-  completed: { label: 'Completada', bg: '#E6FAF3', color: '#2DCE89' },
+  en_route:  { label: 'En camino',  bg: '#EEF0FD', color: '#5E72E4' },
+  attended:  { label: 'Atendida',   bg: '#E6FAF3', color: '#2DCE89' },
   cancelled: { label: 'Cancelada',  bg: '#F8F9FA', color: '#8898AA' },
 }
 

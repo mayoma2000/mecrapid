@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, StyleSheet } from 'react-native'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, StyleSheet, Alert, Linking } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useApi } from '../../../lib/api'
@@ -18,6 +18,13 @@ type Job = {
   runningSince: string | null
 }
 type Column = { mechanic: { id: string; name: string; active: boolean }; working: boolean; orders: Job[] }
+type FieldJob = {
+  id: string; detail: string; phone: string; latitude: number | null; longitude: number | null
+  customer: { name: string } | null
+  assistanceType: { name: string } | null
+  vehicle: { make: string; model: string; licensePlate: string } | null
+  mechanic: { name: string } | null
+}
 type Board = { columns: Column[]; unassigned: Job[]; serverTime: string }
 
 const STATUS: Record<string, { label: string; bg: string; color: string }> = {
@@ -45,6 +52,22 @@ export default function JobBoardScreen() {
 
   const myColumn = board?.columns.find((c) => c.mechanic.id === session?.user.id)
 
+  // Asistencias en la calle: el mecánico ve las suyas; el admin, todas las que van en camino
+  const queryClient = useQueryClient()
+  const { data: field } = useQuery({
+    queryKey: ['field-assistance', isMechanic],
+    queryFn: () => request<{ data: FieldJob[] }>(`/api/v1/assistance-requests?status=en_route&limit=50${isMechanic ? '&mine=1' : ''}`),
+  })
+  const attend = useMutation({
+    mutationFn: (id: string) => request(`/api/v1/assistance-requests/${id}`, { method: 'PATCH', body: JSON.stringify({ action: 'attend' }) }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['field-assistance'] })
+      void queryClient.invalidateQueries({ queryKey: ['assistance-requests'] })
+    },
+    onError: (e) => Alert.alert('Error', e instanceof Error ? e.message : 'No se pudo marcar atendida.'),
+  })
+  const fieldJobs = field?.data ?? []
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
@@ -68,6 +91,44 @@ export default function JobBoardScreen() {
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch() }} tintColor="#5E72E4" />}
         >
+          {fieldJobs.length > 0 && (
+            <>
+              <Text style={styles.sectionTitle}>🆘 Asistencias en camino</Text>
+              {fieldJobs.map((a) => (
+                <View key={a.id} style={[styles.card, { borderColor: '#5E72E4' }]}>
+                  <TouchableOpacity onPress={() => router.push(`/(tabs)/assistance/${a.id}`)}>
+                    <Text style={styles.cardTitle}>{a.assistanceType?.name ?? 'Asistencia'} · {a.customer?.name ?? '—'}</Text>
+                    <Text style={styles.cardSub}>
+                      {a.vehicle ? `${a.vehicle.make} ${a.vehicle.model} · ${a.vehicle.licensePlate}` : 'Vehículo no indicado'}
+                      {!isMechanic && a.mechanic ? ` · ${a.mechanic.name}` : ''}
+                    </Text>
+                    <Text style={styles.complaint} numberOfLines={2}>{a.detail}</Text>
+                  </TouchableOpacity>
+                  <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+                    {a.latitude != null && a.longitude != null && (
+                      <TouchableOpacity style={styles.fieldBtn} onPress={() => { void Linking.openURL(`https://maps.google.com/?q=${a.latitude},${a.longitude}`) }}>
+                        <Text style={styles.fieldBtnText}>📍 Ubicación</Text>
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity style={styles.fieldBtn} onPress={() => { void Linking.openURL(`tel:${a.phone}`) }}>
+                      <Text style={styles.fieldBtnText}>📞 Llamar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.fieldBtn, { backgroundColor: '#2DCE89', borderColor: '#2DCE89' }]}
+                      disabled={attend.isPending}
+                      onPress={() => Alert.alert('Marcar atendida', '¿Ya se resolvió en el lugar?', [
+                        { text: 'No', style: 'cancel' },
+                        { text: 'Sí, atendida', onPress: () => attend.mutate(a.id) },
+                      ])}
+                    >
+                      <Text style={[styles.fieldBtnText, { color: '#fff' }]}>✅ Atendida</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </>
+          )}
+
           {isMechanic ? (
             <>
               {(myColumn?.orders.length ?? 0) === 0 && (
@@ -207,6 +268,8 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 5,
   },
+  fieldBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', borderWidth: 1.5, borderColor: '#E9ECEF', backgroundColor: '#fff' },
+  fieldBtnText: { fontSize: 13, fontWeight: '800', color: '#172B4D' },
   cardRunning: { borderColor: '#2DCE89' },
   cardTitle: { fontSize: 15, fontWeight: '800', color: '#172B4D' },
   cardSub: { fontSize: 12, color: '#8898AA', marginTop: 2 },
