@@ -67,12 +67,12 @@ async function activeAdminCount(): Promise<number> {
 }
 
 // Registra el cambio y avisa a los demás administradores (no al que lo hizo)
-async function record(actor: { id: string; name: string }, targetId: string, action: AuditAction, detail: string) {
+async function record(actor: { id: string; name: string }, targetId: string, action: AuditAction, detail: string, title = '👤 Cambio en el personal del taller') {
   await db.orm.public.StaffAuditLog.create({ actorId: actor.id, targetId, action, detail })
   const admins = await db.orm.public.User.where((u) => u.role.eq('admin')).all()
   await notifyUsers(admins.filter((a) => !a.banned && a.id !== actor.id).map((a) => a.id), {
     type: `staff_${action}`,
-    title: '👤 Cambio en el personal del taller',
+    title,
     body: `${actor.name}: ${detail}`,
   }).catch((err) => console.error('[staff] aviso', err))
 }
@@ -167,4 +167,9 @@ export async function updateStaff(
 // Para los endpoints de /mechanics (app): mismo registro de cambios
 export async function recordMechanicChange(actor: { id: string; name: string }, targetId: string, action: AuditAction, detail: string) {
   await record(actor, targetId, action, detail)
+}
+
+// Cuentas de clientes en la app: mismo registro de cambios, aviso con su propio título
+export async function recordClientAccountChange(actor: { id: string; name: string }, targetId: string, action: AuditAction, detail: string) {
+  await record(actor, targetId, action, detail, '👤 Cambio en una cuenta de cliente')
 }

@@ -41,6 +41,9 @@ export default function TeamPage() {
   const [pending, setPending] = useState<Pending | null>(null)
   const [confirmPw, setConfirmPw] = useState('')
   const [busy, setBusy] = useState(false)
+  // Edición en la misma fila: nombre y teléfono
+  const [editing, setEditing] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ name: '', phone: '' })
 
   useEffect(() => { void fetchTeam().then(setData) }, [version])
   const reload = (msg?: string) => { setVersion((v) => v + 1); if (msg) setNotice(msg) }
@@ -122,6 +125,15 @@ export default function TeamPage() {
     })
   }
 
+  async function saveEdit(u: Staff) {
+    setBusy(true); setError(''); setNotice('')
+    const err = await send(`/api/v1/staff/${u.id}`, 'PATCH', { name: editForm.name, phone: editForm.phone })
+    setBusy(false)
+    if (err) { setError(err); return }
+    setEditing(null)
+    reload(`Datos de ${editForm.name} actualizados.`)
+  }
+
   const admins = data?.staff.filter((s) => s.role === 'admin' && s.active).length ?? 0
 
   return (
@@ -191,8 +203,18 @@ export default function TeamPage() {
                 return (
                   <tr key={u.id} className={`border-b border-neutral-100 dark:border-neutral-800 last:border-0 ${u.active ? '' : 'opacity-50'}`}>
                     <td className="px-5 py-3">
-                      <p className="font-semibold text-neutral-900 dark:text-white">{u.name}{me && <span className="ml-1.5 text-xs font-normal text-neutral-400">(vos)</span>}</p>
-                      <p className="text-xs text-neutral-500">{u.email}{u.phone ? ` · ${u.phone}` : ''}</p>
+                      {editing === u.id ? (
+                        <div className="flex flex-col gap-2 max-w-xs">
+                          <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} placeholder="Nombre" className={input} />
+                          <input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} placeholder="Teléfono" className={input} />
+                          <p className="text-xs text-neutral-500">{u.email}</p>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="font-semibold text-neutral-900 dark:text-white">{u.name}{me && <span className="ml-1.5 text-xs font-normal text-neutral-400">(vos)</span>}</p>
+                          <p className="text-xs text-neutral-500">{u.email}{u.phone ? ` · ${u.phone}` : ''}</p>
+                        </>
+                      )}
                     </td>
                     <td className="px-3 py-3"><span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${ROLE[u.role].cls}`}>{ROLE[u.role].label}</span></td>
                     <td className="px-3 py-3 text-xs">
@@ -201,6 +223,14 @@ export default function TeamPage() {
                     </td>
                     <td className="px-3 py-3 text-xs text-neutral-500">{u.lastSeenAt ? when(u.lastSeenAt) : 'Nunca'}</td>
                     <td className="px-5 py-3 text-right whitespace-nowrap space-x-3 text-xs font-semibold">
+                      {editing === u.id ? (
+                        <>
+                          <button disabled={busy || editForm.name.trim().length < 3} onClick={() => void saveEdit(u)} className="text-blue-600 hover:underline disabled:opacity-40">Guardar</button>
+                          <button onClick={() => setEditing(null)} className="text-neutral-500 hover:underline">Cancelar</button>
+                        </>
+                      ) : (
+                      <>
+                      <button onClick={() => { setEditing(u.id); setEditForm({ name: u.name, phone: u.phone ?? '' }) }} className="text-blue-600 hover:underline">Editar</button>
                       {!me && (
                         <button
                           onClick={() => changeRole(u)}
@@ -221,6 +251,8 @@ export default function TeamPage() {
                         >
                           {u.active ? 'Desactivar' : 'Activar'}
                         </button>
+                      )}
+                      </>
                       )}
                     </td>
                   </tr>

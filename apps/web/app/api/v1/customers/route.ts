@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
+import { appAccountsByEmail } from '@/src/lib/accounts'
 
 export async function GET(request: NextRequest) {
   const g = await requireRole(STAFF_ROLES)
@@ -20,7 +21,14 @@ export async function GET(request: NextRequest) {
     base.aggregate((a) => ({ count: a.count() })),
   ])
 
-  return Response.json({ data: customers, meta: { total: agg.count, page, limit } })
+  // ¿Tiene cuenta en la app? (mismo correo)
+  const accounts = await appAccountsByEmail(customers.map((c) => c.email))
+  const data = customers.map((c) => {
+    const acc = c.email ? accounts.get(c.email.toLowerCase()) : undefined
+    return { ...c, appAccount: acc ? { active: acc.active, role: acc.role } : null }
+  })
+
+  return Response.json({ data, meta: { total: agg.count, page, limit } })
 }
 
 export async function POST(request: NextRequest) {

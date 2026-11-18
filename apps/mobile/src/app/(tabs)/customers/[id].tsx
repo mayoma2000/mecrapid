@@ -12,6 +12,7 @@ interface CustomerDetail {
   email: string | null
   address: string | null
   notes: string | null
+  appAccount: { active: boolean; role: string; lastSeenAt: string | null } | null
   vehicles: {
     id: string
     make: string
@@ -121,6 +122,21 @@ export default function CustomerDetailScreen() {
               <InfoRow icon="📝" label="Notas" value={customer.notes} multiline />
             </>
           )}
+        </View>
+
+        {/* Cuenta en la app (se gestiona desde el backoffice web) */}
+        <View style={[styles.card, { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }]}>
+          <Text style={{ fontSize: 22 }}>📱</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#172B4D' }}>
+              {customer.appAccount ? (customer.appAccount.active ? 'Tiene cuenta en la app' : 'Cuenta de la app desactivada') : 'Sin cuenta en la app'}
+            </Text>
+            <Text style={{ fontSize: 12, color: '#8898AA', marginTop: 2 }}>
+              {customer.appAccount
+                ? 'Ve sus vehículos, órdenes y cotizaciones con su correo.'
+                : customer.email ? `Cuando se registre con ${customer.email}, verá su historial.` : 'Agregale un correo para que pueda registrarse.'}
+            </Text>
+          </View>
         </View>
 
         {/* Vehicles */}

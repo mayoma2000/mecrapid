@@ -16,6 +16,8 @@ export default function MechanicsScreen() {
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' })
   const [pwFor, setPwFor] = useState<string | null>(null)
   const [newPw, setNewPw] = useState('')
+  const [editFor, setEditFor] = useState<string | null>(null)
+  const [edit, setEdit] = useState({ name: '', phone: '' })
 
   const { data, isLoading } = useQuery({
     queryKey: ['mechanics', 'all'],
@@ -41,6 +43,7 @@ export default function MechanicsScreen() {
       request(`/api/v1/mechanics/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     onSuccess: (_d, v) => {
       if (v.body['password']) { Alert.alert('Listo', 'Contraseña actualizada.'); setPwFor(null); setNewPw('') }
+      if (v.body['name'] !== undefined) setEditFor(null)
       refresh()
     },
     onError,
@@ -86,7 +89,22 @@ export default function MechanicsScreen() {
                   </View>
                   <Switch value={m.active} onValueChange={() => toggle(m)} />
                 </View>
-                {pwFor === m.id ? (
+                {editFor === m.id ? (
+                  <View style={{ marginTop: 10 }}>
+                    <Field label="Nombre" value={edit.name} onChange={(v) => setEdit({ ...edit, name: v })} caps="words" flex={false} />
+                    <Field label="Teléfono" value={edit.phone} onChange={(v) => setEdit({ ...edit, phone: v })} keyboard="phone-pad" flex={false} />
+                    <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
+                      <TextButton
+                        label={update.isPending ? 'Guardando…' : 'Guardar'}
+                        onPress={() => {
+                          if (edit.name.trim().length < 3) { Alert.alert('Falta el nombre', 'Escribí el nombre completo.'); return }
+                          update.mutate({ id: m.id, body: { name: edit.name.trim(), phone: edit.phone.trim() } })
+                        }}
+                      />
+                      <TextButton label="Cancelar" color="#8898AA" onPress={() => setEditFor(null)} />
+                    </View>
+                  </View>
+                ) : pwFor === m.id ? (
                   <View style={{ marginTop: 10 }}>
                     <Field label="Nueva contraseña (mín. 8)" value={newPw} onChange={setNewPw} caps="none" flex={false} />
                     <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
@@ -95,9 +113,14 @@ export default function MechanicsScreen() {
                     </View>
                   </View>
                 ) : (
-                  <TouchableOpacity onPress={() => { setPwFor(m.id); setNewPw('') }} style={{ marginTop: 8 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#5E72E4' }}>Cambiar contraseña</Text>
-                  </TouchableOpacity>
+                  <View style={{ flexDirection: 'row', gap: 18, marginTop: 8 }}>
+                    <TouchableOpacity onPress={() => { setEditFor(m.id); setEdit({ name: m.name, phone: m.phone ?? '' }) }}>
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#5E72E4' }}>Editar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => { setPwFor(m.id); setNewPw('') }}>
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#5E72E4' }}>Cambiar contraseña</Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
               </View>
             ))}

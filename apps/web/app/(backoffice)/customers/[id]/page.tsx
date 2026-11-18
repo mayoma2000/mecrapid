@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { AppAccountCard, type AppAccount } from './app-account'
 
 type Vehicle = { id: string; make: string; model: string; year: number; licensePlate: string }
-type Customer = { id: string; name: string; phone: string; email: string | null; address: string | null; notes: string | null; vehicles: Vehicle[] }
+type Customer = { id: string; name: string; phone: string; email: string | null; address: string | null; notes: string | null; vehicles: Vehicle[]; appAccount: AppAccount | null }
 
 export default function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -15,6 +16,7 @@ export default function CustomerDetailPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [version, setVersion] = useState(0)
 
   useEffect(() => {
     void fetch(`/api/v1/customers/${id}`)
@@ -23,7 +25,7 @@ export default function CustomerDetailPage() {
         setCustomer(data)
         setForm({ name: data.name, phone: data.phone, email: data.email ?? '', address: data.address ?? '', notes: data.notes ?? '' })
       })
-  }, [id])
+  }, [id, version])
 
   function set(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -72,6 +74,11 @@ export default function CustomerDetailPage() {
         <Field label="Nombre *" value={form.name} onChange={(v) => set('name', v)} required />
         <Field label="Teléfono *" value={form.phone} onChange={(v) => set('phone', v)} required />
         <Field label="Correo" value={form.email} onChange={(v) => set('email', v)} type="email" />
+        {customer.appAccount && form.email.trim().toLowerCase() !== (customer.email ?? '').toLowerCase() && (
+          <p className="text-xs text-orange-700 dark:text-orange-400 -mt-2">
+            Ojo: este cliente entra a la app con {customer.email}. Si cambiás el correo aquí, su cuenta deja de ver esta ficha y su historial.
+          </p>
+        )}
         <Field label="Dirección" value={form.address} onChange={(v) => set('address', v)} />
         <Field label="Notas" value={form.notes} onChange={(v) => set('notes', v)} textarea />
 
@@ -87,6 +94,8 @@ export default function CustomerDetailPage() {
           </button>
         </div>
       </form>
+
+      <AppAccountCard customerId={customer.id} email={customer.email} account={customer.appAccount} onChange={() => setVersion((v) => v + 1)} />
 
       {/* Vehicles section */}
       <div className="space-y-3">

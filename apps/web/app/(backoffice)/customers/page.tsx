@@ -9,6 +9,7 @@ type Customer = {
   name: string
   phone: string
   email: string | null
+  appAccount: { active: boolean; role: string } | null
   address: string | null
   notes: string | null
 }
@@ -75,6 +76,7 @@ export default function CustomersPage() {
                 <th className="text-left px-4 py-3 font-medium text-neutral-500 dark:text-neutral-400">Nombre</th>
                 <th className="text-left px-4 py-3 font-medium text-neutral-500 dark:text-neutral-400">Teléfono</th>
                 <th className="hidden sm:table-cell text-left px-4 py-3 font-medium text-neutral-500 dark:text-neutral-400">Correo</th>
+                <th className="text-left px-4 py-3 font-medium text-neutral-500 dark:text-neutral-400">App</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -88,6 +90,15 @@ export default function CustomersPage() {
                   <td className="px-4 py-3 font-medium text-neutral-900 dark:text-white">{c.name}</td>
                   <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{c.phone}</td>
                   <td className="hidden sm:table-cell px-4 py-3 text-neutral-500 dark:text-neutral-400">{c.email ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    {c.appAccount ? (
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${c.appAccount.active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'}`}>
+                        {c.appAccount.active ? '📱 Con cuenta' : 'Desactivada'}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-neutral-400">Sin cuenta</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => void handleDelete(c.id, c.name)}

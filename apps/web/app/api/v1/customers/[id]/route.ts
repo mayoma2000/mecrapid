@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
+import { appAccountsByEmail } from '@/src/lib/accounts'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -15,7 +16,8 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
     .first()
 
   if (!customer) return Response.json({ error: 'Not found' }, { status: 404 })
-  return Response.json({ data: customer })
+  const appAccount = customer.email ? (await appAccountsByEmail([customer.email])).get(customer.email.toLowerCase()) ?? null : null
+  return Response.json({ data: { ...customer, appAccount } })
 }
 
 export async function PATCH(request: NextRequest, ctx: Ctx) {
