@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet, Image } from 'react-native'
+import { router } from 'expo-router'
 import { signIn } from '../../lib/auth-client'
 
 const logo = require('../../../assets/logo.jpg') as number
@@ -104,6 +105,12 @@ export default function SignInScreen() {
             ) : (
               <Text style={styles.buttonText}>Ingresar</Text>
             )}
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.replace('/(auth)/sign-up')} style={{ alignItems: 'center', paddingVertical: 12 }}>
+            <Text style={{ fontSize: 14, color: '#8898AA' }}>
+              ¿No tenés cuenta? <Text style={{ color: '#5E72E4', fontWeight: '800' }}>Registrate</Text>
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
