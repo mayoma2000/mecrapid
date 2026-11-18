@@ -1,10 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Ionicons } from '@expo/vector-icons'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, Pressable, Image, RefreshControl } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useApi } from '../../lib/api'
 import { safeDate } from '../../lib/date'
 import { statusColor, statusLabel } from '../../lib/status'
+import { AddVehicleModal } from '../../components/VehiclePicker'
 import { unregisterPushToken } from '../../lib/push'
 import { QUOTE_STATUS, money, type Quote } from '../../lib/quotes'
 import { useSession, signOut } from '../../lib/auth-client'
@@ -20,8 +22,15 @@ interface KPICardProps {
   onPress?: () => void
 }
 
-// En el inicio se muestran solo las más recientes; el resto en "Ver todas"
-const HOME_LIMIT = 5
+// Saludo según la hora del teléfono
+function greeting(hour: number): string {
+  if (hour >= 5 && hour < 12) return 'Buenos días'
+  if (hour >= 12 && hour < 19) return 'Buenas tardes'
+  return 'Buenas noches'
+}
+
+// En el inicio se muestran solo las 3 más recientes; el resto en "Ver todas"
+const HOME_LIMIT = 3
 
 function KPICard({ label, value, icon, color, onPress }: KPICardProps) {
   return (
@@ -79,6 +88,7 @@ export default function DashboardScreen() {
   const { request } = useApi()
   const insets = useSafeAreaInsets()
   const [adminVisible, setAdminVisible] = useState(false)
+  const [addingVehicle, setAddingVehicle] = useState(false)
   const [activeTab, setActiveTab] = useState<'solicitudes' | 'ordenes' | 'citas'>('solicitudes')
   const today = new Date().toISOString().split('T')[0]!
   const role = (session?.user as { role?: string })?.role ?? 'user'
@@ -192,10 +202,11 @@ export default function DashboardScreen() {
         {/* Page title */}
         <View style={[styles.pageHeader, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
           <View>
-            <Text style={styles.pageTitle}>Tablero</Text>
+            <Text style={styles.pageTitle}>MecRapid</Text>
             <Text style={styles.pageDate}>
               {new Date().toLocaleDateString('es-HN', { weekday: 'long', day: 'numeric', month: 'long' })}
             </Text>
+            <Text style={styles.greeting}>{greeting(new Date().getHours())}, {userName.split(' ')[0]} 👋</Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/notifications')} style={styles.bellBtn}>
             <Text style={{ fontSize: 20 }}>🔔</Text>
@@ -335,6 +346,19 @@ export default function DashboardScreen() {
             {/* Mi Actividad — sección tabulada */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Mi Actividad</Text>
+
+              {/* Sin vehículos (recién registrado): invitarlo a agregar su carro */}
+              {myVehicles && myVehicles.data.length === 0 && (
+                <TouchableOpacity style={styles.addVehicleCard} onPress={() => setAddingVehicle(true)}>
+                  <Text style={{ fontSize: 30 }}>🚗</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.addVehicleTitle}>Agregá tu vehículo</Text>
+                    <Text style={styles.addVehicleSub}>Lo vas a necesitar para agendar citas y pedir asistencia más rápido.</Text>
+                  </View>
+                  <Text style={{ fontSize: 26, color: '#5E72E4' }}>+</Text>
+                </TouchableOpacity>
+              )}
+              <AddVehicleModal visible={addingVehicle} onClose={() => setAddingVehicle(false)} onCreated={() => setAddingVehicle(false)} />
 
               {/* Mis vehículos: cada uno abre su historial de servicios */}
               {(myVehicles?.data.length ?? 0) > 0 && (
@@ -534,15 +558,14 @@ export default function DashboardScreen() {
         )}
       </ScrollView>
 
-      {/* Bottom bar: Tablero | Logo | Admin */}
+      {/* Barra inferior: Inicio | Logo | Admin (solo íconos) */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 8) + 8 }]}>
 
-        {/* Izquierda: Tablero tab */}
-        <View style={styles.tabItem}>
+        {/* Izquierda: Inicio */}
+        <View style={styles.tabItem} accessibilityLabel="Inicio">
           <View style={styles.tabIconBox}>
-            <Text style={{ fontSize: 22 }}>📊</Text>
+            <Ionicons name="home" size={24} color="#5E72E4" />
           </View>
-          <Text style={styles.tabLabel}>Tablero</Text>
         </View>
 
         {/* Centro: Logo elevado */}
@@ -553,11 +576,10 @@ export default function DashboardScreen() {
         </View>
 
         {/* Derecha: Admin */}
-        <TouchableOpacity onPress={() => setAdminVisible(true)} style={styles.tabItem}>
+        <TouchableOpacity onPress={() => setAdminVisible(true)} style={styles.tabItem} accessibilityLabel="Mi cuenta">
           <View style={styles.adminIconBox}>
-            <Text style={{ fontSize: 22 }}>⚙️</Text>
+            <Ionicons name="settings-outline" size={25} color="#525F7F" />
           </View>
-          <Text style={styles.adminText}>Admin</Text>
         </TouchableOpacity>
       </View>
 
@@ -596,6 +618,14 @@ export default function DashboardScreen() {
             <InfoRow icon="🔑" label="Rol" value={role === 'admin' ? 'Administrador' : role === 'mecanico' ? 'Mecánico' : 'Cliente'} />
             <InfoRow icon="🆔" label="ID" value={session?.user.id?.slice(0, 8).toUpperCase() ?? '—'} last />
           </View>
+
+          {/* Editar perfil */}
+          <TouchableOpacity
+            style={styles.editProfileBtn}
+            onPress={() => { setAdminVisible(false); setTimeout(() => router.push('/profile'), 250) }}
+          >
+            <Text style={styles.editProfileText}>✏️  Editar mi perfil</Text>
+          </TouchableOpacity>
 
           {/* Cerrar sesión */}
           <TouchableOpacity style={styles.signOutBtnFull} onPress={handleSignOut}>
@@ -647,6 +677,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '800',
     color: '#172B4D',
+  },
+  greeting: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#525F7F',
+    marginTop: 6,
   },
   pageDate: {
     fontSize: 13,
@@ -763,32 +799,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 3,
   },
+  // Ícono activo (Inicio): relleno violeta sobre fondo suave
   tabIconBox: {
-    width: 44,
+    width: 52,
     height: 44,
-    borderRadius: 14,
+    borderRadius: 16,
     backgroundColor: '#EEF0FD',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#5E72E4',
-  },
+
+  // Ícono inactivo (Configuración): solo el trazo, sin fondo
   adminIconBox: {
-    width: 44,
+    width: 52,
     height: 44,
-    borderRadius: 14,
-    backgroundColor: '#EEF0FD',
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  adminText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#5E72E4',
-  },
+
   /* logo central elevado */
   centerLogoWrap: {
     alignItems: 'center',
@@ -870,6 +899,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 20,
   },
+  editProfileBtn: {
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    backgroundColor: '#EEF0FD',
+    marginBottom: 10,
+  },
+  editProfileText: { fontSize: 15, fontWeight: '800', color: '#5E72E4' },
   signOutBtnFull: {
     backgroundColor: '#FFF0F0',
     borderRadius: 16,
@@ -904,6 +941,20 @@ const styles = StyleSheet.create({
   ctaSub: { fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
 
   /* ── Tab activity section ── */
+  addVehicleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#EEF0FD',
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: '#5E72E4',
+    borderStyle: 'dashed',
+  },
+  addVehicleTitle: { fontSize: 15, fontWeight: '800', color: '#172B4D' },
+  addVehicleSub: { fontSize: 12, color: '#525F7F', marginTop: 2, lineHeight: 17 },
   vehicleChip: {
     flexDirection: 'row',
     alignItems: 'center',

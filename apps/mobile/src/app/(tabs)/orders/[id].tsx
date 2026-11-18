@@ -109,6 +109,7 @@ export default function OrderDetailScreen() {
       void queryClient.invalidateQueries({ queryKey: ['work-order', id] })
       void queryClient.invalidateQueries({ queryKey: ['work-orders'] })
     },
+    onError: (e) => Alert.alert('No se pudo cambiar el estado', e instanceof Error ? e.message : 'Intentá de nuevo.'),
   })
 
   const order = data?.data
@@ -185,6 +186,15 @@ export default function OrderDetailScreen() {
             </TouchableOpacity>
           ) : null
         })()}
+
+        {/* Sin vehículo (p. ej. nació de un SOS): hay que asignarlo antes de terminar la orden */}
+        {!order.vehicle && order.status !== 'cancelled' && (
+          <AssignVehicle
+            customer={order.customer}
+            onAssign={(vehicleId) => patch.mutate({ vehicleId })}
+            saving={patch.isPending}
+          />
+        )}
 
         {/* Trabajo en taller: mecánico, kilometraje y cronómetro */}
         <View style={styles.card}>
@@ -560,6 +570,39 @@ function QuotesSection({ orderId, closed }: { orderId: string; closed: boolean }
           </TouchableOpacity>
         ))
       )}
+    </View>
+  )
+}
+
+// Elegir el vehículo de la orden entre los del cliente (o registrar uno nuevo)
+function AssignVehicle({ customer, onAssign, saving }: {
+  customer: { id: string; name: string }
+  onAssign: (vehicleId: string) => void
+  saving: boolean
+}) {
+  const { request } = useApi()
+  const { data } = useQuery({
+    queryKey: ['customer-vehicles', customer.id],
+    queryFn: () => request<{ data: { id: string; make: string; model: string; year: number; licensePlate: string }[] }>(`/api/v1/vehicles?customerId=${customer.id}&limit=50`),
+  })
+  const vehicles = data?.data ?? []
+  return (
+    <View style={[styles.card, { backgroundColor: '#FFF5EC', borderWidth: 1.5, borderColor: '#FB6340' }]}>
+      <Text style={{ fontSize: 15, fontWeight: '800', color: '#172B4D' }}>⚠️ Esta orden no tiene vehículo</Text>
+      <Text style={{ fontSize: 13, color: '#525F7F', marginTop: 4, marginBottom: 12 }}>Asignalo para poder terminarla: el historial y los recordatorios dependen del carro.</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {vehicles.map((v) => (
+          <TouchableOpacity key={v.id} style={styles.chip} disabled={saving} onPress={() => onAssign(v.id)}>
+            <Text style={styles.chipText}>{v.make} {v.model} · {v.licensePlate}</Text>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity
+          style={[styles.chip, { borderStyle: 'dashed', borderColor: '#5E72E4' }]}
+          onPress={() => router.push(`/(tabs)/customers/vehicle/new?customerId=${customer.id}&name=${encodeURIComponent(customer.name)}`)}
+        >
+          <Text style={[styles.chipText, { color: '#5E72E4' }]}>+ Registrar vehículo</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }

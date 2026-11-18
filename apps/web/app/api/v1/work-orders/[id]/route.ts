@@ -45,7 +45,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
 
   const body = await request.json()
-  const { status, mechanicId, diagnosis, estimatedCost, actualCost, notes, mileageIn } = body
+  const { status, mechanicId, diagnosis, estimatedCost, actualCost, notes, mileageIn, vehicleId } = body
 
   if (status && status !== existing.status) {
     const allowed = STATUS_TRANSITIONS[existing.status as WorkOrderStatus] ?? []
@@ -58,6 +58,21 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   }
 
   const updates: Record<string, unknown> = {}
+
+  // Vehículo: tiene que ser uno del cliente de la orden
+  if (vehicleId !== undefined) {
+    if (!vehicleId) return Response.json({ error: 'Elegí un vehículo' }, { status: 400 })
+    const vehicle = await db.orm.public.Vehicle.first({ id: String(vehicleId) })
+    if (!vehicle || vehicle.customerId !== existing.customerId) {
+      return Response.json({ error: 'Ese vehículo no es del cliente de la orden' }, { status: 400 })
+    }
+    updates['vehicleId'] = vehicle.id
+  }
+
+  // Sin vehículo no se termina: el historial, el km y los recordatorios dependen del carro
+  if ((status === 'quality_check' || status === 'completed') && !existing.vehicleId && !updates['vehicleId']) {
+    return Response.json({ error: 'Asigná el vehículo a la orden antes de terminarla' }, { status: 422 })
+  }
 
   // Asignar mecánico: el admin asigna a cualquiera; un mecánico solo puede tomar
   // una orden libre para sí mismo

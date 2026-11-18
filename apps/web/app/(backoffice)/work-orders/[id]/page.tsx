@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { WorkPanel, type WorkInfo } from './work-panel'
 import { QuotesPanel } from './quotes-panel'
+import { AssignVehicle } from './assign-vehicle'
 import { money } from '@/src/lib/quote-labels'
 import { useRefreshTick } from '@/src/lib/refresh'
 import { waMessages, whatsappLink } from '@/src/lib/whatsapp'
@@ -50,6 +51,7 @@ export default function WorkOrderDetailPage() {
   const [saving, setSaving] = useState(false)
   const [fetchedAt, setFetchedAt] = useState(() => new Date().toISOString())
   const tick = useRefreshTick()
+  const [statusError, setStatusError] = useState('')
 
   function load(initial = false) {
     return fetch(`/api/v1/work-orders/${id}`)
@@ -82,7 +84,8 @@ export default function WorkOrderDetailPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),
     })
-    if (res.ok) await load()
+    if (res.ok) { setStatusError(''); await load() }
+    else setStatusError(((await res.json().catch(() => ({}))) as { error?: string }).error ?? 'No se pudo cambiar el estado')
     setUpdating(false)
   }
 
@@ -146,6 +149,10 @@ export default function WorkOrderDetailPage() {
         })()}
       </div>
 
+      {!order.vehicle && order.status !== 'cancelled' && (
+        <AssignVehicle orderId={order.id} customerId={order.customer.id} onAssigned={() => void load()} />
+      )}
+
       <WorkPanel order={order} fetchedAt={fetchedAt} onChange={() => void load()} />
 
       {/* Problem */}
@@ -174,6 +181,7 @@ export default function WorkOrderDetailPage() {
       {nextStates.length > 0 && (
         <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-5 space-y-3">
           <h2 className="font-semibold text-neutral-700 dark:text-neutral-300 text-sm uppercase tracking-wide">Cambiar estado</h2>
+          {statusError && <p className="text-sm text-red-600">{statusError}</p>}
           <div className="flex gap-2 flex-wrap">
             {nextStates.map((s) => (
               <button

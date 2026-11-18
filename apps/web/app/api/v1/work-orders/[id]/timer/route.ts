@@ -76,6 +76,9 @@ export async function POST(request: NextRequest, ctx: Ctx) {
     if (order.status !== 'in_progress') {
       return Response.json({ error: 'Solo se puede terminar una orden en proceso' }, { status: 422 })
     }
+    if (!order.vehicleId) {
+      return Response.json({ error: 'Asigná el vehículo a la orden antes de terminarla' }, { status: 422 })
+    }
     await closeOpenLogs()
     await db.orm.public.WorkOrder.where({ id }).update({ status: 'quality_check' })
   }

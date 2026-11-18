@@ -5,6 +5,12 @@ export async function customerForEmail(email: string) {
   return db.orm.public.Customer.where((c) => c.email.eq(email)).first()
 }
 
+// El vehículo pertenece (hoy) a ese cliente: evita que alguien use un carro ajeno
+export async function ownVehicle(customerId: string, vehicleId: string) {
+  const v = await db.orm.public.Vehicle.first({ id: vehicleId })
+  return v && v.customerId === customerId ? v : null
+}
+
 // Registro desde la app: vincula la cuenta nueva con su ficha de cliente (mismo correo).
 // Si el taller ya lo tenía, completa el teléfono si faltaba; si no, crea la ficha.
 export async function ensureCustomerForSignup(user: { name: string; email: string }, phone: string | null) {

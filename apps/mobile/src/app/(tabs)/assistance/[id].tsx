@@ -18,6 +18,7 @@ interface AssistanceRequestDetail {
   workOrderId: string | null
   customer: { id: string; name: string; email: string | null; phone: string } | null
   assistanceType: { name: string; description: string | null } | null
+  vehicle: { make: string; model: string; year: number; licensePlate: string } | null
 }
 
 type Action = { label: string; color: string; body: { action?: 'activate'; status?: AssistanceStatus }; destructive?: boolean }
@@ -129,6 +130,10 @@ export default function AssistanceDetailScreen() {
         </View>
 
         <View style={styles.card}>
+          <Text style={styles.fieldLabel}>Vehículo</Text>
+          <Text style={[styles.fieldValue, { marginBottom: 12 }]}>
+            {req.vehicle ? `${req.vehicle.make} ${req.vehicle.model} ${req.vehicle.year} · ${req.vehicle.licensePlate}` : 'No indicado (asignarlo en la orden)'}
+          </Text>
           <Text style={styles.fieldLabel}>Detalle</Text>
           <Text style={styles.fieldValue}>{req.detail}</Text>
           {req.assistanceType?.description && (

@@ -3,6 +3,7 @@ import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 import { db } from '@/src/prisma/db'
 import { parsePaging } from '@/src/lib/paging'
+import { ownVehicle } from '@/src/lib/me'
 import { adminUserIds, hnDateTime, notifyLater } from '@/src/lib/notify'
 
 export async function POST(request: NextRequest) {
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { serviceType, scheduledAt, notes } = body
+  const { serviceType, scheduledAt, notes, vehicleId } = body
 
   if (!serviceType || !scheduledAt) {
     return Response.json({ error: 'serviceType and scheduledAt are required' }, { status: 400 })
@@ -33,9 +34,14 @@ export async function POST(request: NextRequest) {
 
   const customer = customers[0]!
 
+  // Toda cita es para un vehículo del cliente (lo elige o lo registra en la app)
+  if (!vehicleId || !(await ownVehicle(customer.id, String(vehicleId)))) {
+    return Response.json({ error: 'Elegí para qué vehículo es la cita' }, { status: 400 })
+  }
+
   const appointment = await db.orm.public.Appointment.create({
     customerId: customer.id,
-    vehicleId: null,
+    vehicleId: String(vehicleId),
     scheduledAt: new Date(scheduledAt).toISOString(),
     serviceType: String(serviceType).trim(),
     notes: notes ? String(notes).trim() : null,
@@ -65,8 +71,8 @@ export async function GET(request: NextRequest) {
   const base = db.orm.public.Appointment.where((a) => a.customerId.eq(customers[0]!.id))
   const [appointments, agg] = await Promise.all([
     limit == null
-      ? base.orderBy((a) => a.scheduledAt.desc()).all()
-      : base.orderBy((a) => a.scheduledAt.desc()).limit(limit).offset(offset).all(),
+      ? base.include('vehicle').orderBy((a) => a.scheduledAt.desc()).all()
+      : base.include('vehicle').orderBy((a) => a.scheduledAt.desc()).limit(limit).offset(offset).all(),
     base.aggregate((a) => ({ count: a.count() })),
   ])
 

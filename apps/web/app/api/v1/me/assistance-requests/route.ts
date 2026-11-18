@@ -3,6 +3,7 @@ import { auth } from '@/src/lib/auth'
 import { headers } from 'next/headers'
 import { db } from '@/src/prisma/db'
 import { parsePaging } from '@/src/lib/paging'
+import { ownVehicle } from '@/src/lib/me'
 import { adminUserIds, notifyLater } from '@/src/lib/notify'
 
 export async function GET(request: NextRequest) {
@@ -20,8 +21,8 @@ export async function GET(request: NextRequest) {
   const base = db.orm.public.AssistanceRequest.where({ customerId: customers[0]!.id })
   const [requests, agg] = await Promise.all([
     limit == null
-      ? base.include('assistanceType').orderBy((r) => r.createdAt.desc()).all()
-      : base.include('assistanceType').orderBy((r) => r.createdAt.desc()).limit(limit).offset(offset).all(),
+      ? base.include('assistanceType').include('vehicle').orderBy((r) => r.createdAt.desc()).all()
+      : base.include('assistanceType').include('vehicle').orderBy((r) => r.createdAt.desc()).limit(limit).offset(offset).all(),
     base.aggregate((a) => ({ count: a.count() })),
   ])
 
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { assistanceTypeId, detail, phone, latitude, longitude } = body
+  const { assistanceTypeId, detail, phone, latitude, longitude, vehicleId } = body
 
   if (!detail || !phone) {
     return Response.json({ error: 'detail and phone are required' }, { status: 400 })
@@ -56,6 +57,11 @@ export async function POST(request: NextRequest) {
 
   const customer = customers[0]!
 
+  // En una emergencia el vehículo es opcional ("es otro carro"); si viene, tiene que ser suyo
+  if (vehicleId && !(await ownVehicle(customer.id, String(vehicleId)))) {
+    return Response.json({ error: 'Ese vehículo no está en tu cuenta' }, { status: 400 })
+  }
+
   const assistanceRequest = await db.orm.public.AssistanceRequest.create({
     customerId: customer.id,
     assistanceTypeId: assistanceTypeId ? String(assistanceTypeId) : null,
@@ -63,6 +69,7 @@ export async function POST(request: NextRequest) {
     phone: String(phone).trim(),
     latitude: latitude != null ? Number(latitude) : null,
     longitude: longitude != null ? Number(longitude) : null,
+    vehicleId: vehicleId ? String(vehicleId) : null,
   })
 
   const typeName = assistanceRequest.assistanceTypeId

@@ -10,6 +10,7 @@ type AssistanceRequest = {
   latitude: number | null; longitude: number | null; workOrderId: string | null
   customer: { id: string; name: string; email: string | null; phone: string } | null
   assistanceType: { name: string; description: string | null } | null
+  vehicle: { id: string; make: string; model: string; year: number; licensePlate: string } | null
   workOrder: { id: string; status: string; complaint: string } | null
 }
 
@@ -80,6 +81,7 @@ export default function AssistanceRequestDetailPage() {
           <span className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">Teléfono</span>
           <a href={`tel:${req.phone.replace(/[^\d+]/g, '')}`} className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">📞 {req.phone}</a>
         </div>
+        <Row label="Vehículo" value={req.vehicle ? `${req.vehicle.year} ${req.vehicle.make} ${req.vehicle.model} · ${req.vehicle.licensePlate}` : 'No indicado (asignarlo en la orden)'} />
         <Row label="Tipo de asistencia" value={req.assistanceType?.name ?? '—'} />
         {req.assistanceType?.description && <Row label="Descripción del tipo" value={req.assistanceType.description} />}
         <Row label="Detalle" value={req.detail} />

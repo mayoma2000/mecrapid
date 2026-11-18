@@ -389,6 +389,13 @@
                   "kind": "scalar"
                 }
               },
+              "vehicleId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "workOrderId": {
                 "nullable": true,
                 "type": {
@@ -427,6 +434,22 @@
                 },
                 "to": {
                   "model": "Customer",
+                  "namespace": "public"
+                }
+              },
+              "vehicle": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "vehicleId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Vehicle",
                   "namespace": "public"
                 }
               },
@@ -478,6 +501,9 @@
                 },
                 "updatedAt": {
                   "column": "updatedAt"
+                },
+                "vehicleId": {
+                  "column": "vehicleId"
                 },
                 "workOrderId": {
                   "column": "workOrderId"
@@ -2534,6 +2560,21 @@
                   "namespace": "public"
                 }
               },
+              "assistanceRequests": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "vehicleId"
+                  ]
+                },
+                "to": {
+                  "model": "AssistanceRequest",
+                  "namespace": "public"
+                }
+              },
               "customer": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -3459,6 +3500,11 @@
                   "dataType": "pg/timestamptz",
                   "nullable": false
                 },
+                "vehicleId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "workOrderId": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -3522,6 +3568,25 @@
                     "namespaceId": "public",
                     "tableName": "WorkOrder"
                   }
+                },
+                {
+                  "index": {
+                    "name": "AssistanceRequest_vehicleId_idx_e2df58fc"
+                  },
+                  "source": {
+                    "columns": [
+                      "vehicleId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "AssistanceRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Vehicle"
+                  }
                 }
               ],
               "indexes": [
@@ -3539,6 +3604,14 @@
                   ],
                   "name": "AssistanceRequest_customerId_idx_b2a8a46c",
                   "prefix": "AssistanceRequest_customerId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "vehicleId"
+                  ],
+                  "name": "AssistanceRequest_vehicleId_idx_e2df58fc",
+                  "prefix": "AssistanceRequest_vehicleId_idx",
                   "unique": false
                 },
                 {
@@ -5589,7 +5662,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "783f6667740a38e50fcf147739ca1941ca68c582fac699e64fc910cbec2c2d04"
+    "storageHash": "848a1cb0e94a45040418ddcb19077fbba122aed9d1df70cb22f967a26931f0e1"
   },
   "execution": {
     "executionHash": "92a4acbb0b4bf4f1e8ddc4a9c1ff1ff8503dfe5678ce152c1ab25edd137a867d",

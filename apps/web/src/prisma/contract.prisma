@@ -82,6 +82,7 @@ model Vehicle {
   workOrders   WorkOrder[]
   appointments Appointment[]
   ownerships   VehicleOwnership[]
+  assistanceRequests AssistanceRequest[]
   maintenanceReminders MaintenanceReminder[]
 
   createdAt TimestamptzString @default(now())
@@ -252,10 +253,12 @@ model AssistanceRequest {
   longitude         Float?
   status            String  @default("pending")
   workOrderId       String?
+  vehicleId         String?
 
   customer          Customer?        @relation(fields: [customerId], references: [id])
   assistanceType    AssistanceType?  @relation(fields: [assistanceTypeId], references: [id])
   workOrder         WorkOrder?       @relation(fields: [workOrderId], references: [id])
+  vehicle           Vehicle?         @relation(fields: [vehicleId], references: [id])
 
   createdAt         TimestamptzString @default(now())
   updatedAt         temporal.updatedAtString()

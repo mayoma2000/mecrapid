@@ -7,6 +7,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import * as Location from 'expo-location'
 import { useApi } from '../lib/api'
+import { VehiclePicker, NO_VEHICLE } from '../components/VehiclePicker'
 import { useSession } from '../lib/auth-client'
 
 type AssistanceType = { id: string; name: string; description: string | null }
@@ -22,6 +23,7 @@ export default function AssistanceRequestScreen() {
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null)
   const [locLoading, setLocLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [vehicleId, setVehicleId] = useState<string | null>(null)
 
   useEffect(() => {
     void request<{ data: AssistanceType[] }>('/api/v1/assistance-types')
@@ -59,6 +61,7 @@ export default function AssistanceRequestScreen() {
   }
 
   async function handleSubmit() {
+    if (!vehicleId) { Alert.alert('Campo requerido', 'Elegí tu vehículo o tocá "Es otro carro / lo digo después".'); return }
     if (!detail.trim()) { Alert.alert('Campo requerido', 'Describe el problema.'); return }
     if (phoneDigits.length !== 8) { Alert.alert('Teléfono inválido', 'Ingresa exactamente 8 dígitos después del +504.'); return }
 
@@ -69,6 +72,7 @@ export default function AssistanceRequestScreen() {
         method: 'POST',
         body: JSON.stringify({
           assistanceTypeId: selectedTypeId,
+          vehicleId: vehicleId === NO_VEHICLE ? null : vehicleId,
           detail: detail.trim(),
           phone,
           latitude: coords?.latitude ?? null,
@@ -100,6 +104,12 @@ export default function AssistanceRequestScreen() {
             <Text style={styles.title}>Solicitar Asistencia</Text>
             <Text style={styles.subtitle}>El taller llegará a tu ubicación</Text>
           </View>
+        </View>
+
+        {/* Vehículo: en una emergencia puede decirlo después */}
+        <View style={styles.section}>
+          <Text style={styles.label}>¿Qué vehículo?</Text>
+          <VehiclePicker value={vehicleId} onChange={setVehicleId} allowNone />
         </View>
 
         {/* Tipo de asistencia */}

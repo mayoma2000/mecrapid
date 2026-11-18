@@ -28,6 +28,7 @@ export async function GET(_request: NextRequest, ctx: Ctx) {
     .include('customer')
     .include('assistanceType')
     .include('workOrder')
+    .include('vehicle')
     .first()
 
   if (!req) return Response.json({ error: 'Not found' }, { status: 404 })
@@ -60,7 +61,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 
     const workOrder = await db.orm.public.WorkOrder.create({
       customerId,
-      vehicleId: null,
+      vehicleId: existing.vehicleId ?? null,
       complaint: existing.detail,
       notes: `Solicitud de asistencia #${id.slice(0, 8).toUpperCase()}`,
     })

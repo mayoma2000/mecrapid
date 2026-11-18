@@ -8,6 +8,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { useApi } from '../lib/api'
 import { safeDate } from '../lib/date'
+import { VehiclePicker } from '../components/VehiclePicker'
 
 type ServiceType = { id: string; name: string; durationMinutes: number }
 type Appointment = { id: string; scheduledAt: string; serviceType: string; notes: string | null }
@@ -56,6 +57,7 @@ export default function BookAppointmentScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
   const [notes, setNotes] = useState('')
+  const [vehicleId, setVehicleId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   const DAYS = buildDays(21)
@@ -127,6 +129,7 @@ export default function BookAppointmentScreen() {
       : serviceTypes.find((s) => s.id === selectedServiceId)?.name ?? null
 
   async function handleSubmit() {
+    if (!isReschedule && !vehicleId) { Alert.alert('Campo requerido', 'Elegí para qué vehículo es la cita.'); return }
     if (!serviceLabel) { Alert.alert('Campo requerido', 'Selecciona o indica el tipo de servicio.'); return }
     if (!selectedDate) { Alert.alert('Campo requerido', 'Selecciona una fecha.'); return }
     if (!selectedSlot) { Alert.alert('Campo requerido', 'Selecciona un horario.'); return }
@@ -141,6 +144,7 @@ export default function BookAppointmentScreen() {
         method: isReschedule ? 'PATCH' : 'POST',
         body: JSON.stringify({
           serviceType: serviceLabel,
+          ...(isReschedule ? {} : { vehicleId }),
           scheduledAt: scheduledAt.toISOString(),
           notes: notes.trim() || null,
         }),
@@ -183,6 +187,14 @@ export default function BookAppointmentScreen() {
           </View>
         ) : (
           <>
+            {/* Vehículo (al reagendar se mantiene el de la cita) */}
+            {!isReschedule && (
+              <View style={s.section}>
+                <Text style={s.sectionLabel}>¿Para qué vehículo? *</Text>
+                <VehiclePicker value={vehicleId} onChange={setVehicleId} />
+              </View>
+            )}
+
             {/* Tipo de servicio */}
             <View style={s.section}>
               <Text style={s.sectionLabel}>Tipo de servicio *</Text>
