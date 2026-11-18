@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { AppAccountCard, type AppAccount } from './app-account'
 
 type Vehicle = { id: string; make: string; model: string; year: number; licensePlate: string }
-type Customer = { id: string; name: string; phone: string; email: string | null; address: string | null; notes: string | null; vehicles: Vehicle[]; appAccount: AppAccount | null }
+type Customer = { id: string; name: string; phone: string; email: string | null; address: string | null; notes: string | null; vehicles: Vehicle[]; appAccount: AppAccount | null; deletedAt: string | null }
 
 export default function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -50,10 +50,18 @@ export default function CustomerDetailPage() {
     setSaving(false)
   }
 
+  // Eliminar = mover a "Eliminados" (conserva el historial); si ya está eliminado, Restaurar
   async function handleDelete() {
-    if (!confirm(`¿Eliminar a ${customer?.name}?`)) return
-    await fetch(`/api/v1/customers/${id}`, { method: 'DELETE' })
-    router.push('/customers')
+    const restoring = !!customer?.deletedAt
+    if (!restoring && !confirm(`¿Eliminar a ${customer?.name}?\n\nQueda en "Eliminados" con todo su historial y su cuenta de la app se desactiva. Lo podés restaurar cuando quieras.`)) return
+    const res = await fetch(`/api/v1/customers/${id}${restoring ? '/restore' : ''}`, { method: restoring ? 'POST' : 'DELETE' })
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({})) as { error?: string }
+      alert(json.error ?? 'No se pudo completar. Intentá de nuevo.')
+      return
+    }
+    if (restoring) setVersion((v) => v + 1)
+    else router.push('/customers')
   }
 
   if (!customer) return <div className="p-6 text-neutral-400 text-sm">Cargando…</div>
@@ -69,6 +77,13 @@ export default function CustomerDetailPage() {
           </a>
         )}
       </div>
+
+      {customer.deletedAt && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
+          <span>🗃️ Eliminado: se conserva su historial pero no se le pueden crear órdenes ni citas.</span>
+          <button type="button" onClick={() => void handleDelete()} className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700">Restaurar</button>
+        </div>
+      )}
 
       <form onSubmit={(e) => void handleSubmit(e)} className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-5 space-y-4">
         <Field label="Nombre *" value={form.name} onChange={(v) => set('name', v)} required />
@@ -89,9 +104,11 @@ export default function CustomerDetailPage() {
           <button type="submit" disabled={saving} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition-colors">
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
-          <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-500 hover:text-red-700 transition-colors">
-            Eliminar cliente
-          </button>
+          {!customer.deletedAt && (
+            <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-500 hover:text-red-700 transition-colors">
+              Eliminar cliente
+            </button>
+          )}
         </div>
       </form>
 

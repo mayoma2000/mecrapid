@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
 import { bumpVehicleMileage } from '@/src/lib/job-time'
+import { checkActive } from '@/src/lib/soft-delete'
 
 type WorkOrderStatus = 'pending' | 'assigned' | 'in_progress' | 'quality_check' | 'completed' | 'cancelled'
 const ACTIVE_STATUSES: WorkOrderStatus[] = ['assigned', 'in_progress', 'quality_check']
@@ -60,6 +61,9 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     )
   }
+
+  const inactive = await checkActive(String(customerId), String(vehicleId))
+  if (inactive) return Response.json({ error: inactive }, { status: 409 })
 
   if (mechanicId) {
     const mech = await db.orm.public.User.first({ id: String(mechanicId) })

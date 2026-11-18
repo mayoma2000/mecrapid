@@ -4,6 +4,8 @@ import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator, R
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useApi } from '../../../lib/api'
+import { useSession } from '../../../lib/auth-client'
+import { Chip } from '../../../components/ui'
 
 interface Customer {
   id: string
@@ -44,13 +46,17 @@ function CustomerCard({ customer }: { customer: Customer }) {
 
 export default function CustomersScreen() {
   const [search, setSearch] = useState('')
+  // Los eliminados conservan su historial; el admin los ve aparte y los puede restaurar
+  const [showDeleted, setShowDeleted] = useState(false)
   const { request } = useApi()
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin'
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ['customers', search],
+    queryKey: ['customers', search, showDeleted],
     queryFn: () =>
       request<{ data: Customer[]; meta: { total: number } }>(
-        `/api/v1/customers?limit=50${search ? `&search=${encodeURIComponent(search)}` : ''}`,
+        `/api/v1/customers?limit=50${search ? `&search=${encodeURIComponent(search)}` : ''}${showDeleted ? '&deleted=1' : ''}`,
       ),
   })
 
@@ -77,6 +83,12 @@ export default function CustomersScreen() {
             returnKeyType="search"
           />
         </View>
+        {isAdmin && (
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+            <Chip label="Activos" active={!showDeleted} onPress={() => setShowDeleted(false)} />
+            <Chip label="Eliminados" active={showDeleted} onPress={() => setShowDeleted(true)} />
+          </View>
+        )}
       </View>
 
       {isLoading ? (
@@ -100,7 +112,7 @@ export default function CustomersScreen() {
             <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 80 }}>
               <Text style={{ fontSize: 48, marginBottom: 12 }}>👤</Text>
               <Text style={{ color: '#8898AA', fontSize: 15 }}>
-                {search ? 'Sin resultados' : 'Sin clientes aún'}
+                {search ? 'Sin resultados' : showDeleted ? 'No hay clientes eliminados' : 'Sin clientes aún'}
               </Text>
             </View>
           }

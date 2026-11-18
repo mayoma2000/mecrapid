@@ -720,6 +720,20 @@
                   "kind": "scalar"
                 }
               },
+              "deletedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "deletedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "email": {
                 "nullable": true,
                 "type": {
@@ -847,6 +861,12 @@
                 },
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "deletedAt": {
+                  "column": "deletedAt"
+                },
+                "deletedById": {
+                  "column": "deletedById"
                 },
                 "email": {
                   "column": "email"
@@ -2280,6 +2300,13 @@
           },
           "User": {
             "fields": {
+              "banReason": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "banned": {
                 "nullable": true,
                 "type": {
@@ -2499,6 +2526,9 @@
             },
             "storage": {
               "fields": {
+                "banReason": {
+                  "column": "banReason"
+                },
                 "banned": {
                   "column": "banned"
                 },
@@ -2543,6 +2573,20 @@
               },
               "customerId": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "deletedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "deletedById": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -2708,6 +2752,12 @@
                 },
                 "customerId": {
                   "column": "customerId"
+                },
+                "deletedAt": {
+                  "column": "deletedAt"
+                },
+                "deletedById": {
+                  "column": "deletedById"
                 },
                 "id": {
                   "column": "id"
@@ -3793,6 +3843,16 @@
                     "kind": "function"
                   },
                   "nullable": false
+                },
+                "deletedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "deletedById": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
                 },
                 "email": {
                   "codecId": "pg/text@1",
@@ -5032,6 +5092,16 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
+                "deletedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "deletedById": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -5684,6 +5754,11 @@
             },
             "user": {
               "columns": {
+                "banReason": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "banned": {
                   "codecId": "pg/bool@1",
                   "dataType": "pg/bool",
@@ -5765,7 +5840,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "8eddbc3ca21f40548c2e9ac8896bf4a58abc76f6927a1136522f94cbc70f35ba"
+    "storageHash": "e0f11cb8b00a9c9930f5c6f47136d014c742d7597e813c9e6680b39431cd9e0c"
   },
   "execution": {
     "executionHash": "92a4acbb0b4bf4f1e8ddc4a9c1ff1ff8503dfe5678ce152c1ab25edd137a867d",

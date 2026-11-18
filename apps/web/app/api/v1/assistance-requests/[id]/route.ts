@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
 import { customerUserIds, notifyLater, vehicleLabel } from '@/src/lib/notify'
+import { checkActive } from '@/src/lib/soft-delete'
 
 // La asistencia es atención AFUERA del taller (batería, llaves, grúa):
 //   pending ─accept→ en_route ─attend→ attended        (+ cancelled, y reactivar a pending)
@@ -82,6 +83,8 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     if (existing.status === 'cancelled') return Response.json({ error: 'La solicitud está cancelada' }, { status: 409 })
     if (existing.workOrderId) return Response.json({ error: 'Ya tiene una orden de taller', data: { workOrderId: existing.workOrderId } }, { status: 409 })
     if (!existing.customerId) return Response.json({ error: 'La solicitud no tiene cliente' }, { status: 422 })
+    const inactive = await checkActive(existing.customerId, existing.vehicleId)
+    if (inactive) return Response.json({ error: inactive }, { status: 409 })
 
     const workOrder = await db.orm.public.WorkOrder.create({
       customerId: existing.customerId,

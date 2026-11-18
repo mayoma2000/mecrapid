@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
+import { checkActive } from '@/src/lib/soft-delete'
 
 export async function GET(request: NextRequest) {
   const g = await requireRole(STAFF_ROLES)
@@ -44,6 +45,9 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     )
   }
+
+  const inactive = await checkActive(String(customerId), vehicleId ? String(vehicleId) : null)
+  if (inactive) return Response.json({ error: inactive }, { status: 409 })
 
   const appointment = await db.orm.public.Appointment.create({
     customerId: String(customerId),

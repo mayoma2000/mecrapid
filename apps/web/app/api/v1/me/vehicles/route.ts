@@ -13,6 +13,7 @@ export async function GET() {
 
   const vehicles = await db.orm.public.Vehicle
     .where({ customerId: customer.id })
+    .where((v) => v.deletedAt.isNull())
     .include('workOrders', (w) => w.where({ status: 'completed' }).count())
     .orderBy((v) => v.createdAt.asc())
     .all()
@@ -46,7 +47,11 @@ export async function POST(request: NextRequest) {
   const existing = await db.orm.public.Vehicle.first({ licensePlate: plate })
   if (existing) {
     // Ya era suyo: se devuelve el mismo (no se duplica)
-    if (existing.customerId === customerId) return Response.json({ data: existing })
+    if (existing.customerId === customerId) {
+      // Era suyo y el taller lo había eliminado: lo vuelve a registrar
+      if (existing.deletedAt) await db.orm.public.Vehicle.where({ id: existing.id }).update({ deletedAt: null, deletedById: null })
+      return Response.json({ data: { ...existing, deletedAt: null, deletedById: null } })
+    }
     return Response.json(
       { error: `La placa ${plate} ya está registrada en el taller. Pedile al taller que la pase a tu cuenta.` },
       { status: 409 },

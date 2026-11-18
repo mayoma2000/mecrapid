@@ -17,7 +17,7 @@ type Entry = {
   services: { description: string }[]; parts: { name: string; quantity: number }[]
 }
 type History = {
-  vehicle: { make: string; model: string; year: number; licensePlate: string; mileage: number }
+  vehicle: { make: string; model: string; year: number; licensePlate: string; mileage: number; deletedAt: string | null }
   owners: Owner[]; entries: Entry[]; maintenance: Maintenance | null
 }
 type Customer = { id: string; name: string; phone: string }
@@ -64,6 +64,18 @@ export default function StaffVehicleScreen() {
     onError: (e) => Alert.alert('Error', e instanceof Error ? e.message : 'No se pudo cambiar el dueño.'),
   })
 
+  // Eliminar = pasa a "Eliminados" con su historial; si ya está eliminado, se restaura
+  const remove = useMutation({
+    mutationFn: (restore: boolean) =>
+      request(`/api/v1/vehicles/${id}${restore ? '/restore' : ''}`, { method: restore ? 'POST' : 'DELETE' }),
+    onSuccess: (_r, restore) => {
+      void queryClient.invalidateQueries({ queryKey: ['vehicle-history', id] })
+      void queryClient.invalidateQueries({ queryKey: ['customer'] })
+      if (!restore) router.back()
+    },
+    onError: (e) => Alert.alert('No se pudo completar', e instanceof Error ? e.message : 'Intentá de nuevo.'),
+  })
+
   const h = data?.data
   const current = h?.owners.find((o) => !o.endedAt)
 
@@ -92,6 +104,9 @@ export default function StaffVehicleScreen() {
           <View style={styles.card}>
             <Text style={styles.title}>{h.vehicle.make} {h.vehicle.model} {h.vehicle.year}</Text>
             <Text style={styles.sub}>{h.vehicle.licensePlate} · {h.vehicle.mileage.toLocaleString('es-HN')} km</Text>
+            {h.vehicle.deletedAt && (
+              <Text style={{ color: '#B25E09', fontSize: 13, fontWeight: '700', marginTop: 8 }}>🗃️ ELIMINADO: se conserva su historial.</Text>
+            )}
           </View>
 
           <View style={styles.card}>
@@ -161,6 +176,22 @@ export default function StaffVehicleScreen() {
               {e.parts.map((p, i) => <Text key={`p${i}`} style={styles.item}>📦 {p.name}{p.quantity !== 1 ? ` × ${p.quantity}` : ''}</Text>)}
             </TouchableOpacity>
           ))}
+          {isAdmin && (
+            <TouchableOpacity
+              style={{ alignItems: 'center', paddingVertical: 18 }}
+              disabled={remove.isPending}
+              onPress={() => h.vehicle.deletedAt
+                ? remove.mutate(true)
+                : Alert.alert('Eliminar vehículo', 'Queda en "Eliminados" con todo su historial. Lo podés restaurar cuando quieras.', [
+                  { text: 'Cancelar', style: 'cancel' },
+                  { text: 'Eliminar', style: 'destructive', onPress: () => remove.mutate(false) },
+                ])}
+            >
+              <Text style={{ fontSize: 14, fontWeight: '700', color: h.vehicle.deletedAt ? '#5E72E4' : '#F5365C' }}>
+                {remove.isPending ? 'Un momento…' : h.vehicle.deletedAt ? '↩︎ Restaurar vehículo' : 'Eliminar vehículo'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       )}
     </SafeAreaView>

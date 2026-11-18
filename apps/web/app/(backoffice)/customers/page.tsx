@@ -19,33 +19,55 @@ export default function CustomersPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
+  // Activos o eliminados (los eliminados conservan su historial y se pueden restaurar)
+  const [showDeleted, setShowDeleted] = useState(false)
   const router = useRouter()
 
-  const load = useCallback(async (q: string) => {
+  const load = useCallback(async (q: string, deleted: boolean) => {
     setLoading(true)
-    const res = await fetch(`/api/v1/customers?search=${encodeURIComponent(q)}&limit=50`)
+    const res = await fetch(`/api/v1/customers?search=${encodeURIComponent(q)}&limit=50${deleted ? '&deleted=1' : ''}`)
     const json = await res.json() as { data: Customer[] }
     setCustomers(json.data)
     setLoading(false)
   }, [])
 
   useEffect(() => {
-    const t = setTimeout(() => void load(search), 300)
+    const t = setTimeout(() => void load(search, showDeleted), 300)
     return () => clearTimeout(t)
-  }, [search, load])
+  }, [search, showDeleted, load])
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`¿Eliminar a ${name}?`)) return
-    setDeleting(id)
-    await fetch(`/api/v1/customers/${id}`, { method: 'DELETE' })
-    setCustomers((prev) => prev.filter((c) => c.id !== id))
+  // Eliminar = mover a "Eliminados" (no se pierde el historial); Restaurar lo devuelve
+  async function handleToggle(c: Customer) {
+    const restoring = showDeleted
+    if (!restoring && !confirm(`¿Eliminar a ${c.name}?\n\nQueda en "Eliminados" con todo su historial y su cuenta de la app se desactiva. Lo podés restaurar cuando quieras.`)) return
+    setDeleting(c.id)
+    const res = await fetch(`/api/v1/customers/${c.id}${restoring ? '/restore' : ''}`, { method: restoring ? 'POST' : 'DELETE' })
     setDeleting(null)
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({})) as { error?: string }
+      alert(json.error ?? 'No se pudo completar. Intentá de nuevo.')
+      return
+    }
+    setCustomers((prev) => prev.filter((x) => x.id !== c.id))
   }
 
   return (
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Clientes</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Clientes</h1>
+          <div className="flex rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1 text-xs font-semibold">
+            {([false, true] as const).map((d) => (
+              <button
+                key={String(d)}
+                onClick={() => setShowDeleted(d)}
+                className={`px-3 py-1 rounded-lg transition-colors ${showDeleted === d ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-sm' : 'text-neutral-500'}`}
+              >
+                {d ? 'Eliminados' : 'Activos'}
+              </button>
+            ))}
+          </div>
+        </div>
         <Link
           href="/customers/new"
           className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors"
@@ -67,7 +89,7 @@ export default function CustomersPage() {
           <div className="p-8 text-center text-neutral-400 text-sm">Cargando…</div>
         ) : customers.length === 0 ? (
           <div className="p-8 text-center text-neutral-400 text-sm">
-            {search ? 'Sin resultados.' : 'Aún no hay clientes.'}
+            {search ? 'Sin resultados.' : showDeleted ? 'No hay clientes eliminados.' : 'Aún no hay clientes.'}
           </div>
         ) : (
           <table className="w-full text-sm">
@@ -101,11 +123,11 @@ export default function CustomersPage() {
                   </td>
                   <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     <button
-                      onClick={() => void handleDelete(c.id, c.name)}
+                      onClick={() => void handleToggle(c)}
                       disabled={deleting === c.id}
-                      className="text-xs text-red-500 hover:text-red-700 disabled:opacity-40 px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      className={`text-xs disabled:opacity-40 px-2 py-1 rounded-lg transition-colors ${showDeleted ? 'text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' : 'text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20'}`}
                     >
-                      Eliminar
+                      {showDeleted ? 'Restaurar' : 'Eliminar'}
                     </button>
                   </td>
                 </tr>

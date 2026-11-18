@@ -12,6 +12,7 @@ model User {
   role      String?
   phone     String?
   banned    Boolean?
+  banReason String?
 
   assignedOrders WorkOrder[]        @relation("assignedMechanic")
   timeLogs       WorkOrderTimeLog[]
@@ -39,6 +40,9 @@ model Customer {
   email   String?
   address String?
   notes   String?
+  // Eliminado (sin borrar): no aparece en listas ni se le crean órdenes o citas
+  deletedAt   TimestamptzString?
+  deletedById String?
 
   vehicles            Vehicle[]
   workOrders          WorkOrder[]
@@ -78,6 +82,8 @@ model Vehicle {
   vin          String?
   color        String?
   mileage      Int     @default(0)
+  deletedAt    TimestamptzString?
+  deletedById  String?
 
   customer     Customer      @relation(fields: [customerId], references: [id])
   workOrders   WorkOrder[]

@@ -12,6 +12,7 @@ interface CustomerDetail {
   email: string | null
   address: string | null
   notes: string | null
+  deletedAt: string | null
   appAccount: { active: boolean; role: string; lastSeenAt: string | null } | null
   vehicles: {
     id: string
@@ -36,15 +37,17 @@ export default function CustomerDetailScreen() {
   const { data: session } = useSession()
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin'
 
-  // Solo se borran clientes sin historial; el servidor explica por qué si no se puede
+  // Eliminar = pasa a "Eliminados" con todo su historial; si ya está eliminado, se restaura
   const remove = useMutation({
-    mutationFn: () => request(`/api/v1/customers/${id}`, { method: 'DELETE' }),
-    onSuccess: () => {
+    mutationFn: (restore: boolean) =>
+      request(`/api/v1/customers/${id}${restore ? '/restore' : ''}`, { method: restore ? 'POST' : 'DELETE' }),
+    onSuccess: (_r, restore) => {
       void queryClient.invalidateQueries({ queryKey: ['customers'] })
       void queryClient.invalidateQueries({ queryKey: ['customers-count'] })
-      router.back()
+      void queryClient.invalidateQueries({ queryKey: ['customer', id] })
+      if (!restore) router.back()
     },
-    onError: (e) => Alert.alert('No se puede borrar', e instanceof Error ? e.message : 'Intentá de nuevo.'),
+    onError: (e) => Alert.alert('No se pudo completar', e instanceof Error ? e.message : 'Intentá de nuevo.'),
   })
 
   const { data, isLoading } = useQuery({
@@ -176,12 +179,16 @@ export default function CustomerDetailScreen() {
           <TouchableOpacity
             style={{ alignItems: 'center', paddingVertical: 18 }}
             disabled={remove.isPending}
-            onPress={() => Alert.alert('Eliminar cliente', `¿Eliminar a ${customer.name}? Solo se puede si no tiene órdenes, citas ni vehículos.`, [
-              { text: 'Cancelar', style: 'cancel' },
-              { text: 'Eliminar', style: 'destructive', onPress: () => remove.mutate() },
-            ])}
+            onPress={() => customer.deletedAt
+              ? remove.mutate(true)
+              : Alert.alert('Eliminar cliente', `¿Eliminar a ${customer.name}? Queda en "Eliminados" con todo su historial y su cuenta de la app se desactiva. Lo podés restaurar cuando quieras.`, [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Eliminar', style: 'destructive', onPress: () => remove.mutate(false) },
+              ])}
           >
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#F5365C' }}>{remove.isPending ? 'Eliminando…' : 'Eliminar cliente'}</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: customer.deletedAt ? '#5E72E4' : '#F5365C' }}>
+              {remove.isPending ? 'Un momento…' : customer.deletedAt ? '↩︎ Restaurar cliente' : 'Eliminar cliente'}
+            </Text>
           </TouchableOpacity>
         )}
       </ScrollView>

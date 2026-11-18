@@ -49,6 +49,7 @@ export async function sendMaintenanceReminders() {
   if (rules.length === 0) return { vehicles: 0, sent: 0 }
 
   const vehicles = await db.orm.public.Vehicle
+    .where((v) => v.deletedAt.isNull())
     .include('workOrders', (w) => w.where({ status: 'completed' }).include('serviceItems').include('partItems'))
     .include('maintenanceReminders')
     .all()

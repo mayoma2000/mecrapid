@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'8eddbc3ca21f40548c2e9ac8896bf4a58abc76f6927a1136522f94cbc70f35ba'>;
+  StorageHashBase<'e0f11cb8b00a9c9930f5c6f47136d014c742d7597e813c9e6680b39431cd9e0c'>;
 export type ExecutionHash =
   ExecutionHashBase<'92a4acbb0b4bf4f1e8ddc4a9c1ff1ff8503dfe5678ce152c1ab25edd137a867d'>;
 export type ProfileHash =
@@ -281,6 +281,8 @@ export type FieldOutputTypes = {
     readonly Customer: {
       readonly address: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly deletedById: CodecTypes['pg/text@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
@@ -404,6 +406,7 @@ export type FieldOutputTypes = {
       readonly targetId: CodecTypes['pg/text@1']['output'] | null;
     };
     readonly User: {
+      readonly banReason: CodecTypes['pg/text@1']['output'] | null;
       readonly banned: CodecTypes['pg/bool@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
@@ -416,6 +419,8 @@ export type FieldOutputTypes = {
       readonly color: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly customerId: CodecTypes['pg/text@1']['output'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly deletedById: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly licensePlate: CodecTypes['pg/text@1']['output'];
       readonly make: CodecTypes['pg/text@1']['output'];
@@ -520,6 +525,8 @@ export type FieldInputTypes = {
     readonly Customer: {
       readonly address: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly deletedById: CodecTypes['pg/text@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
@@ -643,6 +650,7 @@ export type FieldInputTypes = {
       readonly targetId: CodecTypes['pg/text@1']['input'] | null;
     };
     readonly User: {
+      readonly banReason: CodecTypes['pg/text@1']['input'] | null;
       readonly banned: CodecTypes['pg/bool@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
@@ -655,6 +663,8 @@ export type FieldInputTypes = {
       readonly color: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly customerId: CodecTypes['pg/text@1']['input'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly deletedById: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly licensePlate: CodecTypes['pg/text@1']['input'];
       readonly make: CodecTypes['pg/text@1']['input'];
@@ -753,6 +763,8 @@ export type StorageColumnTypes = {
     readonly Customer: {
       readonly address: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly deletedById: CodecTypes['pg/text@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
@@ -883,6 +895,7 @@ export type StorageColumnTypes = {
     };
     readonly user: {
       readonly banned: CodecTypes['pg/bool@1']['output'] | null;
+      readonly banReason: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
@@ -894,6 +907,8 @@ export type StorageColumnTypes = {
       readonly color: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly customerId: CodecTypes['pg/text@1']['output'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly deletedById: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly licensePlate: CodecTypes['pg/text@1']['output'];
       readonly make: CodecTypes['pg/text@1']['output'];
@@ -992,6 +1007,8 @@ export type StorageColumnInputTypes = {
     readonly Customer: {
       readonly address: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly deletedById: CodecTypes['pg/text@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
@@ -1122,6 +1139,7 @@ export type StorageColumnInputTypes = {
     };
     readonly user: {
       readonly banned: CodecTypes['pg/bool@1']['input'] | null;
+      readonly banReason: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
@@ -1133,6 +1151,8 @@ export type StorageColumnInputTypes = {
       readonly color: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly customerId: CodecTypes['pg/text@1']['input'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly deletedById: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly licensePlate: CodecTypes['pg/text@1']['input'];
       readonly make: CodecTypes['pg/text@1']['input'];
@@ -1249,6 +1269,8 @@ export namespace Models {
   export type public_Customer = {
     address: CodecTypes['pg/text@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    deletedById: CodecTypes['pg/text@1']['output'] | null;
     email: CodecTypes['pg/text@1']['output'] | null;
     id: CodecTypes['pg/text@1']['output'];
     name: CodecTypes['pg/text@1']['output'];
@@ -1412,6 +1434,7 @@ export namespace Models {
     readonly [RelationKeys]?: 'actor' | 'target';
   };
   export type public_User = {
+    banReason: CodecTypes['pg/text@1']['output'] | null;
     banned: CodecTypes['pg/bool@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     email: CodecTypes['pg/text@1']['output'];
@@ -1447,6 +1470,8 @@ export namespace Models {
     color: CodecTypes['pg/text@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     customerId: CodecTypes['pg/text@1']['output'];
+    deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    deletedById: CodecTypes['pg/text@1']['output'] | null;
     id: CodecTypes['pg/text@1']['output'];
     licensePlate: CodecTypes['pg/text@1']['output'];
     make: CodecTypes['pg/text@1']['output'];
@@ -1956,6 +1981,18 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly deletedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly deletedById: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly email: {
@@ -3091,6 +3128,12 @@ type ContractBase = Omit<
             };
             readonly user: {
               columns: {
+                readonly banReason: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly banned: {
                   readonly dataType: 'pg/bool';
                   readonly codecId: 'pg/bool@1';
@@ -3158,6 +3201,18 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly deletedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly deletedById: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly id: {
@@ -4122,6 +4177,17 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                 };
               };
+              readonly deletedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly deletedById: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly email: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -4213,6 +4279,8 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly address: { readonly column: 'address' };
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly deletedAt: { readonly column: 'deletedAt' };
+                readonly deletedById: { readonly column: 'deletedById' };
                 readonly email: { readonly column: 'email' };
                 readonly id: { readonly column: 'id' };
                 readonly name: { readonly column: 'name' };
@@ -5114,6 +5182,10 @@ type ContractBase = Omit<
           };
           readonly User: {
             readonly fields: {
+              readonly banReason: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly banned: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
@@ -5273,6 +5345,7 @@ type ContractBase = Omit<
               readonly table: 'user';
               readonly namespaceId: 'public';
               readonly fields: {
+                readonly banReason: { readonly column: 'banReason' };
                 readonly banned: { readonly column: 'banned' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly email: { readonly column: 'email' };
@@ -5298,6 +5371,17 @@ type ContractBase = Omit<
               };
               readonly customerId: {
                 readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly deletedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly deletedById: {
+                readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly id: {
@@ -5412,6 +5496,8 @@ type ContractBase = Omit<
                 readonly color: { readonly column: 'color' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly customerId: { readonly column: 'customerId' };
+                readonly deletedAt: { readonly column: 'deletedAt' };
+                readonly deletedById: { readonly column: 'deletedById' };
                 readonly id: { readonly column: 'id' };
                 readonly licensePlate: { readonly column: 'licensePlate' };
                 readonly make: { readonly column: 'make' };

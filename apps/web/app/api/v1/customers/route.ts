@@ -12,9 +12,12 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, Number(searchParams.get('page') ?? '1'))
   const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit') ?? '20')))
 
-  const base = search
-    ? db.orm.public.Customer.where((c) => c.name.ilike(`%${search}%`))
-    : db.orm.public.Customer
+  // Por defecto solo activos; ?deleted=1 muestra los eliminados (para restaurarlos)
+  const deleted = searchParams.get('deleted') === '1'
+  const scoped = deleted
+    ? db.orm.public.Customer.where((c) => c.deletedAt.isNotNull())
+    : db.orm.public.Customer.where((c) => c.deletedAt.isNull())
+  const base = search ? scoped.where((c) => c.name.ilike(`%${search}%`)) : scoped
 
   const [customers, agg] = await Promise.all([
     base.orderBy((c) => c.createdAt.desc()).limit(limit).offset((page - 1) * limit).all(),

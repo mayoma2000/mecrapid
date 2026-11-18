@@ -8,7 +8,7 @@ export async function customerForEmail(email: string) {
 // El vehículo pertenece (hoy) a ese cliente: evita que alguien use un carro ajeno
 export async function ownVehicle(customerId: string, vehicleId: string) {
   const v = await db.orm.public.Vehicle.first({ id: vehicleId })
-  return v && v.customerId === customerId ? v : null
+  return v && v.customerId === customerId && !v.deletedAt ? v : null
 }
 
 // Registro desde la app: vincula la cuenta nueva con su ficha de cliente (mismo correo).

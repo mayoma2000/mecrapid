@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { db } from '@/src/prisma/db'
 import { requireRole, STAFF_ROLES } from '@/src/lib/authz'
+import { setVehicleDeleted } from '@/src/lib/soft-delete'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -49,9 +50,9 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 export async function DELETE(_req: NextRequest, ctx: Ctx) {
   const g = await requireRole(['admin'])
   if (!g.ok) return g.response
+  // No se borra: queda como eliminado con su historial y se puede restaurar
   const { id } = await ctx.params
-  const existing = await db.orm.public.Vehicle.first({ id })
-  if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
-  await db.orm.public.Vehicle.where({ id }).delete()
-  return new Response(null, { status: 204 })
+  const result = await setVehicleDeleted(id, g.session.user.id)
+  if (!result.ok) return Response.json({ error: result.error }, { status: result.status })
+  return Response.json({ data: { deleted: true } })
 }

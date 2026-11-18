@@ -52,6 +52,7 @@ export async function getVehicleHistory(vehicleId: string, viewer: HistoryViewer
     vehicle: {
       id: vehicle.id, make: vehicle.make, model: vehicle.model, year: vehicle.year,
       licensePlate: vehicle.licensePlate, vin: vehicle.vin, color: vehicle.color, mileage: vehicle.mileage,
+      deletedAt: isStaff ? vehicle.deletedAt : null,
     },
     owners: isStaff
       ? ownerships.map((x) => ({
@@ -75,9 +76,11 @@ export async function transferVehicle(vehicleId: string, newCustomerId: string, 
   return db.transaction(async (tx) => {
     const vehicle = await tx.orm.public.Vehicle.where({ id: vehicleId }).forUpdate().first()
     if (!vehicle) return { ok: false as const, status: 404, error: 'Vehículo no encontrado' }
+    if (vehicle.deletedAt) return { ok: false as const, status: 409, error: 'El vehículo está eliminado: restauralo primero' }
     if (vehicle.customerId === newCustomerId) return { ok: false as const, status: 400, error: 'Ese cliente ya es el dueño' }
     const customer = await tx.orm.public.Customer.first({ id: newCustomerId })
     if (!customer) return { ok: false as const, status: 400, error: 'Cliente no encontrado' }
+    if (customer.deletedAt) return { ok: false as const, status: 409, error: 'Ese cliente está eliminado' }
 
     const now = new Date().toISOString()
     await tx.orm.public.VehicleOwnership

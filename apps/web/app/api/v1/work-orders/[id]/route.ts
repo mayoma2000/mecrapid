@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   if (vehicleId !== undefined) {
     if (!vehicleId) return Response.json({ error: 'Elegí un vehículo' }, { status: 400 })
     const vehicle = await db.orm.public.Vehicle.first({ id: String(vehicleId) })
-    if (!vehicle || vehicle.customerId !== existing.customerId) {
+    if (!vehicle || vehicle.customerId !== existing.customerId || vehicle.deletedAt) {
       return Response.json({ error: 'Ese vehículo no es del cliente de la orden' }, { status: 400 })
     }
     updates['vehicleId'] = vehicle.id

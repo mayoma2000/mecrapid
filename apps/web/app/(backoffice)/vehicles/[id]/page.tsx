@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { HistoryPanel } from './history-panel'
 
-type Vehicle = { id: string; make: string; model: string; year: number; licensePlate: string; vin: string | null; color: string | null; mileage: number; customer: { id: string; name: string } }
+type Vehicle = { id: string; make: string; model: string; year: number; licensePlate: string; vin: string | null; color: string | null; mileage: number; customer: { id: string; name: string }; deletedAt: string | null }
 
 export default function VehicleDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -41,10 +41,18 @@ export default function VehicleDetailPage() {
     setSaving(false)
   }
 
+  // Eliminar = mover a "Eliminados" (conserva el historial); si ya está eliminado, Restaurar
   async function handleDelete() {
-    if (!confirm('¿Eliminar este vehículo?')) return
-    await fetch(`/api/v1/vehicles/${id}`, { method: 'DELETE' })
-    router.push('/vehicles')
+    const restoring = !!vehicle?.deletedAt
+    if (!restoring && !confirm('¿Eliminar este vehículo?\n\nQueda en "Eliminados" con todo su historial. Lo podés restaurar cuando quieras.')) return
+    const res = await fetch(`/api/v1/vehicles/${id}${restoring ? '/restore' : ''}`, { method: restoring ? 'POST' : 'DELETE' })
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({})) as { error?: string }
+      alert(json.error ?? 'No se pudo completar. Intentá de nuevo.')
+      return
+    }
+    if (restoring) setVersion((v) => v + 1)
+    else router.push('/vehicles')
   }
 
   const cls = 'w-full border border-neutral-300 dark:border-neutral-700 rounded-xl px-4 py-2.5 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -62,6 +70,13 @@ export default function VehicleDetailPage() {
           </p>
         </div>
       </div>
+
+      {vehicle.deletedAt && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
+          <span>🗃️ Eliminado: se conserva su historial pero no se le pueden crear órdenes ni citas.</span>
+          <button type="button" onClick={() => void handleDelete()} className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700">Restaurar</button>
+        </div>
+      )}
 
       <form onSubmit={(e) => void handleSubmit(e)} className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-5 space-y-4">
         <div className="grid grid-cols-2 gap-3">
@@ -106,9 +121,11 @@ export default function VehicleDetailPage() {
           <button type="submit" disabled={saving} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition-colors">
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
-          <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-500 hover:text-red-700 transition-colors">
-            Eliminar vehículo
-          </button>
+          {!vehicle.deletedAt && (
+            <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-500 hover:text-red-700 transition-colors">
+              Eliminar vehículo
+            </button>
+          )}
         </div>
       </form>
 
